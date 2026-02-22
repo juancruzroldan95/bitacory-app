@@ -1,11 +1,17 @@
-import { Button } from "@/components/ui/button"
+import { useRoutes } from "react-router";
+import routes from "./routes";
+import { ThemeProvider } from "@/contexts/ThemeProvider";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "sonner";
 
-function App() {
+export default function App() {
+  const content = useRoutes(routes);
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center">
-      <Button>Click me</Button>
-    </div>
-  )
+    <ThemeProvider defaultTheme="system" storageKey="bitacory-theme">
+      <TooltipProvider>
+        {content}
+        <Toaster richColors />
+      </TooltipProvider>
+    </ThemeProvider>
+  );
 }
-
-export default App
