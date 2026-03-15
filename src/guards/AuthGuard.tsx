@@ -9,9 +9,6 @@ interface AuthGuardProps {
 const AuthGuard = ({ children }: AuthGuardProps) => {
   const { isAuthenticated, isInitialized } = useAuth();
 
-  console.log("[AuthGuard] isInitialized", isInitialized);
-  console.log("[AuthGuard] isAuthenticated", isAuthenticated);
-
   const { search } = useLocation();
   const hasOAuthCode = new URLSearchParams(search).has("code");
 

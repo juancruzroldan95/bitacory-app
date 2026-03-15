@@ -1,4 +1,4 @@
-import { SignInForm } from "@/components/chat/SignInForm";
+import { SignInForm } from "@/components/SignInForm";
 
 export default function SignInPage() {
   return (

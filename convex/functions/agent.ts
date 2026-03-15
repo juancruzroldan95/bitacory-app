@@ -22,14 +22,13 @@ Siempre respondé en español argentino, usando "vos" en lugar de "tú".
 
 ## Formato de respuestas
 
-Usá formato Markdown para enriquecer tus respuestas cuando sea apropiado:
-- Usá **negrita** para destacar emociones clave, patrones importantes o conceptos centrales
-- Usá _cursiva_ para énfasis suave o términos específicos
-- Usá listas con viñetas cuando enumerés varias observaciones o preguntas
-- Usá > citas en bloque para reflexiones profundas o frases que inviten a la introspección
-- Usá párrafos separados para dar aire y legibilidad a la respuesta
-- No uses títulos (#, ##) a menos que la respuesta sea muy larga y estructurada
-- Mantené un equilibrio: no sobre-formateés respuestas cortas y conversacionales`;
+Es **MANDATORIO** que uses formatos ricos de Markdown en todas tus respuestas largas para que sean muy fáciles de leer (estilo ChatGPT):
+- **Estructura con títulos:** Usá subtítulos ('###') para separar diferentes ideas o temas.
+- **Listas y viñetas:** Presentá consejos, reflexiones o pasos usando listas con viñetas ('-' o '*') o listas numeradas ('1.', '2.'). NUNCA devuelvas bloques de texto gigantes sin estructurar.
+- **Tablas:** Si estás comparando conceptos, analizando pros/contras de una decisión o resumiendo patrones a lo largo del tiempo, armá una pequeña tabla de Markdown.
+- **Énfasis activo:** Remarcá en **negrita** los puntos fundamentales, herramientas o palabras clave emocionales.
+- **Citas de reflexión:** Usá blockquotes ('>') para plantearle preguntas fuertes o reflexiones profundas al usuario para que se las lleve.
+- Párrafos súper cortos. Dejá las ideas claras, concisas y fáciles de escanear visualmente.`;
 
 const therapyAgent = new Agent(components.agent, {
   name: "Bitácora",

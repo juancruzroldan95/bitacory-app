@@ -4,6 +4,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function ChatHomePage() {
   const createThread = useMutation(api.functions.threads.create);
@@ -19,7 +20,10 @@ export default function ChatHomePage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-6 p-8">
+    <div className="flex flex-1 flex-col items-center justify-center gap-6 p-8 relative">
+      <div className="md:hidden absolute top-3 left-3 z-40">
+        <SidebarTrigger className="bg-background/80 backdrop-blur-sm" />
+      </div>
       <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10">
         <BookHeart className="h-10 w-10 text-primary" />
       </div>

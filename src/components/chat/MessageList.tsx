@@ -6,7 +6,7 @@ import { Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useThreadMessages, useSmoothText } from "@convex-dev/agent/react";
+import { useUIMessages, useSmoothText } from "@convex-dev/agent/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
@@ -107,7 +107,7 @@ function AssistantMessage({
 }
 
 export function MessageList({ threadId, messagesEndRef }: MessageListProps) {
-  const { results, status } = useThreadMessages(
+  const { results, status } = useUIMessages(
     api.functions.messages.list,
     { threadId },
     { initialNumItems: 100, stream: true }
@@ -118,15 +118,16 @@ export function MessageList({ threadId, messagesEndRef }: MessageListProps) {
   const visibleMessages = messages.filter(
     (m) => {
       if (m.status === "failed") return false;
-      return (m.content ?? "").trim() !== "" || m.streaming;
+      return (m.text ?? "").trim() !== "" || m.status === "streaming";
     }
   );
 
-  const isAgentStreaming = visibleMessages.some((m) => m.streaming && m.role === "assistant");
+  const isAgentStreaming = visibleMessages.some((m) => m.status === "streaming" && m.role === "assistant");
+  const lastMessageIsUser = visibleMessages.length > 0 && visibleMessages[visibleMessages.length - 1].role === "user";
   const hasPendingAssistant = visibleMessages.some(
-    (m) => m.role === "assistant" && (m.status === "pending" || m.streaming)
+    (m) => m.role === "assistant" && (m.status === "pending" || m.status === "streaming")
   );
-  const showTypingIndicator = hasPendingAssistant && !isAgentStreaming;
+  const showTypingIndicator = (hasPendingAssistant || lastMessageIsUser) && !isAgentStreaming;
 
   if (isLoading) {
     return null;
@@ -136,7 +137,7 @@ export function MessageList({ threadId, messagesEndRef }: MessageListProps) {
     <div className="mx-auto max-w-3xl px-4 py-8 space-y-6">
       {visibleMessages.map((message) => {
         const role = message.role;
-        const content = message.content ?? "";
+        const content = message.text ?? "";
 
         if (role === "user") {
           return (
@@ -159,7 +160,7 @@ export function MessageList({ threadId, messagesEndRef }: MessageListProps) {
               key={message.key}
               className="w-full text-sm text-foreground animate-in fade-in slide-in-from-bottom-2 duration-500"
             >
-              <AssistantMessage content={content} isStreaming={!!message.streaming} />
+              <AssistantMessage content={content} isStreaming={message.status === "streaming"} />
             </div>
           );
         }

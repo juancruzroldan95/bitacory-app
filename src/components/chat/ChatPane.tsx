@@ -3,12 +3,20 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { MessageList } from "./MessageList";
-import { Send, ArrowDown, BookOpen } from "lucide-react";
+import { ChatInput } from "./ChatInput";
+import { ArrowDown, BookOpen, MoreVertical, Trash } from "lucide-react";
 import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface ChatPaneProps {
   threadId: Id<"threads">;
@@ -78,7 +86,27 @@ export function ChatPane({ threadId }: ChatPaneProps) {
   }
 
   return (
-    <div className="flex flex-1 flex-col min-h-0">
+    <div className="flex flex-1 flex-col min-h-0 bg-background relative">
+      <header className="flex h-14 items-center justify-between border-b px-4 shrink-0 bg-background/95 backdrop-blur z-10">
+        <div className="flex items-center gap-2">
+          <SidebarTrigger className="md:hidden -ml-2 text-muted-foreground hover:text-foreground" />
+          <h2 className="text-lg font-semibold text-foreground/90"></h2>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer">
+              <Trash className="mr-2 h-4 w-4" />
+              Eliminar sesión
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </header>
+
       {thread?.summary && (
         <div className="border-b border-border bg-muted/30 px-4 py-3 shrink-0">
           <div className="mx-auto max-w-3xl">
@@ -106,8 +134,8 @@ export function ChatPane({ threadId }: ChatPaneProps) {
         </div>
       )}
 
-      <div className="relative flex-1 min-h-0">
-        <div ref={viewportRef} className="h-full overflow-y-auto pb-36">
+      <div ref={viewportRef} className="flex-1 min-h-0 overflow-y-auto">
+        <div className="h-full pb-4">
           {thread?.agentThreadId ? (
             <MessageList
               threadId={threadId}
@@ -127,47 +155,25 @@ export function ChatPane({ threadId }: ChatPaneProps) {
             </div>
           )}
         </div>
-
-        {showScrollButton && (
-          <Button
-            variant="secondary"
-            size="icon"
-            onClick={scrollToBottom}
-            className="absolute bottom-36 right-6 rounded-full shadow-lg"
-          >
-            <ArrowDown className="h-4 w-4" />
-          </Button>
-        )}
-
-        <div className="pointer-events-none absolute bottom-0 left-0 right-0 px-4 pb-6 pt-16 bg-gradient-to-t from-background via-background/90 to-transparent">
-          <div className="pointer-events-auto mx-auto max-w-3xl">
-            <div className="flex gap-3 rounded-2xl border border-border bg-background/80 backdrop-blur-sm px-3 py-2 shadow-lg ring-1 ring-black/5">
-              <Textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                }}
-                placeholder="Escribí lo que quieras..."
-                disabled={isSending}
-                className="min-h-8 max-h-40 resize-none border-0 bg-transparent dark:bg-transparent shadow-none focus-visible:ring-0 px-1 py-1.5 text-sm"
-                rows={1}
-              />
-              <Button
-                onClick={handleSend}
-                disabled={!input.trim() || isSending}
-                size="icon"
-                className="shrink-0 self-end mb-0.5 rounded-xl"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
       </div>
+
+      {showScrollButton && (
+        <Button
+          variant="secondary"
+          size="icon"
+          onClick={scrollToBottom}
+          className="cursor-pointer absolute bottom-24 left-1/2 -translate-x-1/2 rounded-full shadow-lg z-10"
+        >
+          <ArrowDown className="h-4 w-4" />
+        </Button>
+      )}
+
+      <ChatInput 
+        input={input} 
+        setInput={setInput} 
+        handleSend={handleSend} 
+        isSending={isSending} 
+      />
     </div>
   );
 }

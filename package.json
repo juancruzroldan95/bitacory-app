@@ -17,6 +17,7 @@
     "@convex-dev/agent": "^0.3.2",
     "@convex-dev/auth": "^0.0.90",
     "@convex-dev/rag": "^0.7.1",
+    "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

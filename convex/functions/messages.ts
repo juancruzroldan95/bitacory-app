@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { listMessages, saveMessage, syncStreams, vStreamArgs } from "@convex-dev/agent";
+import { listMessages, saveMessage, syncStreams, vStreamArgs, listUIMessages } from "@convex-dev/agent";
 import { components, internal } from "../_generated/api";
 import type { MessageDoc } from "@convex-dev/agent";
 import { paginationOptsValidator } from "convex/server";
@@ -17,19 +17,6 @@ const messageReturnType = v.object({
     v.literal("failed")
   ),
 });
-
-function extractTextContent(doc: MessageDoc): string {
-  const content = doc.message?.content;
-  if (!content) return "";
-  if (typeof content === "string") return content;
-  if (Array.isArray(content)) {
-    return content
-      .filter((p: { type: string }) => p.type === "text")
-      .map((p: { type: string; [key: string]: unknown }) => (p as { type: "text"; text: string }).text)
-      .join("");
-  }
-  return "";
-}
 
 export const list = query({
   args: {
@@ -48,9 +35,8 @@ export const list = query({
       return { page: [], isDone: true, continueCursor: "", streams: undefined };
     }
 
-    const result = await listMessages(ctx, components.agent, {
+    const paginated = await listUIMessages(ctx, components.agent, {
       threadId: thread.agentThreadId,
-      excludeToolMessages: true,
       paginationOpts,
     });
 
@@ -59,21 +45,7 @@ export const list = query({
       streamArgs,
     });
 
-    const page = result.page
-      .filter(
-        (doc) => doc.message?.role === "user" || doc.message?.role === "assistant"
-      )
-      .map((doc) => ({
-        _id: doc._id,
-        _creationTime: doc._creationTime,
-        role: (doc.message?.role ?? "user") as "user" | "assistant",
-        content: extractTextContent(doc),
-        status: doc.status,
-        order: doc.order,
-        stepOrder: doc.stepOrder,
-      }));
-
-    return { ...result, page, streams };
+    return { ...paginated, streams };
   },
 });
 
