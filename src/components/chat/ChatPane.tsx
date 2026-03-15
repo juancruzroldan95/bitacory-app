@@ -151,9 +151,9 @@ export function ChatPane({ threadId }: ChatPaneProps) {
                     handleSend();
                   }
                 }}
-                placeholder="Escribí lo que querés procesar hoy..."
+                placeholder="Escribí lo que quieras..."
                 disabled={isSending}
-                className="min-h-8 max-h-40 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 px-1 py-1.5 text-sm"
+                className="min-h-8 max-h-40 resize-none border-0 bg-transparent dark:bg-transparent shadow-none focus-visible:ring-0 px-1 py-1.5 text-sm"
                 rows={1}
               />
               <Button

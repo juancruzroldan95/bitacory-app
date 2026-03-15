@@ -10,7 +10,7 @@ export default function AppLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <aside className="hidden md:flex md:w-72 md:flex-col border-r border-border bg-muted/40">
+      <aside className="hidden md:flex md:w-72 md:flex-col border-r border-border bg-sidebar">
         <Sidebar onNavigate={() => {}} />
       </aside>
 
@@ -29,7 +29,7 @@ export default function AppLayout() {
         </SheetContent>
       </Sheet>
 
-      <main className="flex flex-1 flex-col overflow-hidden bg-muted/20">
+      <main className="flex flex-1 flex-col overflow-hidden bg-background">
         <Outlet />
       </main>
     </div>

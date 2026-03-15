@@ -1,7 +1,7 @@
 "use node";
 
 import { Agent } from "@convex-dev/agent";
-import { groq } from "@ai-sdk/groq";
+import { openai } from "@ai-sdk/openai";
 import { components } from "../_generated/api";
 import { internalAction } from "../_generated/server";
 import { v } from "convex/values";
@@ -18,7 +18,7 @@ Tu forma de trabajar:
 
 Recordá que no sos un terapeuta ni podés reemplazar la ayuda profesional, pero sí podés ser un espacio seguro para reflexionar y procesar. Si detectás señales de crisis o riesgo, siempre recomendá buscar ayuda profesional.
 
-Siempre respondé en español rioplatense, usando "vos" en lugar de "tú".
+Siempre respondé en español argentino, usando "vos" en lugar de "tú".
 
 ## Formato de respuestas
 
@@ -33,7 +33,7 @@ Usá formato Markdown para enriquecer tus respuestas cuando sea apropiado:
 
 const therapyAgent = new Agent(components.agent, {
   name: "Bitácora",
-  languageModel: groq("llama-3.3-70b-versatile"),
+  languageModel: openai.chat("gpt-4o-mini"),
   instructions: THERAPY_INSTRUCTIONS,
 });
 

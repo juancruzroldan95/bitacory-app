@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
+import { useNavigate } from "react-router";
 import { useTheme } from "@/hooks/useTheme";
 import { api } from "@/convex/_generated/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -34,6 +35,7 @@ function getResolvedTheme(theme: string): "dark" | "light" {
 export function NavUser() {
   const profile = useQuery(api.functions.profiles.get);
   const { signOut } = useAuthActions();
+  const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -47,7 +49,7 @@ export function NavUser() {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-muted transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <button className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-sidebar-accent/50 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <Avatar className="h-8 w-8 rounded-lg shrink-0">
               <AvatarImage src={avatarUrl} alt={displayName} />
               <AvatarFallback className="rounded-lg text-xs">
@@ -101,7 +103,7 @@ export function NavUser() {
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="text-destructive focus:text-destructive"
-            onClick={() => void signOut()}
+            onClick={() => void signOut().then(() => navigate("/auth/sign-in", { replace: true }))}
           >
             <LogOut className="mr-2 h-4 w-4" />
             Cerrar sesión

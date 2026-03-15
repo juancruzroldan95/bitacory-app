@@ -110,7 +110,7 @@ export function Sidebar({ onNavigate }: SidebarProps) {
       <div className="p-3">
         <div className="flex items-center gap-2 px-1 py-2 mb-2">
           <BookOpen className="h-4 w-4 text-primary" />
-          <span className="font-semibold text-sm">Bitácora</span>
+          <span className="font-semibold text-sm">Bitacory</span>
         </div>
         <Button
           onClick={handleNewSession}
@@ -165,8 +165,8 @@ export function Sidebar({ onNavigate }: SidebarProps) {
                 key={thread._id}
                 className={`group relative mb-0.5 rounded-lg transition-colors ${
                   currentThreadId === thread._id
-                    ? "bg-muted"
-                    : "hover:bg-muted/50"
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                    : "hover:bg-sidebar-accent/50 text-sidebar-foreground"
                 }`}
               >
                 {editingId === thread._id ? (

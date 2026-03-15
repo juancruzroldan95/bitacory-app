@@ -12,7 +12,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ai-sdk/groq": "^2.0.35",
     "@ai-sdk/openai": "^2.0.92",
     "@auth/core": "^0.37.0",
     "@convex-dev/agent": "^0.3.2",
