@@ -1,22 +1,9 @@
 import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { listMessages, saveMessage, syncStreams, vStreamArgs, listUIMessages } from "@convex-dev/agent";
+import { saveMessage, syncStreams, vStreamArgs, listUIMessages } from "@convex-dev/agent";
 import { components, internal } from "../_generated/api";
-import type { MessageDoc } from "@convex-dev/agent";
 import { paginationOptsValidator } from "convex/server";
-
-const messageReturnType = v.object({
-  _id: v.string(),
-  _creationTime: v.number(),
-  role: v.union(v.literal("user"), v.literal("assistant")),
-  content: v.string(),
-  status: v.union(
-    v.literal("pending"),
-    v.literal("success"),
-    v.literal("failed")
-  ),
-});
 
 export const list = query({
   args: {
