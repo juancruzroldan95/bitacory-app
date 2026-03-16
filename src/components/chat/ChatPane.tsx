@@ -136,24 +136,11 @@ export function ChatPane({ threadId }: ChatPaneProps) {
 
       <div ref={viewportRef} className="flex-1 min-h-0 overflow-y-auto">
         <div className="h-full pb-4">
-          {thread?.agentThreadId ? (
-            <MessageList
-              threadId={threadId}
-              agentThreadId={thread.agentThreadId}
-              messagesEndRef={messagesEndRef}
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center">
-              <div className="text-center space-y-3 max-w-sm px-4">
-                <p className="text-muted-foreground">
-                  Esta es tu sesión de bitácora. Contá lo que quieras procesar hoy.
-                </p>
-                <p className="text-xs text-muted-foreground/60">
-                  Podés compartir lo que hablaste con tu terapeuta, cómo te sentís, o cualquier pensamiento que quieras explorar.
-                </p>
-              </div>
-            </div>
-          )}
+          <MessageList
+            threadId={threadId}
+            agentThreadId={thread?.agentThreadId}
+            messagesEndRef={messagesEndRef}
+          />
         </div>
       </div>
 

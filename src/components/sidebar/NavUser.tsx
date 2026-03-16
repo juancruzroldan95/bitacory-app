@@ -60,6 +60,11 @@ export function NavUser() {
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight min-w-0">
               <span className="truncate font-medium">{displayName}</span>
+              {profile?.email && (
+                <span className="truncate text-xs text-muted-foreground">
+                  {profile.email}
+                </span>
+              )}
             </div>
             <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 text-muted-foreground" />
           </button>
@@ -80,6 +85,11 @@ export function NavUser() {
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight min-w-0">
                 <span className="truncate font-medium">{displayName}</span>
+                {profile?.email && (
+                  <span className="truncate text-xs text-muted-foreground">
+                    {profile.email}
+                  </span>
+                )}
               </div>
             </div>
           </DropdownMenuLabel>

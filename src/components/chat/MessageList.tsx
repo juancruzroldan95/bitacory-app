@@ -133,6 +133,21 @@ export function MessageList({ threadId, messagesEndRef }: MessageListProps) {
     return null;
   }
 
+  if (visibleMessages.length === 0) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-center space-y-3 max-w-sm px-4">
+          <p className="text-muted-foreground">
+            Este es tu espacio personal. Contá lo que quieras procesar hoy.
+          </p>
+          <p className="text-xs text-muted-foreground/60">
+            Podés compartir lo que hablaste con tu psicólogo/a, cómo te sentís, o cualquier pensamiento que quieras explorar.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 space-y-6">
       {visibleMessages.map((message) => {

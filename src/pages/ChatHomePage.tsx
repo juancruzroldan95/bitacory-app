@@ -29,7 +29,7 @@ export default function ChatHomePage() {
       </div>
       <div className="text-center space-y-3 max-w-md">
         <h2 className="text-2xl font-semibold tracking-tight">
-          Bienvenido a Bitácora
+          Bienvenido a Bitacory
         </h2>
         <p className="text-muted-foreground">
           Tu espacio para procesar pensamientos, emociones y experiencias de tus sesiones de terapia.

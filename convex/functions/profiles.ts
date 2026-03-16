@@ -10,22 +10,32 @@ export const get = query({
       return null;
     }
 
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      return null;
+    }
+
     const profile = await ctx.db
       .query("profiles")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .first();
 
-    if (!profile) {
-      return null;
-    }
+    let avatarUrl = user.image ?? null;
+    // Auth users might have 'name' or 'email'
+    let displayName = user.name ?? user.email ?? "Usuario";
 
-    let avatarUrl = null;
-    if (profile.avatarId) {
-      avatarUrl = await ctx.storage.getUrl(profile.avatarId);
+    if (profile) {
+      if (profile.displayName) displayName = profile.displayName;
+      if (profile.avatarId) {
+        avatarUrl = await ctx.storage.getUrl(profile.avatarId);
+      }
     }
 
     return {
-      ...profile,
+      ...(profile ?? {}),
+      userId,
+      email: user.email as string | undefined,
+      displayName,
       avatarUrl,
     };
   },
