@@ -38,101 +38,85 @@ function GoogleIcon({ className }: { className?: string }) {
 
 export function SignInForm() {
   const { signIn } = useAuthActions();
-  const [flow, setFlow] = useState<"signIn" | "signUp">("signIn");
   const [submitting, setSubmitting] = useState(false);
+  const [linkSent, setLinkSent] = useState(false);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>
-          {flow === "signIn" ? "Iniciar sesión" : "Crear cuenta"}
-        </CardTitle>
+        <CardTitle>Iniciar sesión</CardTitle>
         <CardDescription>
-          {flow === "signIn"
-            ? "Ingresá tus credenciales para continuar"
-            : "Completá tus datos para empezar"}
+          Ingresá a tu cuenta
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Button
-          variant="outline"
-          className="w-full gap-2"
-          onClick={() => void signIn("google")}
-        >
-          <GoogleIcon className="h-4 w-4" />
-          Continuar con Google
-        </Button>
-
-        <div className="flex items-center gap-3">
-          <Separator className="flex-1" />
-          <span className="text-xs text-muted-foreground">o</span>
-          <Separator className="flex-1" />
-        </div>
-
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            setSubmitting(true);
-            const formData = new FormData(e.target as HTMLFormElement);
-            formData.set("flow", flow);
-            void signIn("password", formData).catch((error) => {
-              let toastTitle = "";
-              if (error.message.includes("Invalid password")) {
-                toastTitle = "Contraseña incorrecta. Intentá de nuevo.";
-              } else {
-                toastTitle =
-                  flow === "signIn"
-                    ? "No se pudo iniciar sesión. ¿Querías registrarte?"
-                    : "No se pudo crear la cuenta. ¿Ya tenés una?";
-              }
-              toast.error(toastTitle);
-              setSubmitting(false);
-            });
-          }}
-        >
-          <div className="space-y-2">
-            <Label htmlFor="email">Correo electrónico</Label>
-            <Input
-              id="email"
-              type="email"
-              name="email"
-              placeholder="vos@ejemplo.com"
-              required
-              autoComplete="email"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
-            <Input
-              id="password"
-              type="password"
-              name="password"
-              placeholder="Ingresá tu contraseña"
-              required
-              autoComplete={
-                flow === "signIn" ? "current-password" : "new-password"
-              }
-            />
-          </div>
-          <Button className="w-full" type="submit" disabled={submitting}>
-            {flow === "signIn" ? "Iniciar sesión" : "Registrarse"}
-          </Button>
-          <p className="text-center text-sm text-muted-foreground">
-            {flow === "signIn"
-              ? "¿No tenés cuenta? "
-              : "¿Ya tenés una cuenta? "}
-            <button
-              type="button"
-              className="font-medium text-primary hover:underline cursor-pointer"
-              onClick={() =>
-                setFlow(flow === "signIn" ? "signUp" : "signIn")
-              }
+        {linkSent ? (
+          <div className="text-center space-y-4 py-4">
+            <p className="text-sm text-foreground">
+              ¡Revisá tu correo!
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Te enviamos un link mágico para iniciar sesión. Hacé clic en él para acceder a tu cuenta.
+            </p>
+            <Button
+              variant="outline"
+              className="w-full mt-4"
+              onClick={() => setLinkSent(false)}
             >
-              {flow === "signIn" ? "Registrate acá" : "Iniciá sesión"}
-            </button>
-          </p>
-        </form>
+              Usar otro correo
+            </Button>
+          </div>
+        ) : (
+          <>
+            <Button
+              variant="outline"
+              className="w-full gap-2"
+              onClick={() => void signIn("google")}
+            >
+              <GoogleIcon className="h-4 w-4" />
+              Continuar con Google
+            </Button>
+
+            <div className="flex items-center gap-3">
+              <Separator className="flex-1" />
+              <span className="text-xs text-muted-foreground">o con tu email</span>
+              <Separator className="flex-1" />
+            </div>
+
+            <form
+              className="space-y-4"
+              onSubmit={(e) => {
+                e.preventDefault();
+                setSubmitting(true);
+                const formData = new FormData(e.currentTarget);
+                signIn("resend", formData)
+                  .then(() => {
+                    setLinkSent(true);
+                    toast.success("Link enviado exitosamente");
+                  })
+                  .catch(() => {
+                    toast.error("No se pudo enviar el link. Por favor, intentá de nuevo.");
+                  })
+                  .finally(() => setSubmitting(false));
+              }}
+            >
+              <div className="space-y-2">
+                <Label htmlFor="email">Correo electrónico</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  name="email"
+                  placeholder="vos@ejemplo.com"
+                  required
+                  autoComplete="email"
+                />
+              </div>
+              <Button className="w-full" type="submit" disabled={submitting}>
+                {submitting ? "Enviando link..." : "Enviar link de acceso"}
+              </Button>
+            </form>
+          </>
+        )}
       </CardContent>
     </Card>
   );
