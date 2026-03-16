@@ -6,8 +6,14 @@ import ChatHomePage from "@/pages/ChatHomePage";
 import ThreadPage from "@/pages/ThreadPage";
 
 const routes = [
-  { path: "/", element: <Navigate to="/chat" replace /> },
-  { path: "/auth/sign-in", element: <SignInPage /> },
+  {
+    path: "/",
+    element: <Navigate to="/chat" replace />
+  },
+  {
+    path: "/auth/sign-in",
+    element: <SignInPage />
+  },
   {
     element: (
       <AuthGuard>
@@ -15,8 +21,14 @@ const routes = [
       </AuthGuard>
     ),
     children: [
-      { path: "/chat", element: <ChatHomePage /> },
-      { path: "/chat/:threadId", element: <ThreadPage /> },
+      {
+        path: "/chat",
+        element: <ChatHomePage />
+      },
+      {
+        path: "/chat/:threadId",
+        element: <ThreadPage />
+      },
     ],
   },
 ];
