@@ -7,7 +7,7 @@ export default function SignInPage() {
         <div className="text-center">
           <h1 className="text-4xl font-bold tracking-tight">Bitacory</h1>
           <p className="mt-2 text-muted-foreground">
-            Asistente de chat con IA. Iniciá sesión para comenzar.
+            
           </p>
         </div>
         <SignInForm />
