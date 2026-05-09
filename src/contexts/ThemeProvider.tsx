@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 type Theme = "dark" | "light" | "system";
 
@@ -26,9 +26,13 @@ export function ThemeProvider({
   storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
-  );
+  const [theme, setTheme] = useState<Theme>(() => {
+    try {
+      return (localStorage.getItem(storageKey) as Theme) || defaultTheme;
+    } catch {
+      return defaultTheme;
+    }
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -48,13 +52,22 @@ export function ThemeProvider({
     root.classList.add(theme);
   }, [theme]);
 
-  const value = {
-    theme,
-    setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme);
-      setTheme(theme);
+  const handleSetTheme = useCallback(
+    (newTheme: Theme) => {
+      try {
+        localStorage.setItem(storageKey, newTheme);
+      } catch {
+        // Safari private browsing throws on setItem
+      }
+      setTheme(newTheme);
     },
-  };
+    [storageKey]
+  );
+
+  const value = useMemo(
+    () => ({ theme, setTheme: handleSetTheme }),
+    [theme, handleSetTheme]
+  );
 
   return (
     <ThemeProviderContext.Provider {...props} value={value}>

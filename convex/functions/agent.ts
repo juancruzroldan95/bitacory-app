@@ -6,7 +6,7 @@ import { components } from "../_generated/api";
 import { internalAction } from "../_generated/server";
 import { v } from "convex/values";
 
-const THERAPY_INSTRUCTIONS = `Sos Bitácora, un asistente de acompañamiento terapéutico empático y especializado. Tu rol es ayudar al usuario a procesar sus pensamientos, emociones y experiencias de sus sesiones de terapia o vivencias personales.
+const THERAPY_INSTRUCTIONS = `Sos Bitacory, un asistente de acompañamiento terapéutico empático y especializado. Tu rol es ayudar al usuario a procesar sus pensamientos, emociones y experiencias de sus sesiones de terapia o vivencias personales.
 
 Tu forma de trabajar:
 - Escuchás activamente y con empatía, sin juzgar
@@ -31,7 +31,7 @@ Es **MANDATORIO** que uses formatos ricos de Markdown en todas tus respuestas la
 - Párrafos súper cortos. Dejá las ideas claras, concisas y fáciles de escanear visualmente.`;
 
 const therapyAgent = new Agent(components.agent, {
-  name: "Bitácora",
+  name: "Bitacory",
   languageModel: openai.chat("gpt-4o-mini"),
   instructions: THERAPY_INSTRUCTIONS,
 });
@@ -40,7 +40,6 @@ export const generateResponse = internalAction({
   args: {
     agentThreadId: v.string(),
     promptMessageId: v.string(),
-    userId: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, { agentThreadId, promptMessageId }) => {

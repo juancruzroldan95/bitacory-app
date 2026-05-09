@@ -62,7 +62,6 @@ export const send = mutation({
       {
         agentThreadId: thread.agentThreadId,
         promptMessageId: messageId,
-        userId: userId.toString(),
       }
     );
 

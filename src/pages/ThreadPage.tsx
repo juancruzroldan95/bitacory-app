@@ -1,5 +1,5 @@
 import { useParams } from "react-router";
-import { ChatPane } from "@/components/chat/ChatPane";
+import { ChatView } from "@/components/chat/ChatView";
 import type { Id } from "@/convex/_generated/dataModel";
 
 export default function ThreadPage() {
@@ -7,5 +7,5 @@ export default function ThreadPage() {
 
   if (!threadId) return null;
 
-  return <ChatPane threadId={threadId as Id<"threads">} />;
+  return <ChatView threadId={threadId as Id<"threads">} />;
 }

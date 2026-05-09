@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { useQuery } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useNavigate } from "react-router";
 import { useTheme } from "@/hooks/useTheme";
 import { useSidebar } from "@/components/ui/sidebar";
-import { api } from "@/convex/_generated/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -23,25 +21,17 @@ import {
 } from "@/components/ui/dialog";
 import { ProfileEditor } from "@/components/sidebar/ProfileEditor";
 import { ChevronsUpDown, LogOut, Moon, Sun, User } from "lucide-react";
-
-function getResolvedTheme(theme: string): "dark" | "light" {
-  if (theme === "system") {
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? "dark"
-      : "light";
-  }
-  return theme as "dark" | "light";
-}
+import { useProfile } from "@/hooks/useProfile";
+import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 
 export function NavUser() {
-  const profile = useQuery(api.functions.profiles.get);
+  const { profile } = useProfile();
   const { signOut } = useAuthActions();
   const navigate = useNavigate();
-  const { theme, setTheme } = useTheme();
+  const { setTheme } = useTheme();
   const { isMobile } = useSidebar();
   const [profileOpen, setProfileOpen] = useState(false);
-
-  const resolvedTheme = getResolvedTheme(theme);
+  const resolvedTheme = useResolvedTheme();
 
   const displayName = profile?.displayName ?? "Usuario";
   const avatarUrl = profile?.avatarUrl ?? undefined;
@@ -54,16 +44,12 @@ export function NavUser() {
           <button className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <Avatar className="h-8 w-8 rounded-lg shrink-0">
               <AvatarImage src={avatarUrl} alt={displayName} />
-              <AvatarFallback className="rounded-lg text-xs">
-                {initials}
-              </AvatarFallback>
+              <AvatarFallback className="rounded-lg text-xs">{initials}</AvatarFallback>
             </Avatar>
             <div className="grid flex-1 text-left text-sm leading-tight min-w-0">
               <span className="truncate font-medium">{displayName}</span>
               {profile?.email && (
-                <span className="truncate text-xs text-muted-foreground">
-                  {profile.email}
-                </span>
+                <span className="truncate text-xs text-muted-foreground">{profile.email}</span>
               )}
             </div>
             <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 text-muted-foreground" />
@@ -79,16 +65,12 @@ export function NavUser() {
             <div className="flex items-center gap-2 px-2 py-2">
               <Avatar className="h-8 w-8 rounded-lg shrink-0">
                 <AvatarImage src={avatarUrl} alt={displayName} />
-                <AvatarFallback className="rounded-lg text-xs">
-                  {initials}
-                </AvatarFallback>
+                <AvatarFallback className="rounded-lg text-xs">{initials}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight min-w-0">
                 <span className="truncate font-medium">{displayName}</span>
                 {profile?.email && (
-                  <span className="truncate text-xs text-muted-foreground">
-                    {profile.email}
-                  </span>
+                  <span className="truncate text-xs text-muted-foreground">{profile.email}</span>
                 )}
               </div>
             </div>
@@ -100,9 +82,7 @@ export function NavUser() {
               Editar perfil
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() =>
-                setTheme(resolvedTheme === "dark" ? "light" : "dark")
-              }
+              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             >
               {resolvedTheme === "dark" ? (
                 <Sun className="mr-2 h-4 w-4" />
@@ -115,7 +95,7 @@ export function NavUser() {
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="text-destructive focus:text-destructive"
-            onClick={() => void signOut().then(() => navigate("/auth/sign-in", { replace: true }))}
+            onClick={() => void signOut().then(() => navigate("/auth/login", { replace: true }))}
           >
             <LogOut className="mr-2 h-4 w-4" />
             Cerrar sesión

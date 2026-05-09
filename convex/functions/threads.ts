@@ -31,7 +31,7 @@ export const list = query({
       .query("threads")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .order("desc")
-      .collect();
+      .take(200);
   },
 });
 

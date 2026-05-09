@@ -36,7 +36,7 @@ function GoogleIcon({ className }: { className?: string }) {
   );
 }
 
-export function SignInForm() {
+export function LoginForm() {
   const { signIn } = useAuthActions();
   const [submitting, setSubmitting] = useState(false);
   const [linkSent, setLinkSent] = useState(false);
@@ -45,16 +45,12 @@ export function SignInForm() {
     <Card>
       <CardHeader>
         <CardTitle>Iniciar sesión</CardTitle>
-        <CardDescription>
-          Ingresá a tu cuenta
-        </CardDescription>
+        <CardDescription>Ingresá a tu cuenta</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {linkSent ? (
           <div className="text-center space-y-4 py-4">
-            <p className="text-sm text-foreground">
-              ¡Revisá tu correo!
-            </p>
+            <p className="text-sm text-foreground">¡Revisá tu correo!</p>
             <p className="text-sm text-muted-foreground">
               Te enviamos un link mágico para iniciar sesión. Hacé clic en él para acceder a tu cuenta.
             </p>

@@ -1,9 +1,11 @@
+import { lazy, Suspense } from "react";
 import { Navigate } from "react-router";
-import AuthGuard from "@/guards/AuthGuard";
+import AuthGuard from "@/AuthGuard";
 import AppLayout from "@/layouts/AppLayout";
-import SignInPage from "@/pages/SignInPage";
-import ChatHomePage from "@/pages/ChatHomePage";
-import ThreadPage from "@/pages/ThreadPage";
+import LoginPage from "@/pages/LoginPage";
+
+const ChatHomePage = lazy(() => import("@/pages/ChatHomePage"));
+const ThreadPage = lazy(() => import("@/pages/ThreadPage"));
 
 const routes = [
   {
@@ -11,8 +13,8 @@ const routes = [
     element: <Navigate to="/chat" replace />
   },
   {
-    path: "/auth/sign-in",
-    element: <SignInPage />
+    path: "/auth/login",
+    element: <LoginPage />
   },
   {
     element: (
@@ -23,11 +25,11 @@ const routes = [
     children: [
       {
         path: "/chat",
-        element: <ChatHomePage />
+        element: <Suspense fallback={null}><ChatHomePage /></Suspense>
       },
       {
         path: "/chat/:threadId",
-        element: <ThreadPage />
+        element: <Suspense fallback={null}><ThreadPage /></Suspense>
       },
     ],
   },

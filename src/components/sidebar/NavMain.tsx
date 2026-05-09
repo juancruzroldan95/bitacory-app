@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from "react";
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { SquarePen, Search } from "lucide-react";
 import { useNavigate } from "react-router";
@@ -7,32 +8,28 @@ interface NavMainProps {
   onNavigate?: () => void;
 }
 
+const handleSearchClick = () =>
+  toast.info("Modal de búsqueda próximamente...", {
+    description: "Aquí se abrirá el modal para buscar sesiones y más contenido.",
+  });
+
 export function NavMain({ onNavigate }: NavMainProps) {
   const navigate = useNavigate();
   const { setOpenMobile } = useSidebar();
 
-  const handleNewSession = () => {
+  const handleNewSession = useCallback(() => {
     navigate("/chat");
     onNavigate?.();
     setOpenMobile(false);
-  };
+  }, [navigate, onNavigate, setOpenMobile]);
 
-  const MENU_ITEMS = [
-    {
-      id: "new-session",
-      title: "Nueva sesión",
-      icon: SquarePen,
-      action: handleNewSession,
-    },
-    {
-      id: "search-sessions",
-      title: "Buscar sesiones",
-      icon: Search,
-      action: () => toast.info("Modal de búsqueda próximamente...", {
-        description: "Aquí se abrirá el modal para buscar sesiones y más contenido."
-      }),
-    },
-  ];
+  const MENU_ITEMS = useMemo(
+    () => [
+      { id: "new-session", title: "Nueva sesión", icon: SquarePen, action: handleNewSession },
+      { id: "search-sessions", title: "Buscar sesiones", icon: Search, action: handleSearchClick },
+    ],
+    [handleNewSession]
+  );
 
   return (
     <SidebarGroup>

@@ -2,14 +2,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 
-interface ChatInputProps {
+interface MessageComposerProps {
   input: string;
   setInput: (value: string) => void;
   handleSend: () => void;
   isSending: boolean;
 }
 
-export function ChatInput({ input, setInput, handleSend, isSending }: ChatInputProps) {
+export function MessageComposer({ input, setInput, handleSend, isSending }: MessageComposerProps) {
   return (
     <div className="bg-background px-4 py-4 shrink-0">
       <div className="mx-auto max-w-3xl">

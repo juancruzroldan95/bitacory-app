@@ -16,7 +16,7 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
   // Once authenticated, show content — the code may still be in React Router's stale location.
   if (hasOAuthCode && !isAuthenticated) return null;
   if (!isInitialized) return null;
-  if (!isAuthenticated) return <Navigate to="/auth/sign-in" replace />;
+  if (!isAuthenticated) return <Navigate to="/auth/login" replace />;
 
   return children ? <>{children}</> : <Outlet />;
 };

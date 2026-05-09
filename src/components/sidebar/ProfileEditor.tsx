@@ -1,6 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,17 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Upload, User } from "lucide-react";
+import { useProfile } from "@/hooks/useProfile";
 
 interface ProfileEditorProps {
   onClose?: () => void;
 }
 
 export function ProfileEditor({ onClose }: ProfileEditorProps) {
-  const profile = useQuery(api.functions.profiles.get);
-  const updateProfile = useMutation(api.functions.profiles.update);
-  const generateUploadUrl = useMutation(api.functions.profiles.generateUploadUrl);
-  const updateAvatar = useMutation(api.functions.profiles.updateAvatar);
-
+  const { profile, updateProfile, uploadAvatar } = useProfile();
   const [displayName, setDisplayName] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -36,7 +31,6 @@ export function ProfileEditor({ onClose }: ProfileEditorProps) {
       toast.error("El nombre es obligatorio");
       return;
     }
-
     try {
       await updateProfile({ displayName: displayName.trim() });
       toast.success("Perfil actualizado");
@@ -49,27 +43,13 @@ export function ProfileEditor({ onClose }: ProfileEditorProps) {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     if (!file.type.startsWith("image/")) {
       toast.error("Por favor subí un archivo de imagen");
       return;
     }
-
     setUploading(true);
     try {
-      const uploadUrl = await generateUploadUrl();
-      const result = await fetch(uploadUrl, {
-        method: "POST",
-        headers: { "Content-Type": file.type },
-        body: file,
-      });
-
-      if (!result.ok) {
-        throw new Error("Upload failed");
-      }
-
-      const { storageId } = await result.json();
-      await updateAvatar({ storageId });
+      await uploadAvatar(file);
       toast.success("Avatar actualizado");
     } catch {
       toast.error("No se pudo subir el avatar");
@@ -95,9 +75,7 @@ export function ProfileEditor({ onClose }: ProfileEditorProps) {
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-muted-foreground">
-        Personalizá tu nombre y avatar
-      </p>
+      <p className="text-sm text-muted-foreground">Personalizá tu nombre y avatar</p>
       <div>
         <Label className="mb-2">Foto de perfil</Label>
         <div className="flex items-center gap-4">
