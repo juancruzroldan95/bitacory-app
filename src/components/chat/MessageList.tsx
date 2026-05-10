@@ -5,12 +5,12 @@ import { UserMessage } from "./UserMessage";
 import { TypingIndicator } from "./TypingIndicator";
 
 interface MessageListProps {
-  threadId: Id<"threads">;
+  sessionId: Id<"sessions">;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export function MessageList({ threadId, messagesEndRef }: MessageListProps) {
-  const { visibleMessages, isLoading, showTypingIndicator } = useMessages(threadId);
+export function MessageList({ sessionId, messagesEndRef }: MessageListProps) {
+  const { visibleMessages, isLoading, showTypingIndicator } = useMessages(sessionId);
 
   if (isLoading) {
     return null;

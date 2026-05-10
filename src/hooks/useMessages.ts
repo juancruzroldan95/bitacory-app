@@ -1,13 +1,17 @@
-import { useUIMessages } from "@convex-dev/agent/react";
+import { useMutation } from "convex/react";
+import { useUIMessages, type UIMessage } from "@convex-dev/agent/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
-export function useMessages(threadId: Id<"threads">) {
-  const { results, status } = useUIMessages(
-    api.functions.messages.list,
-    { threadId },
+export function useMessages(sessionId: Id<"sessions">) {
+  // Cast needed until `npx convex dev` regenerates api.d.ts with the new sessionId arg
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { results: rawResults, status } = useUIMessages(
+    api.functions.messages.list as any,
+    { sessionId },
     { initialNumItems: 100, stream: true }
   );
+  const results = rawResults as UIMessage[] | undefined;
 
   const isLoading = status === "LoadingFirstPage";
   const messages = results ?? [];
@@ -32,4 +36,8 @@ export function useMessages(threadId: Id<"threads">) {
   const showTypingIndicator = (hasPendingAssistant || lastMessageIsUser) && !isAgentStreaming;
 
   return { visibleMessages, isLoading, isAgentStreaming, showTypingIndicator };
+}
+
+export function useSendMessage() {
+  return useMutation(api.functions.messages.send);
 }

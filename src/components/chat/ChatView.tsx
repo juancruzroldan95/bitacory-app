@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useMutation } from "convex/react";
 import { useNavigate } from "react-router";
-import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,14 +15,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useThread } from "@/hooks/useThread";
+import { useSession } from "@/hooks/useSessions";
+import { useSendMessage } from "@/hooks/useMessages";
 import { MessageList } from "./MessageList";
 import { MessageComposer } from "./MessageComposer";
 import { ChatHeader } from "./ChatHeader";
-import { ChatInfoBanner } from "./ChatInfoBanner";
 
 interface ChatViewProps {
-  threadId: Id<"threads">;
+  sessionId: Id<"sessions">;
 }
 
 const CHAT_SKELETON = (
@@ -42,9 +40,9 @@ const CHAT_SKELETON = (
   </div>
 );
 
-export function ChatView({ threadId }: ChatViewProps) {
-  const { thread, deleteThread } = useThread(threadId);
-  const sendMessage = useMutation(api.functions.messages.send);
+export function ChatView({ sessionId }: ChatViewProps) {
+  const { session, deleteSession } = useSession(sessionId);
+  const sendMessage = useSendMessage();
   const navigate = useNavigate();
 
   const [input, setInput] = useState("");
@@ -73,14 +71,14 @@ export function ChatView({ threadId }: ChatViewProps) {
   }, []);
 
   const handleSend = useCallback(async () => {
-    if (!input.trim() || !threadId || isSending) return;
+    if (!input.trim() || !sessionId || isSending) return;
 
     const content = input.trim();
     setInput("");
     setIsSending(true);
 
     try {
-      await sendMessage({ threadId, content });
+      await sendMessage({ sessionId, content });
       scrollToBottom();
     } catch {
       toast.error("No se pudo enviar el mensaje");
@@ -88,33 +86,34 @@ export function ChatView({ threadId }: ChatViewProps) {
     } finally {
       setIsSending(false);
     }
-  }, [input, threadId, isSending, sendMessage, scrollToBottom]);
+  }, [input, sessionId, isSending, sendMessage, scrollToBottom]);
 
   const handleDelete = useCallback(async () => {
     try {
-      await deleteThread({ threadId });
+      await deleteSession({ sessionId });
       navigate("/chat");
       toast.success("Sesión eliminada");
     } catch {
       toast.error("No se pudo eliminar la sesión");
     }
-  }, [deleteThread, threadId, navigate]);
+  }, [deleteSession, sessionId, navigate]);
 
-  if (thread === undefined) {
+  if (session === undefined) {
     return CHAT_SKELETON;
   }
 
   return (
     <div className="flex flex-1 flex-col min-h-0 bg-background relative">
-      <ChatHeader title={thread?.title ?? ""} onDeleteRequest={() => setDeleteDialogOpen(true)} />
-
-      {thread?.summary && (
-        <ChatInfoBanner summary={thread.summary} themes={thread.themes} />
-      )}
+      <ChatHeader
+        title={session?.title ?? ""}
+        summary={session?.summary}
+        themes={session?.themes}
+        onDeleteRequest={() => setDeleteDialogOpen(true)}
+      />
 
       <div ref={viewportRef} className="flex-1 min-h-0 overflow-y-auto">
         <div className="h-full pb-4">
-          <MessageList threadId={threadId} messagesEndRef={messagesEndRef} />
+          <MessageList sessionId={sessionId} messagesEndRef={messagesEndRef} />
         </div>
       </div>
 
@@ -141,7 +140,7 @@ export function ChatView({ threadId }: ChatViewProps) {
           <AlertDialogHeader>
             <AlertDialogTitle>¿Eliminar sesión?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esto eliminará permanentemente &ldquo;{thread?.title}&rdquo; y todos sus mensajes. Esta acción no se puede deshacer.
+              Esto eliminará permanentemente &ldquo;{session?.title}&rdquo; y todos sus mensajes. Esta acción no se puede deshacer.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

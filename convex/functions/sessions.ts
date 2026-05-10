@@ -9,8 +9,8 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { createThread } from "@convex-dev/agent";
 import { components, internal } from "../_generated/api";
 
-const threadFields = {
-  _id: v.id("threads"),
+const sessionFields = {
+  _id: v.id("sessions"),
   _creationTime: v.number(),
   userId: v.id("users"),
   title: v.string(),
@@ -22,13 +22,13 @@ const threadFields = {
 
 export const list = query({
   args: {},
-  returns: v.array(v.object(threadFields)),
+  returns: v.array(v.object(sessionFields)),
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) return [];
 
     return ctx.db
-      .query("threads")
+      .query("sessions")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .order("desc")
       .take(200);
@@ -36,24 +36,24 @@ export const list = query({
 });
 
 export const get = query({
-  args: { threadId: v.id("threads") },
-  returns: v.union(v.object(threadFields), v.null()),
-  handler: async (ctx, { threadId }) => {
+  args: { sessionId: v.id("sessions") },
+  returns: v.union(v.object(sessionFields), v.null()),
+  handler: async (ctx, { sessionId }) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) return null;
 
-    const thread = await ctx.db.get(threadId);
-    if (!thread || thread.userId !== userId) return null;
+    const session = await ctx.db.get(sessionId);
+    if (!session || session.userId !== userId) return null;
 
-    return thread;
+    return session;
   },
 });
 
 export const getById = internalQuery({
-  args: { threadId: v.id("threads") },
-  returns: v.union(v.object(threadFields), v.null()),
-  handler: async (ctx, { threadId }) => {
-    return ctx.db.get(threadId);
+  args: { sessionId: v.id("sessions") },
+  returns: v.union(v.object(sessionFields), v.null()),
+  handler: async (ctx, { sessionId }) => {
+    return ctx.db.get(sessionId);
   },
 });
 
@@ -61,7 +61,7 @@ export const create = mutation({
   args: {
     title: v.string(),
   },
-  returns: v.id("threads"),
+  returns: v.id("sessions"),
   handler: async (ctx, { title }) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
@@ -71,53 +71,53 @@ export const create = mutation({
       title,
     });
 
-    const threadId = await ctx.db.insert("threads", {
+    const sessionId = await ctx.db.insert("sessions", {
       userId,
       title,
       agentThreadId,
     });
 
-    return threadId;
+    return sessionId;
   },
 });
 
 export const rename = mutation({
   args: {
-    threadId: v.id("threads"),
+    sessionId: v.id("sessions"),
     title: v.string(),
   },
   returns: v.null(),
-  handler: async (ctx, { threadId, title }) => {
+  handler: async (ctx, { sessionId, title }) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
-    const thread = await ctx.db.get(threadId);
-    if (!thread || thread.userId !== userId) throw new Error("Thread not found");
+    const session = await ctx.db.get(sessionId);
+    if (!session || session.userId !== userId) throw new Error("Session not found");
 
-    await ctx.db.patch(threadId, { title });
+    await ctx.db.patch(sessionId, { title });
     return null;
   },
 });
 
 export const remove = mutation({
   args: {
-    threadId: v.id("threads"),
+    sessionId: v.id("sessions"),
   },
   returns: v.null(),
-  handler: async (ctx, { threadId }) => {
+  handler: async (ctx, { sessionId }) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
-    const thread = await ctx.db.get(threadId);
-    if (!thread || thread.userId !== userId) throw new Error("Thread not found");
+    const session = await ctx.db.get(sessionId);
+    if (!session || session.userId !== userId) throw new Error("Session not found");
 
-    await ctx.db.delete(threadId);
+    await ctx.db.delete(sessionId);
 
-    if (thread.agentThreadId) {
+    if (session.agentThreadId) {
       await ctx.scheduler.runAfter(
         0,
         internal.functions.agent.deleteAgentThread,
-        { agentThreadId: thread.agentThreadId }
+        { agentThreadId: session.agentThreadId }
       );
     }
 
@@ -127,14 +127,14 @@ export const remove = mutation({
 
 export const updateSummary = internalMutation({
   args: {
-    threadId: v.id("threads"),
+    sessionId: v.id("sessions"),
     title: v.string(),
     summary: v.string(),
     themes: v.array(v.string()),
   },
   returns: v.null(),
-  handler: async (ctx, { threadId, title, summary, themes }) => {
-    await ctx.db.patch(threadId, {
+  handler: async (ctx, { sessionId, title, summary, themes }) => {
+    await ctx.db.patch(sessionId, {
       title,
       summary,
       themes,

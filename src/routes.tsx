@@ -4,8 +4,8 @@ import AuthGuard from "@/AuthGuard";
 import AppLayout from "@/layouts/AppLayout";
 import LoginPage from "@/pages/LoginPage";
 
-const ChatHomePage = lazy(() => import("@/pages/ChatHomePage"));
-const ThreadPage = lazy(() => import("@/pages/ThreadPage"));
+const HomePage = lazy(() => import("@/pages/HomePage"));
+const SessionPage = lazy(() => import("@/pages/SessionPage"));
 
 const routes = [
   {
@@ -25,11 +25,11 @@ const routes = [
     children: [
       {
         path: "/chat",
-        element: <Suspense fallback={null}><ChatHomePage /></Suspense>
+        element: <Suspense fallback={null}><HomePage /></Suspense>
       },
       {
-        path: "/chat/:threadId",
-        element: <Suspense fallback={null}><ThreadPage /></Suspense>
+        path: "/chat/:sessionId",
+        element: <Suspense fallback={null}><SessionPage /></Suspense>
       },
     ],
   },

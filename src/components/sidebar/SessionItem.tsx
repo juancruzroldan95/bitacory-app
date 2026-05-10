@@ -1,7 +1,6 @@
 import type { Id } from "@/convex/_generated/dataModel";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,14 +22,14 @@ import {
 import { Trash2, Pencil, MoreHorizontal } from "lucide-react";
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
-interface Thread {
-  _id: Id<"threads">;
+interface Session {
+  _id: Id<"sessions">;
   title: string;
   themes?: string[];
 }
 
 interface SessionItemProps {
-  thread: Thread;
+  session: Session;
   isEditing: boolean;
   editTitle: string;
   isActive: boolean;
@@ -44,7 +43,7 @@ interface SessionItemProps {
 }
 
 export function SessionItem({
-  thread,
+  session,
   isEditing,
   editTitle,
   isActive,
@@ -81,22 +80,9 @@ export function SessionItem({
           onClick={onNavigate}
           className="h-auto py-2 flex-col items-start gap-1 w-full"
         >
-          <div className="flex items-center gap-2 w-full pr-6">
-            <span className="flex-1 truncate text-sm">{thread.title}</span>
+          <div className="flex items-center gap-2 w-full pr-6 overflow-hidden">
+            <span className="line-clamp-1 text-sm">{session.title}</span>
           </div>
-          {thread.themes && thread.themes.length > 0 && (
-            <div className="flex flex-wrap gap-1 md:pl-6 pl-6">
-              {thread.themes.slice(0, 3).map((theme) => (
-                <Badge
-                  key={theme}
-                  variant="secondary"
-                  className="text-[10px] px-1.5 py-0 h-4 font-normal"
-                >
-                  {theme}
-                </Badge>
-              ))}
-            </div>
-          )}
         </SidebarMenuButton>
       )}
 
@@ -138,7 +124,7 @@ export function SessionItem({
                   <AlertDialogHeader>
                     <AlertDialogTitle>¿Eliminar sesión?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      Esto eliminará permanentemente &ldquo;{thread.title}&rdquo; y todos sus mensajes. Esta acción no se puede deshacer.
+                      Esto eliminará permanentemente &ldquo;{session.title}&rdquo; y todos sus mensajes. Esta acción no se puede deshacer.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>

@@ -9,7 +9,7 @@ import {
   SidebarMenu,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useThreadList } from "@/hooks/useThreadList";
+import { useSessions } from "@/hooks/useSessions";
 import { SessionItem } from "./SessionItem";
 import type { Id } from "@/convex/_generated/dataModel";
 
@@ -18,24 +18,24 @@ interface NavSessionsProps {
 }
 
 export function NavSessions({ onNavigate }: NavSessionsProps) {
-  const { threads, renameThread, deleteThread } = useThreadList();
+  const { sessions, renameSession, deleteSession } = useSessions();
   const navigate = useNavigate();
   const params = useParams();
-  const currentThreadId = params?.threadId as string | undefined;
+  const currentSessionId = params?.sessionId as string | undefined;
   const { setOpenMobile } = useSidebar();
 
-  const [editingId, setEditingId] = useState<Id<"threads"> | null>(null);
+  const [editingId, setEditingId] = useState<Id<"sessions"> | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const isSubmittingRenameRef = useRef(false);
 
   // TODO: connect to future search modal
   const searchQuery = "";
 
-  const handleRename = async (threadId: Id<"threads">) => {
+  const handleRename = async (sessionId: Id<"sessions">) => {
     if (!editTitle.trim()) return;
     isSubmittingRenameRef.current = true;
     try {
-      await renameThread({ threadId, title: editTitle });
+      await renameSession({ sessionId, title: editTitle });
       setEditingId(null);
       toast.success("Sesión renombrada");
     } catch {
@@ -45,28 +45,28 @@ export function NavSessions({ onNavigate }: NavSessionsProps) {
     }
   };
 
-  const handleDelete = async (threadId: Id<"threads">) => {
+  const handleDelete = async (sessionId: Id<"sessions">) => {
     try {
-      await deleteThread({ threadId });
-      if (currentThreadId === threadId) navigate("/chat");
+      await deleteSession({ sessionId });
+      if (currentSessionId === sessionId) navigate("/chat");
       toast.success("Sesión eliminada");
     } catch {
       toast.error("No se pudo eliminar la sesión");
     }
   };
 
-  const filteredThreads = useMemo(
+  const filteredSessions = useMemo(
     () =>
-      threads?.filter((thread) => {
+      sessions?.filter((session) => {
         if (!searchQuery.trim()) return true;
         const q = searchQuery.toLowerCase();
         return (
-          thread.title.toLowerCase().includes(q) ||
-          thread.summary?.toLowerCase().includes(q) ||
-          thread.themes?.some((t) => t.toLowerCase().includes(q))
+          session.title.toLowerCase().includes(q) ||
+          session.summary?.toLowerCase().includes(q) ||
+          session.themes?.some((t) => t.toLowerCase().includes(q))
         );
       }),
-    [threads, searchQuery]
+    [sessions, searchQuery]
   );
 
   return (
@@ -74,40 +74,40 @@ export function NavSessions({ onNavigate }: NavSessionsProps) {
       <SidebarGroupContent className="h-full">
         <ScrollArea className="h-full">
           <SidebarMenu className="px-2 pb-2">
-            {threads === undefined ? (
+            {sessions === undefined ? (
               <div className="space-y-2 p-2">
                 <Skeleton className="h-9 w-full" />
                 <Skeleton className="h-9 w-full" />
                 <Skeleton className="h-9 w-full" />
               </div>
-            ) : filteredThreads?.length === 0 ? (
+            ) : filteredSessions?.length === 0 ? (
               <p className="px-2 py-8 text-center text-sm text-muted-foreground">
                 {searchQuery ? "Sin resultados para tu búsqueda" : "Todavía no hay sesiones"}
               </p>
             ) : (
-              filteredThreads?.map((thread) => (
+              filteredSessions?.map((session) => (
                 <SessionItem
-                  key={thread._id}
-                  thread={thread}
-                  isEditing={editingId === thread._id}
+                  key={session._id}
+                  session={session}
+                  isEditing={editingId === session._id}
                   editTitle={editTitle}
-                  isActive={currentThreadId === thread._id}
+                  isActive={currentSessionId === session._id}
                   onNavigate={() => {
-                    navigate(`/chat/${thread._id}`);
+                    navigate(`/chat/${session._id}`);
                     onNavigate?.();
                     setOpenMobile(false);
                   }}
                   onStartEdit={() => {
-                    setEditingId(thread._id);
-                    setEditTitle(thread.title);
+                    setEditingId(session._id);
+                    setEditTitle(session.title);
                   }}
                   onTitleChange={setEditTitle}
-                  onRenameSubmit={() => handleRename(thread._id)}
+                  onRenameSubmit={() => handleRename(session._id)}
                   onRenameBlur={() => {
-                    if (!isSubmittingRenameRef.current) handleRename(thread._id);
+                    if (!isSubmittingRenameRef.current) handleRename(session._id);
                   }}
                   onRenameCancel={() => setEditingId(null)}
-                  onDelete={() => handleDelete(thread._id)}
+                  onDelete={() => handleDelete(session._id)}
                 />
               ))
             )}

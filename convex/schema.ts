@@ -3,7 +3,7 @@ import { v } from "convex/values";
 import { authTables } from "@convex-dev/auth/server";
 
 const applicationTables = {
-  threads: defineTable({
+  sessions: defineTable({
     userId: v.id("users"),
     title: v.string(),
     agentThreadId: v.optional(v.string()),
