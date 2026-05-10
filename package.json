@@ -21,7 +21,6 @@
     "@convex-dev/agent": "^0.6.1",
     "@convex-dev/auth": "^0.0.90",
     "@convex-dev/rag": "^0.7.2",
-    "@convex-dev/workpool": "^0.4.6",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.2.0",
     "ai": "^6.0.177",
