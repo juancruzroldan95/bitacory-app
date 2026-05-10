@@ -85,9 +85,10 @@ export const generateResponse = internalAction({
         limit: 5,
         searchType: "hybrid",
       });
+      console.log("[RAG] Contexto recuperado:", text || "(vacío)");
       systemPrompt = buildSystemPromptWithMemory(text);
-    } catch {
-      // No memories yet or embedding service unavailable — proceed without context
+    } catch (e) {
+      console.log("[RAG] Error al buscar contexto:", e);
     }
 
     const result = await therapyAgent.streamText(
@@ -162,13 +163,19 @@ export const generateThreadSummary = internalAction({
     });
 
     const ragText = `Sesión: "${title}"\nTemas: ${themes.join(", ")}\nResumen: ${summary}`;
-    await rag.add(ctx, {
-      namespace: userId,
-      key: sessionId,
-      text: ragText,
-      title,
-      metadata: { themes },
-    });
+    console.log("[RAG] Indexando sesión:", { sessionId, userId, title, themes, chars: ragText.length });
+    try {
+      await rag.add(ctx, {
+        namespace: userId,
+        key: sessionId,
+        text: ragText,
+        title,
+        metadata: { themes },
+      });
+      console.log("[RAG] Sesión indexada correctamente:", sessionId);
+    } catch (e) {
+      console.log("[RAG] Error al indexar sesión:", e);
+    }
 
     return null;
   },
