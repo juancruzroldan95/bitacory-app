@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { cn } from "@/lib/utils";
 
 interface UserMessageProps {
@@ -5,7 +6,9 @@ interface UserMessageProps {
   isPending: boolean;
 }
 
-export function UserMessage({ content, isPending }: UserMessageProps) {
+// ⚡ Bolt: Wrapped in React.memo to prevent unnecessary re-renders of static user messages
+// whenever the parent list re-renders (e.g. when an assistant message is streaming).
+export const UserMessage = memo(function UserMessage({ content, isPending }: UserMessageProps) {
   return (
     <div className="flex justify-end animate-in fade-in slide-in-from-bottom-2 duration-300">
       <div
@@ -18,4 +21,4 @@ export function UserMessage({ content, isPending }: UserMessageProps) {
       </div>
     </div>
   );
-}
+});

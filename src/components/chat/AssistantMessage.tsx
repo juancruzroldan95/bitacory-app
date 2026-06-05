@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { PrismAsyncLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import ReactMarkdown from "react-markdown";
@@ -37,7 +38,10 @@ const MARKDOWN_COMPONENTS = {
   },
 };
 
-export function AssistantMessage({
+// ⚡ Bolt: Wrapped in React.memo to prevent unnecessary re-renders of previous messages
+// during active streaming, which parses expensive ReactMarkdown on every chunk.
+// Impact: Eliminates O(N) re-renders across the message list during generation.
+export const AssistantMessage = memo(function AssistantMessage({
   content,
   isStreaming,
 }: {
@@ -58,4 +62,4 @@ export function AssistantMessage({
       </ReactMarkdown>
     </div>
   );
-}
+});
