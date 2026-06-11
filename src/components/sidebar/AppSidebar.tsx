@@ -9,6 +9,7 @@ import {
 
 import { NavUser } from "@/components/sidebar/NavUser";
 import { NavMain } from "@/components/sidebar/NavMain";
+import { NavNotes } from "@/components/sidebar/NavNotes";
 import { NavSessions } from "@/components/sidebar/NavSessions";
 
 interface SidebarProps {
@@ -25,8 +26,9 @@ export function AppSidebar({ onNavigate }: SidebarProps) {
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="flex flex-col overflow-hidden">
         <NavMain onNavigate={onNavigate} />
+        <NavNotes />
         <NavSessions onNavigate={onNavigate} />
       </SidebarContent>
 

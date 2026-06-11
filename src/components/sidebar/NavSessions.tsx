@@ -1,17 +1,26 @@
 import { useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useSessions } from "@/hooks/useSessions";
 import { SessionItem } from "./SessionItem";
 import type { Id } from "@/convex/_generated/dataModel";
+
+function getDateGroup(creationTime: number): string {
+  const now = Date.now();
+  const diff = now - creationTime;
+  const day = 24 * 60 * 60 * 1000;
+  if (diff < day) return "Hoy";
+  if (diff < 7 * day) return "Esta semana";
+  return "Antes";
+}
 
 interface NavSessionsProps {
   onNavigate?: () => void;
@@ -27,9 +36,6 @@ export function NavSessions({ onNavigate }: NavSessionsProps) {
   const [editingId, setEditingId] = useState<Id<"sessions"> | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const isSubmittingRenameRef = useRef(false);
-
-  // TODO: connect to future search modal
-  const searchQuery = "";
 
   const handleRename = async (sessionId: Id<"sessions">) => {
     if (!editTitle.trim()) return;
@@ -55,64 +61,78 @@ export function NavSessions({ onNavigate }: NavSessionsProps) {
     }
   };
 
-  const filteredSessions = useMemo(
-    () =>
-      sessions?.filter((session) => {
-        if (!searchQuery.trim()) return true;
-        const q = searchQuery.toLowerCase();
-        return (
-          session.title.toLowerCase().includes(q) ||
-          session.summary?.toLowerCase().includes(q) ||
-          session.themes?.some((t) => t.toLowerCase().includes(q))
-        );
-      }),
-    [sessions, searchQuery]
-  );
+  const grouped = useMemo(() => {
+    if (!sessions) return null;
+    const groups: Record<string, typeof sessions> = {};
+    for (const session of sessions) {
+      const g = getDateGroup(session._creationTime);
+      if (!groups[g]) groups[g] = [];
+      groups[g].push(session);
+    }
+    return groups;
+  }, [sessions]);
 
   return (
-    <SidebarGroup className="flex-1 overflow-hidden p-0">
-      <SidebarGroupContent className="h-full">
-        <ScrollArea className="h-full">
+    <SidebarGroup className="p-0">
+      <div className="px-4 py-2">
+        <SidebarGroupLabel className="p-0 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Sesiones
+        </SidebarGroupLabel>
+      </div>
+      <SidebarGroupContent>
+        <div className="overflow-y-auto max-h-[45vh]">
           <SidebarMenu className="px-2 pb-2">
             {sessions === undefined ? (
               <div className="space-y-2 p-2">
-                <Skeleton className="h-9 w-full" />
-                <Skeleton className="h-9 w-full" />
-                <Skeleton className="h-9 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
               </div>
-            ) : filteredSessions?.length === 0 ? (
-              <p className="px-2 py-8 text-center text-sm text-muted-foreground">
-                {searchQuery ? "Sin resultados para tu búsqueda" : "Todavía no hay sesiones"}
+            ) : sessions.length === 0 ? (
+              <p className="px-2 py-6 text-center text-xs text-muted-foreground">
+                Todavía no hay sesiones
               </p>
             ) : (
-              filteredSessions?.map((session) => (
-                <SessionItem
-                  key={session._id}
-                  session={session}
-                  isEditing={editingId === session._id}
-                  editTitle={editTitle}
-                  isActive={currentSessionId === session._id}
-                  onNavigate={() => {
-                    navigate(`/chat/${session._id}`);
-                    onNavigate?.();
-                    setOpenMobile(false);
-                  }}
-                  onStartEdit={() => {
-                    setEditingId(session._id);
-                    setEditTitle(session.title);
-                  }}
-                  onTitleChange={setEditTitle}
-                  onRenameSubmit={() => handleRename(session._id)}
-                  onRenameBlur={() => {
-                    if (!isSubmittingRenameRef.current) handleRename(session._id);
-                  }}
-                  onRenameCancel={() => setEditingId(null)}
-                  onDelete={() => handleDelete(session._id)}
-                />
-              ))
+              grouped &&
+              ["Hoy", "Esta semana", "Antes"].map((group) => {
+                const items = grouped[group];
+                if (!items?.length) return null;
+                return (
+                  <div key={group}>
+                    <p className="px-2 pt-3 pb-1 text-xs text-muted-foreground/60 font-medium">
+                      {group}
+                    </p>
+                    {items.map((session) => (
+                      <SessionItem
+                        key={session._id}
+                        session={session}
+                        isEditing={editingId === session._id}
+                        editTitle={editTitle}
+                        isActive={currentSessionId === session._id}
+                        onNavigate={() => {
+                          navigate(`/chat/${session._id}`);
+                          onNavigate?.();
+                          setOpenMobile(false);
+                        }}
+                        onStartEdit={() => {
+                          setEditingId(session._id);
+                          setEditTitle(session.title);
+                        }}
+                        onTitleChange={setEditTitle}
+                        onRenameSubmit={() => handleRename(session._id)}
+                        onRenameBlur={() => {
+                          if (!isSubmittingRenameRef.current) handleRename(session._id);
+                        }}
+                        onRenameCancel={() => setEditingId(null)}
+                        onDelete={() => handleDelete(session._id)}
+                      />
+                    ))}
+                  </div>
+                );
+              })
             )}
           </SidebarMenu>
-        </ScrollArea>
+        </div>
       </SidebarGroupContent>
     </SidebarGroup>
   );

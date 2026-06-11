@@ -20,9 +20,13 @@ import { useSendMessage } from "@/hooks/useMessages";
 import { MessageList } from "./MessageList";
 import { MessageComposer } from "./MessageComposer";
 import { ChatHeader } from "./ChatHeader";
+import type { MentionedNote } from "@/types/notes";
 
 interface ChatViewProps {
   sessionId: Id<"sessions">;
+  mentionedNotes?: MentionedNote[];
+  onMentionAdd?: (note: MentionedNote) => void;
+  onMentionRemove?: (noteId: MentionedNote["_id"]) => void;
 }
 
 const CHAT_SKELETON = (
@@ -40,7 +44,12 @@ const CHAT_SKELETON = (
   </div>
 );
 
-export function ChatView({ sessionId }: ChatViewProps) {
+export function ChatView({
+  sessionId,
+  mentionedNotes = [],
+  onMentionAdd,
+  onMentionRemove,
+}: ChatViewProps) {
   const { session, deleteSession } = useSession(sessionId);
   const sendMessage = useSendMessage();
   const navigate = useNavigate();
@@ -74,11 +83,13 @@ export function ChatView({ sessionId }: ChatViewProps) {
     if (!input.trim() || !sessionId || isSending) return;
 
     const content = input.trim();
+    const noteIds = mentionedNotes.map((n) => n._id);
     setInput("");
     setIsSending(true);
 
     try {
-      await sendMessage({ sessionId, content });
+      await sendMessage({ sessionId, content, noteIds: noteIds.length ? noteIds : undefined });
+      noteIds.forEach((id) => onMentionRemove?.(id));
       scrollToBottom();
     } catch {
       toast.error("No se pudo enviar el mensaje");
@@ -86,7 +97,7 @@ export function ChatView({ sessionId }: ChatViewProps) {
     } finally {
       setIsSending(false);
     }
-  }, [input, sessionId, isSending, sendMessage, scrollToBottom]);
+  }, [input, sessionId, isSending, mentionedNotes, sendMessage, onMentionRemove, scrollToBottom]);
 
   const handleDelete = useCallback(async () => {
     try {
@@ -133,6 +144,9 @@ export function ChatView({ sessionId }: ChatViewProps) {
         setInput={setInput}
         handleSend={handleSend}
         isSending={isSending}
+        mentionedNotes={mentionedNotes}
+        onMentionAdd={onMentionAdd}
+        onMentionRemove={onMentionRemove}
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

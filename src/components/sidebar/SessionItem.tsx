@@ -19,7 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Trash2, Pencil, MoreHorizontal } from "lucide-react";
+import { Trash2, Pencil, MoreHorizontal, MessageCircle } from "lucide-react";
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
 interface Session {
@@ -81,6 +81,7 @@ export function SessionItem({
           className="h-auto py-2 flex-col items-start gap-1 w-full"
         >
           <div className="flex items-center gap-2 w-full pr-6 overflow-hidden">
+            <MessageCircle className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
             <span className="line-clamp-1 text-sm">{session.title}</span>
           </div>
         </SidebarMenuButton>

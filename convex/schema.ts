@@ -3,6 +3,25 @@ import { v } from "convex/values";
 import { authTables } from "@convex-dev/auth/server";
 
 const applicationTables = {
+  notes: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    body: v.string(),
+    tags: v.optional(v.array(v.string())),
+    updatedAt: v.number(),
+    pendingAiEdit: v.optional(v.object({
+      proposedBody: v.string(),
+      prompt: v.string(),
+      generatedAt: v.number(),
+    })),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_updatedAt", ["userId", "updatedAt"])
+    .searchIndex("search_notes", {
+      searchField: "body",
+      filterFields: ["userId"],
+    }),
+
   sessions: defineTable({
     userId: v.id("users"),
     title: v.string(),

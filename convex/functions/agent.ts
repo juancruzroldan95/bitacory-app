@@ -3,9 +3,12 @@
 import { Agent } from "@convex-dev/agent";
 import { RAG } from "@convex-dev/rag";
 import { openai } from "@ai-sdk/openai";
+import { stepCountIs, tool } from "ai";
 import { components, internal } from "../_generated/api";
 import { internalAction } from "../_generated/server";
 import { v } from "convex/values";
+import { z } from "zod";
+import type { Id } from "../_generated/dataModel";
 
 const THERAPY_INSTRUCTIONS = `Sos Bitacory, un asistente de acompañamiento terapéutico empático y especializado. Tu rol es ayudar al usuario a procesar sus pensamientos, emociones y experiencias de sus sesiones de terapia o vivencias personales.
 
@@ -29,7 +32,11 @@ Es **MANDATORIO** que uses formatos ricos de Markdown en todas tus respuestas la
 - **Tablas:** Si estás comparando conceptos, analizando pros/contras de una decisión o resumiendo patrones a lo largo del tiempo, armá una pequeña tabla de Markdown.
 - **Énfasis activo:** Remarcá en **negrita** los puntos fundamentales, herramientas o palabras clave emocionales.
 - **Citas de reflexión:** Usá blockquotes ('>') para plantearle preguntas fuertes o reflexiones profundas al usuario para que se las lleve.
-- Párrafos súper cortos. Dejá las ideas claras, concisas y fáciles de escanear visualmente.`;
+- Párrafos súper cortos. Dejá las ideas claras, concisas y fáciles de escanear visualmente.
+
+## Herramientas disponibles
+
+Tenés acceso a la herramienta \`proposeNoteEdit\`. Usala SOLO cuando el usuario te pida explícitamente editar, mejorar, reescribir o reformular una nota adjunta. Nunca la uses de forma proactiva.`;
 
 const SUMMARY_PROMPT = `Sos un asistente que genera resúmenes estructurados de sesiones de acompañamiento terapéutico.
 
@@ -49,18 +56,18 @@ const rag = new RAG(components.rag, {
   textEmbeddingModel: openai.embedding("text-embedding-3-small"),
 });
 
-function buildSystemPromptWithMemory(ragText: string): string {
-  if (!ragText.trim()) return THERAPY_INSTRUCTIONS;
+function buildSystemPrompt(ragText: string, noteContext: string): string {
+  let prompt = THERAPY_INSTRUCTIONS;
 
-  return `${THERAPY_INSTRUCTIONS}
+  if (ragText.trim()) {
+    prompt += `\n\n---\n\n## Memoria de sesiones anteriores\n\nUsá esta información como contexto para personalizar tu respuesta y mostrar continuidad con el usuario. No menciones explícitamente que tenés estos resúmenes a menos que sea relevante.\n\n${ragText}`;
+  }
 
----
+  if (noteContext.trim()) {
+    prompt += `\n\n---\n\n## Notas adjuntas por el usuario\n\nEl usuario adjuntó las siguientes notas. Podés hacer referencia a ellas, responder con ese contexto, o usar \`proposeNoteEdit\` si el usuario pide que las edites.\n\n${noteContext}`;
+  }
 
-## Memoria de sesiones anteriores
-
-Usá esta información como contexto para personalizar tu respuesta y mostrar continuidad con el usuario. No menciones explícitamente que tenés estos resúmenes a menos que sea relevante.
-
-${ragText}`;
+  return prompt;
 }
 
 export const generateResponse = internalAction({
@@ -69,15 +76,16 @@ export const generateResponse = internalAction({
     promptMessageId: v.string(),
     sessionId: v.id("sessions"),
     content: v.string(),
+    noteIds: v.optional(v.array(v.id("notes"))),
   },
   returns: v.null(),
-  handler: async (ctx, { agentThreadId, promptMessageId, sessionId, content }) => {
+  handler: async (ctx, { agentThreadId, promptMessageId, sessionId, content, noteIds }) => {
     const appSession = await ctx.runQuery(internal.functions.sessions.getById, { sessionId });
     if (!appSession) throw new Error("Session not found");
 
     const userId = appSession.userId.toString();
 
-    let systemPrompt = THERAPY_INSTRUCTIONS;
+    let ragText = "";
     try {
       const { text } = await rag.search(ctx, {
         namespace: userId,
@@ -85,16 +93,60 @@ export const generateResponse = internalAction({
         limit: 5,
         searchType: "hybrid",
       });
-      console.log("[RAG] Contexto recuperado:", text || "(vacío)");
-      systemPrompt = buildSystemPromptWithMemory(text);
+      console.log("[RAG] Contexto recuperado:", { chars: (text || "").length });
+      ragText = text;
     } catch (e) {
       console.log("[RAG] Error al buscar contexto:", e);
     }
 
+    let noteContext = "";
+    if (noteIds && noteIds.length > 0) {
+      try {
+        const notes = await ctx.runQuery(internal.functions.notes.getByIds, { noteIds });
+        const ownedNotes = notes.filter((n) => n.userId === appSession.userId);
+        noteContext = ownedNotes
+          .map((n) => `## Nota: "${n.title}"\n\n${n.body}`)
+          .join("\n\n---\n\n");
+        console.log("[Notes] Contexto de notas adjuntas:", notes.length, "nota(s)");
+      } catch (e) {
+        console.log("[Notes] Error al obtener notas:", e);
+      }
+    }
+
+    const systemPrompt = buildSystemPrompt(ragText, noteContext);
+
     const result = await therapyAgent.streamText(
       ctx,
       { threadId: agentThreadId },
-      { promptMessageId, system: systemPrompt },
+      {
+        promptMessageId,
+        system: systemPrompt,
+        tools: {
+          proposeNoteEdit: tool({
+            description:
+              "Propone una reescritura completa de una nota del usuario. Usá SOLO cuando el usuario lo pida explícitamente (ej: 'mejorar esta nota', 'reescribir', 'editar'). Nunca uses esta herramienta de forma proactiva.",
+            inputSchema: z.object({
+              noteId: z.string().describe("El ID exacto de la nota a editar"),
+              proposedBody: z
+                .string()
+                .describe("El contenido completo reescrito de la nota en markdown"),
+              prompt: z
+                .string()
+                .describe("Descripción breve de los cambios realizados (1-2 oraciones)"),
+            }),
+            execute: async ({ noteId, proposedBody, prompt: editPrompt }) => {
+              await ctx.runMutation(internal.functions.notes.savePendingAiEdit, {
+                noteId: noteId as Id<"notes">,
+                proposedBody,
+                prompt: editPrompt,
+                userId: appSession.userId,
+              });
+              return "Edición propuesta guardada. El usuario podrá revisarla y decidir si aplicarla.";
+            },
+          }),
+        },
+        stopWhen: stepCountIs(2),
+      },
       { saveStreamDeltas: true }
     );
     await result.consumeStream();

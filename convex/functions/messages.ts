@@ -61,9 +61,10 @@ export const send = mutation({
   args: {
     sessionId: v.id("sessions"),
     content: v.string(),
+    noteIds: v.optional(v.array(v.id("notes"))),
   },
   returns: v.null(),
-  handler: async (ctx, { sessionId, content }) => {
+  handler: async (ctx, { sessionId, content, noteIds }) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
@@ -85,6 +86,7 @@ export const send = mutation({
         promptMessageId: messageId,
         sessionId,
         content,
+        noteIds: noteIds?.slice(0, 5),
       }
     );
 

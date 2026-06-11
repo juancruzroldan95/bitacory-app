@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
-import { SquarePen, Search } from "lucide-react";
+import { SquarePen, Search, NotebookPen } from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
@@ -23,12 +23,19 @@ export function NavMain({ onNavigate }: NavMainProps) {
     setOpenMobile(false);
   }, [navigate, onNavigate, setOpenMobile]);
 
+  const handleNewNote = useCallback(() => {
+    navigate("/notes");
+    onNavigate?.();
+    setOpenMobile(false);
+  }, [navigate, onNavigate, setOpenMobile]);
+
   const MENU_ITEMS = useMemo(
     () => [
+      { id: "new-note", title: "Nueva nota", icon: NotebookPen, action: handleNewNote },
       { id: "new-session", title: "Nueva sesión", icon: SquarePen, action: handleNewSession },
-      { id: "search-sessions", title: "Buscar sesiones", icon: Search, action: handleSearchClick },
+      { id: "search-sessions", title: "Buscar", icon: Search, action: handleSearchClick },
     ],
-    [handleNewSession]
+    [handleNewNote, handleNewSession]
   );
 
   return (
