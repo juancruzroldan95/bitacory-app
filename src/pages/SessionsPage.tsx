@@ -2,7 +2,7 @@ import { BookHeart } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { HomeComposer } from "@/components/chat/HomeComposer";
 
-export default function ChatHomePage() {
+export default function SessionsPage() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-8 p-8 relative">
       <div className="md:hidden absolute top-3 left-3 z-40">

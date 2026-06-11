@@ -1,6 +1,13 @@
 import { defineConfig } from "vitest/config";
+import path from "path";
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      "@/convex": path.resolve(__dirname, "./convex"),
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   test: {
     projects: [
       {
@@ -16,7 +23,7 @@ export default defineConfig({
         test: {
           name: "frontend",
           include: ["**/*.test.{ts,tsx,js,jsx}"],
-          exclude: ["convex/**"],
+          exclude: ["node_modules/**", "dist/**", "convex/**"],
           environment: "jsdom",
         },
       },

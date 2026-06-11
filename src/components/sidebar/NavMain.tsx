@@ -31,8 +31,8 @@ export function NavMain({ onNavigate }: NavMainProps) {
 
   const MENU_ITEMS = useMemo(
     () => [
-      { id: "new-note", title: "Nueva nota", icon: NotebookPen, action: handleNewNote },
-      { id: "new-session", title: "Nueva sesión", icon: SquarePen, action: handleNewSession },
+      { id: "new-note", title: "Notas", icon: NotebookPen, action: handleNewNote },
+      { id: "new-session", title: "Sesiones", icon: SquarePen, action: handleNewSession },
       { id: "search-sessions", title: "Buscar", icon: Search, action: handleSearchClick },
     ],
     [handleNewNote, handleNewSession]

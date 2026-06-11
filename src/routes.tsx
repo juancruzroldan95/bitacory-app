@@ -4,10 +4,9 @@ import AuthGuard from "@/AuthGuard";
 import AppLayout from "@/layouts/AppLayout";
 import LoginPage from "@/pages/LoginPage";
 
-const HomePage = lazy(() => import("@/pages/HomePage"));
+const SessionsPage = lazy(() => import("@/pages/SessionsPage"));
 const SessionPage = lazy(() => import("@/pages/SessionPage"));
-const WorkspacePage = lazy(() => import("@/pages/WorkspacePage"));
-const NotesIndexPage = lazy(() => import("@/pages/NotesIndexPage"));
+const NotesPage = lazy(() => import("@/pages/NotesPage"));
 const NoteEditorPage = lazy(() => import("@/pages/NoteEditorPage"));
 
 const routes = [
@@ -28,21 +27,15 @@ const routes = [
     children: [
       {
         path: "/notes",
-        element: <Suspense fallback={null}><WorkspacePage /></Suspense>,
-        children: [
-          {
-            index: true,
-            element: <Suspense fallback={null}><NotesIndexPage /></Suspense>,
-          },
-          {
-            path: ":noteId",
-            element: <Suspense fallback={null}><NoteEditorPage /></Suspense>,
-          },
-        ],
+        element: <Suspense fallback={null}><NotesPage /></Suspense>,
+      },
+      {
+        path: "/notes/:noteId",
+        element: <Suspense fallback={null}><NoteEditorPage /></Suspense>,
       },
       {
         path: "/chat",
-        element: <Suspense fallback={null}><HomePage /></Suspense>,
+        element: <Suspense fallback={null}><SessionsPage /></Suspense>,
       },
       {
         path: "/chat/:sessionId",
