@@ -1,17 +1,12 @@
 import { useCallback, useMemo } from "react";
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
-import { MessageCircle, Search, NotebookPen } from "lucide-react";
+import { MessageCircle, Info, NotebookPen } from "lucide-react";
 import { useNavigate } from "react-router";
-import { toast } from "sonner";
 
 interface NavMainProps {
   onNavigate?: () => void;
 }
 
-const handleSearchClick = () =>
-  toast.info("Modal de búsqueda próximamente...", {
-    description: "Aquí se abrirá el modal para buscar sesiones y más contenido.",
-  });
 
 export function NavMain({ onNavigate }: NavMainProps) {
   const navigate = useNavigate();
@@ -29,13 +24,19 @@ export function NavMain({ onNavigate }: NavMainProps) {
     setOpenMobile(false);
   }, [navigate, onNavigate, setOpenMobile]);
 
+  const handleAbout = useCallback(() => {
+    navigate("/about");
+    onNavigate?.();
+    setOpenMobile(false);
+  }, [navigate, onNavigate, setOpenMobile]);
+
   const MENU_ITEMS = useMemo(
     () => [
       { id: "new-note", title: "Notas", icon: NotebookPen, action: handleNewNote },
       { id: "new-session", title: "Sesiones", icon: MessageCircle, action: handleNewSession },
-      { id: "search-sessions", title: "Buscar", icon: Search, action: handleSearchClick },
+      { id: "about", title: "Cómo funciona", icon: Info, action: handleAbout },
     ],
-    [handleNewNote, handleNewSession]
+    [handleNewNote, handleNewSession, handleAbout]
   );
 
   return (

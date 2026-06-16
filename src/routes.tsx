@@ -8,6 +8,7 @@ const SessionsPage = lazy(() => import("@/pages/SessionsPage"));
 const SessionPage = lazy(() => import("@/pages/SessionPage"));
 const NotesPage = lazy(() => import("@/pages/NotesPage"));
 const NoteEditorPage = lazy(() => import("@/pages/NoteEditorPage"));
+const AboutPage = lazy(() => import("@/pages/AboutPage"));
 
 const routes = [
   {
@@ -40,6 +41,10 @@ const routes = [
       {
         path: "/chat/:sessionId",
         element: <Suspense fallback={null}><SessionPage /></Suspense>,
+      },
+      {
+        path: "/about",
+        element: <Suspense fallback={null}><AboutPage /></Suspense>,
       },
     ],
   },
