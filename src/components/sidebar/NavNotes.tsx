@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
-import { FileText, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, NotebookPen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -98,7 +98,7 @@ export function NavNotes() {
       </div>
 
       <SidebarGroupContent>
-        <div className="overflow-y-auto max-h-[45vh]">
+        <div className="overflow-y-auto max-h-[30vh]">
           <SidebarMenu className="px-2 pb-2">
             {notes === undefined ? (
               <div className="space-y-1 p-2">
@@ -147,7 +147,7 @@ export function NavNotes() {
                             }}
                             className="h-8 w-full"
                           >
-                            <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                            <NotebookPen className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                             <span className="line-clamp-1 text-sm">{note.title}</span>
                           </SidebarMenuButton>
                         )}

@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
-import { SquarePen, Search, NotebookPen } from "lucide-react";
+import { MessageCircle, Search, NotebookPen } from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 
@@ -32,7 +32,7 @@ export function NavMain({ onNavigate }: NavMainProps) {
   const MENU_ITEMS = useMemo(
     () => [
       { id: "new-note", title: "Notas", icon: NotebookPen, action: handleNewNote },
-      { id: "new-session", title: "Sesiones", icon: SquarePen, action: handleNewSession },
+      { id: "new-session", title: "Sesiones", icon: MessageCircle, action: handleNewSession },
       { id: "search-sessions", title: "Buscar", icon: Search, action: handleSearchClick },
     ],
     [handleNewNote, handleNewSession]

@@ -1,11 +1,12 @@
 import { useRef, useState } from "react";
-import { ArrowUp, FileText, X } from "lucide-react";
+import { ArrowRight, FileText, X, Smile, Paperclip, PenLine } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { MentionPicker } from "@/components/notes/MentionPicker";
 import { useNotes } from "@/hooks/useNotes";
 import type { Id } from "@/convex/_generated/dataModel";
 import type { MentionedNote } from "@/types/notes";
+import { toast } from "sonner";
 
 interface SessionStartComposerProps {
   onSubmit: (content: string, noteIds: Id<"notes">[]) => Promise<void>;
@@ -17,7 +18,7 @@ interface SessionStartComposerProps {
 
 export function SessionStartComposer({
   onSubmit,
-  placeholder = "¿Qué querés explorar hoy?",
+  placeholder = "¿Qué tenés en mente hoy? Iniciá una sesión...",
   mentionedNotes = [],
   onMentionAdd,
   onMentionRemove,
@@ -65,38 +66,19 @@ export function SessionStartComposer({
   };
 
   return (
-    <div className="w-full max-w-sm">
-      <div className="relative flex flex-col gap-2 rounded-2xl border border-border bg-background/80 dark:bg-muted/80 backdrop-blur-sm px-4 py-3 shadow-lg ring-1 ring-black/5 dark:ring-white/5">
-        {showMentionPicker && (
-          <MentionPicker
-            query={mentionQuery}
-            notes={noteOptions}
-            onSelect={handleMentionSelect}
-            onClose={() => setShowMentionPicker(false)}
-          />
-        )}
+    <div className="w-full relative flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 shadow-sm">
+      {showMentionPicker && (
+        <MentionPicker
+          query={mentionQuery}
+          notes={noteOptions}
+          onSelect={handleMentionSelect}
+          onClose={() => setShowMentionPicker(false)}
+        />
+      )}
 
-        {mentionedNotes.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 pt-1 px-1">
-            {mentionedNotes.map((note) => (
-              <span
-                key={note._id}
-                className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary rounded-md px-2 py-0.5"
-              >
-                <FileText className="h-3 w-3 shrink-0" />
-                <span className="max-w-[120px] truncate">{note.title}</span>
-                <button
-                  onClick={() => onMentionRemove?.(note._id)}
-                  className="ml-0.5 hover:text-primary/70 transition-colors"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            ))}
-          </div>
-        )}
-
-        <div className="flex gap-3">
+      {/* Top row: Icon + Input area */}
+      <div className="flex gap-4 items-start">
+        <div className="flex-grow min-w-0">
           <Textarea
             ref={textareaRef}
             value={input}
@@ -109,24 +91,67 @@ export function SessionStartComposer({
             }}
             placeholder={placeholder}
             disabled={isSubmitting}
-            className="min-h-[72px] max-h-48 resize-none border-0 bg-transparent dark:bg-transparent shadow-none focus-visible:ring-0 px-1 py-1 text-base"
+            className="min-h-[80px] max-h-48 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0 px-0 py-1 text-base text-foreground placeholder:text-muted-foreground/45 dark:placeholder:text-muted-foreground/35 leading-relaxed"
             rows={3}
           />
-          <div className="flex items-end pb-0.5">
-            <Button
-              onClick={handleSubmit}
-              disabled={!input.trim() || isSubmitting}
-              size="icon"
-              className="shrink-0 rounded-xl"
-            >
-              <ArrowUp className="h-4 w-4" />
-            </Button>
-          </div>
         </div>
       </div>
-      <p className="mt-3 text-center text-xs text-muted-foreground/60">
-        Enter para enviar · Shift+Enter para nueva línea · @ para mencionar una nota
-      </p>
+
+      {/* Mentioned notes tags row */}
+      {mentionedNotes.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 px-1 pb-1 border-t border-border/40 pt-3">
+          {mentionedNotes.map((note) => (
+            <span
+              key={note._id}
+              className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary rounded-full px-3 py-1 font-medium"
+            >
+              <FileText className="h-3 w-3 shrink-0" />
+              <span className="max-w-[150px] truncate">{note.title}</span>
+              <button
+                type="button"
+                onClick={() => onMentionRemove?.(note._id)}
+                className="ml-1 hover:text-primary/70 transition-colors"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Bottom control bar */}
+      <div className="flex items-center justify-between border-t border-border/40 pt-3">
+        <div className="flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => toast.info("Selector de emojis (visual)")}
+            className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground/60 hover:text-foreground transition-colors"
+            title="Agregar emoji"
+          >
+            <Smile className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => toast.info("Adjuntar archivo (visual)")}
+            className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground/60 hover:text-foreground transition-colors"
+            title="Adjuntar archivo"
+          >
+            <Paperclip className="h-5 w-5" />
+          </button>
+          <span className="text-xs text-muted-foreground/40 hidden sm:inline">
+            Escribí @ para mencionar una nota
+          </span>
+        </div>
+
+        <Button
+          onClick={handleSubmit}
+          disabled={!input.trim() || isSubmitting}
+          className="rounded-full px-6 bg-primary text-primary-foreground hover:opacity-90 transition-all active:scale-95 flex items-center gap-2 font-medium"
+        >
+          <span>Comenzar sesión</span>
+          <ArrowRight className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 }

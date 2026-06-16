@@ -50,14 +50,11 @@ main.tsx → ConvexAuthProvider + BrowserRouter → App.tsx → routes
   /                   → redirect to /notes
   /auth/login         → LoginPage (unauthenticated)
   /* (authenticated)  → AuthGuard → AppLayout (sidebar + <Outlet>)
-      /notes          → WorkspacePage (two-panel layout)
-          index       → NotesIndexPage
-          :noteId     → NoteEditorPage
-      /chat           → HomePage (session list)
-      /chat/:sessionId → SessionPage → ChatView
+      /notes          → NotesPage (list of notes)
+      /notes/:noteId  → NoteEditorPage (Tiptap editor for a single note)
+      /chat           → SessionsPage (session list)
+      /chat/:sessionId → SessionPage → ChatView (individual chat session)
 ```
-
-`WorkspacePage` is a two-panel layout (Framer Motion animated): left panel renders the notes `<Outlet>`, right panel is `GlobalChatPanel`. Both panels can be collapsed independently. The global chat panel uses `useGlobalSession` to find or lazily create a dedicated session for the workspace.
 
 ### Custom hooks
 
@@ -66,7 +63,6 @@ All domain logic is encapsulated in `src/hooks/` — no direct `api.*` imports i
 - `useSessions.ts` — exports `useSessions` (list + create/rename/delete) and `useSession` (single session)
 - `useMessages.ts` — paginated history + live streaming via `useUIMessages`; `send` accepts optional `noteIds`
 - `useNotes.ts` — exports `useNotes` (list + create/update/remove) and `useNote` (single note + AI edit ops)
-- `useGlobalSession.ts` — resolves or creates the persistent workspace session
 - `useProfile.ts` — profile query + update/avatar upload mutations
 - `useResolvedTheme.ts` — resolves `"system"` to `"dark"` or `"light"` via `matchMedia`
 

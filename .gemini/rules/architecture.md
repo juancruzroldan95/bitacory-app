@@ -35,7 +35,6 @@ One file per entity/table. All queries, mutations, and subscriptions for a given
 | `src/hooks/useMessages.ts` | messages (agent) | `useMessages(sessionId)`, `useSendMessage()` |
 | `src/hooks/useNotes.ts` | `notes` table | `useNotes()`, `useNote(noteId)` |
 | `src/hooks/useProfile.ts` | `profiles` table | `useProfile()` |
-| `src/hooks/useGlobalSession.ts` | workspace session | `useGlobalSession()` |
 
 **Naming:** list hook = entity name (`useSessions`), single-record hook = singular (`useSession`), standalone mutations = action name (`useSendMessage`).
 
@@ -49,19 +48,11 @@ HomeComposer
   → navigate("/chat/:sessionId")
 ```
 
-### Notes + AI workspace (WorkspacePage)
+### Editing a note (NoteEditorPage)
 ```
-WorkspacePage
-  → useGlobalSession()                        → finds or creates persistent session
-
-NoteEditorPage (Outlet inside WorkspacePage)
+NoteEditorPage
   → useNote(noteId)                           → notes.get        (live subscription)
   → useNote().updateNote(...)                 → notes.update     (mutation)
-
-GlobalChatPanel
-  → useMessages(sessionId)                   → messages.list    (streaming subscription)
-  → useSendMessage()({ sessionId, content, noteIds })
-                                             → messages.send    (mutation, passes note context)
 ```
 
 ### AI note edit proposal flow
