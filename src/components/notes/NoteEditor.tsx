@@ -29,28 +29,16 @@ export function NoteEditor({ initialBody, onSave }: NoteEditorProps) {
     },
     onUpdate: ({ editor }) => {
       const markdown = (editor as typeof editor & { getMarkdown(): string }).getMarkdown();
-      console.log(`[NoteEditor] onUpdate - current editor markdown (length: ${markdown.length}):`, JSON.stringify(markdown.substring(0, 60)) + (markdown.length > 60 ? "..." : ""));
-      
-      if (debounceRef.current) {
-        console.log("[NoteEditor] onUpdate - clearing previous debounce timer");
-        clearTimeout(debounceRef.current);
-      }
-      
+      if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
-        console.log(`[NoteEditor] Debounce fired - calling onSave with content length: ${markdown.length}`);
         onSave(markdown);
       }, 500);
     },
   });
 
   useEffect(() => {
-    console.log(`[NoteEditor] Mounted with initialBody (length: ${initialBody.length}):`, JSON.stringify(initialBody.substring(0, 60)) + (initialBody.length > 60 ? "..." : ""));
     return () => {
-      console.log("[NoteEditor] Unmounting...");
-      if (debounceRef.current) {
-        console.log("[NoteEditor] Unmount - clearing pending debounce timer");
-        clearTimeout(debounceRef.current);
-      }
+      if (debounceRef.current) clearTimeout(debounceRef.current);
     };
   }, []);
 
