@@ -1,9 +1,5 @@
 import { useAuthActions } from "@convex-dev/auth/react";
-import { useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -11,7 +7,6 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -38,81 +33,22 @@ function GoogleIcon({ className }: { className?: string }) {
 
 export function LoginForm() {
   const { signIn } = useAuthActions();
-  const [submitting, setSubmitting] = useState(false);
-  const [linkSent, setLinkSent] = useState(false);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Iniciar sesión</CardTitle>
-        <CardDescription>Ingresá a tu cuenta</CardDescription>
+        <CardDescription>Ingresá a tu cuenta para continuar</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {linkSent ? (
-          <div className="text-center space-y-4 py-4">
-            <p className="text-sm text-foreground">¡Revisá tu correo!</p>
-            <p className="text-sm text-muted-foreground">
-              Te enviamos un link mágico para iniciar sesión. Hacé clic en él para acceder a tu cuenta.
-            </p>
-            <Button
-              variant="outline"
-              className="w-full mt-4"
-              onClick={() => setLinkSent(false)}
-            >
-              Usar otro correo
-            </Button>
-          </div>
-        ) : (
-          <>
-            <Button
-              variant="outline"
-              className="w-full gap-2"
-              onClick={() => void signIn("google")}
-            >
-              <GoogleIcon className="h-4 w-4" />
-              Continuar con Google
-            </Button>
-
-            <div className="flex items-center gap-3">
-              <Separator className="flex-1" />
-              <span className="text-xs text-muted-foreground">o con tu email</span>
-              <Separator className="flex-1" />
-            </div>
-
-            <form
-              className="space-y-4"
-              onSubmit={(e) => {
-                e.preventDefault();
-                setSubmitting(true);
-                const formData = new FormData(e.currentTarget);
-                signIn("resend", formData)
-                  .then(() => {
-                    setLinkSent(true);
-                    toast.success("Link enviado exitosamente");
-                  })
-                  .catch(() => {
-                    toast.error("No se pudo enviar el link. Por favor, intentá de nuevo.");
-                  })
-                  .finally(() => setSubmitting(false));
-              }}
-            >
-              <div className="space-y-2">
-                <Label htmlFor="email">Correo electrónico</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  name="email"
-                  placeholder="vos@ejemplo.com"
-                  required
-                  autoComplete="email"
-                />
-              </div>
-              <Button className="w-full" type="submit" disabled={submitting}>
-                {submitting ? "Enviando link..." : "Enviar link de acceso"}
-              </Button>
-            </form>
-          </>
-        )}
+      <CardContent>
+        <Button
+          variant="outline"
+          className="w-full gap-2"
+          onClick={() => void signIn("google")}
+        >
+          <GoogleIcon className="h-4 w-4" />
+          Continuar con Google
+        </Button>
       </CardContent>
     </Card>
   );
