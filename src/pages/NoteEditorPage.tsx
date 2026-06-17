@@ -1,9 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useParams, Navigate } from "react-router";
 import { toast } from "sonner";
 import { Plus, X, Tag } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { NoteEditor } from "@/components/notes/NoteEditor";
+
+const NoteEditor = lazy(() =>
+  import("@/components/notes/NoteEditor").then((m) => ({ default: m.NoteEditor }))
+);
 import {
   Popover,
   PopoverContent,
@@ -22,7 +25,7 @@ import {
 
 export default function NoteEditorPage() {
   const { noteId } = useParams<{ noteId: string }>();
-  const { note, updateNote, clearPendingAiEdit } = useNote(noteId as Id<"notes"> | undefined);
+  const { note, updateNote } = useNote(noteId as Id<"notes"> | undefined);
   const titleDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Tag Manager State
@@ -201,12 +204,22 @@ export default function NoteEditorPage() {
       </div>
 
       <div className="flex flex-col flex-1 min-h-0 relative">
-        <NoteEditor
-          key={note._id}
-          noteId={note._id}
-          initialBody={note.body}
-          onSave={handleBodySave}
-        />
+        <Suspense
+          fallback={
+            <div className="flex flex-col flex-1 p-8 gap-3 animate-pulse">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+              <Skeleton className="h-4 w-4/6" />
+            </div>
+          }
+        >
+          <NoteEditor
+            key={note._id}
+            noteId={note._id}
+            initialBody={note.body}
+            onSave={handleBodySave}
+          />
+        </Suspense>
       </div>
     </div>
   );

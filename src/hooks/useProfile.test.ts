@@ -31,11 +31,11 @@ describe("useProfile", () => {
     vi.clearAllMocks();
     originalFetch = globalThis.fetch;
 
-    vi.mocked(useMutation).mockImplementation((apiPath) => {
+    vi.mocked(useMutation).mockImplementation(((apiPath: unknown) => {
       if (apiPath === "generate_upload_url") return mockGenerateUploadUrl;
       if (apiPath === "update_avatar") return mockUpdateAvatar;
       return mockUpdateProfile;
-    });
+    }) as any);
   });
 
   afterEach(() => {

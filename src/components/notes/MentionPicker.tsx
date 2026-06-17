@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
 import { FileText } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
 
@@ -17,7 +16,6 @@ interface MentionPickerProps {
 
 export function MentionPicker({ query, notes, onSelect, onClose }: MentionPickerProps) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const filtered = notes
     .filter((n) => n.title.toLowerCase().includes(query.toLowerCase()))
@@ -48,40 +46,32 @@ export function MentionPicker({ query, notes, onSelect, onClose }: MentionPicker
     return () => window.removeEventListener("keydown", handler);
   }, [filtered, activeIndex, onSelect, onClose]);
 
+  if (filtered.length === 0) return null;
+
   return (
-    <AnimatePresence>
-      {filtered.length > 0 && (
-        <motion.div
-          ref={containerRef}
-          initial={{ opacity: 0, scale: 0.96, y: 4 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: 4 }}
-          transition={{ duration: 0.12 }}
-          className="absolute bottom-full mb-2 left-0 right-0 z-50 bg-popover border border-border rounded-xl shadow-lg overflow-hidden"
-        >
-          <div className="px-2 py-1.5 border-b border-border">
-            <span className="text-xs text-muted-foreground font-medium">Notas</span>
-          </div>
-          <ul className="py-1">
-            {filtered.map((note, i) => (
-              <li key={note._id}>
-                <button
-                  className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${
-                    i === activeIndex
-                      ? "bg-accent text-accent-foreground"
-                      : "text-foreground hover:bg-accent/50"
-                  }`}
-                  onMouseEnter={() => setActiveIndex(i)}
-                  onClick={() => onSelect(note)}
-                >
-                  <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                  <span className="truncate">{note.title}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <div className="animate-in fade-in-0 zoom-in-95 absolute bottom-full mb-2 left-0 right-0 z-50 bg-popover border border-border rounded-xl shadow-lg overflow-hidden">
+      <div className="px-2 py-1.5 border-b border-border">
+        <span className="text-xs text-muted-foreground font-medium">Notas</span>
+      </div>
+      <ul className="py-1">
+        {filtered.map((note, i) => (
+          <li key={note._id}>
+            <button
+              className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${
+                i === activeIndex
+                  ? "bg-accent text-accent-foreground"
+                  : "text-foreground hover:bg-accent/50"
+              }`}
+              onMouseEnter={() => setActiveIndex(i)}
+              onClick={() => onSelect(note)}
+            >
+              <FileText className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <span className="truncate">{note.title}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
+

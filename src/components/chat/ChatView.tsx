@@ -75,7 +75,7 @@ export function ChatView({
       setShowScrollButton(!isNearBottom);
     };
 
-    viewport.addEventListener("scroll", handleScroll);
+    viewport.addEventListener("scroll", handleScroll, { passive: true });
     return () => viewport.removeEventListener("scroll", handleScroll);
   }, []);
 

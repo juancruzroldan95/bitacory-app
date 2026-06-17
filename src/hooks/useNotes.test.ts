@@ -16,7 +16,7 @@ describe("useNotes", () => {
   it("should return undefined notes when loading", () => {
     vi.mocked(useQuery).mockReturnValue(undefined);
     const mockMutation = vi.fn();
-    vi.mocked(useMutation).mockReturnValue(mockMutation);
+    vi.mocked(useMutation).mockReturnValue(mockMutation as any);
 
     const result = useNotes();
     expect(result.notes).toBeUndefined();
@@ -32,7 +32,7 @@ describe("useNotes", () => {
     const mockNotes = [{ _id: "n1", title: "Note 1", userId: "u1" }];
     vi.mocked(useQuery).mockReturnValue(mockNotes);
     const mockMutation = vi.fn();
-    vi.mocked(useMutation).mockReturnValue(mockMutation);
+    vi.mocked(useMutation).mockReturnValue(mockMutation as any);
 
     const result = useNotes();
     expect(result.notes).toBe(mockNotes);
@@ -48,7 +48,7 @@ describe("useNote", () => {
   it("should call query with skip when noteId is undefined", () => {
     vi.mocked(useQuery).mockReturnValue(undefined);
     const mockMutation = vi.fn();
-    vi.mocked(useMutation).mockReturnValue(mockMutation);
+    vi.mocked(useMutation).mockReturnValue(mockMutation as any);
 
     const result = useNote(undefined);
     expect(result.note).toBeUndefined();
@@ -60,7 +60,7 @@ describe("useNote", () => {
     const mockNote = { _id: "note_123", title: "Note 1", body: "Hello", userId: "u1" };
     vi.mocked(useQuery).mockReturnValue(mockNote);
     const mockMutation = vi.fn();
-    vi.mocked(useMutation).mockReturnValue(mockMutation);
+    vi.mocked(useMutation).mockReturnValue(mockMutation as any);
 
     const noteId = "note_123" as any;
     const result = useNote(noteId);

@@ -80,3 +80,20 @@ Vitest is configured with two projects (`vitest.config.ts`):
 
 - `convex` — runs `convex/**/*.test.ts` in `edge-runtime`; uses `convex-test` with identity mocking to test auth-gated mutations
 - `frontend` — runs all other test files in `jsdom`
+
+## Skills
+
+Project-scoped skills live in `.gemini/skills/`. Always check this directory before doing independent research on a topic covered by a skill. Read the `SKILL.md` inside each skill directory for a quick reference, and the `rules/` subdirectory for detailed rule files with code examples.
+
+Available skills:
+
+| Skill | Description |
+|---|---|
+| `vercel-react-best-practices` | 70 React/Vite performance rules from Vercel Engineering (bundle splitting, re-render optimization, event listeners, etc.) |
+| `convex` | Convex general usage patterns |
+| `convex-create-component` | How to create a Convex component |
+| `convex-migration-helper` | Data migration patterns for Convex |
+| `convex-performance-audit` | Convex query/mutation performance audit rules |
+| `convex-quickstart` | Convex project bootstrapping |
+| `convex-setup-auth` | Auth setup with `@convex-dev/auth` |
+| `web-design-guidelines` | UI/UX design best practices |

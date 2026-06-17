@@ -1,16 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { useResolvedTheme } from "./useResolvedTheme";
 import { useTheme } from "@/hooks/useTheme";
-import * as React from "react";
 
 // Mock dependencies
 const mockSetSystemDark = vi.fn();
 let mockSystemDarkVal = false;
 
 vi.mock("react", () => ({
-  useState: vi.fn((initFn) => {
-    // If it's the state function, evaluate it, otherwise use direct value
-    const val = typeof initFn === "function" ? initFn() : initFn;
+  useState: vi.fn(() => {
     // We override return value with mockSystemDarkVal for controlled testing
     return [mockSystemDarkVal, mockSetSystemDark];
   }),

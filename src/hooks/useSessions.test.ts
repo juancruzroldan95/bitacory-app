@@ -16,7 +16,7 @@ describe("useSessions", () => {
   it("should return undefined sessions and mutation handlers when loading", () => {
     vi.mocked(useQuery).mockReturnValue(undefined);
     const mockMutation = vi.fn();
-    vi.mocked(useMutation).mockReturnValue(mockMutation);
+    vi.mocked(useMutation).mockReturnValue(mockMutation as any);
 
     const result = useSessions();
 
@@ -36,7 +36,7 @@ describe("useSessions", () => {
     ];
     vi.mocked(useQuery).mockReturnValue(mockSessions);
     const mockMutation = vi.fn();
-    vi.mocked(useMutation).mockReturnValue(mockMutation);
+    vi.mocked(useMutation).mockReturnValue(mockMutation as any);
 
     const result = useSessions();
 
@@ -54,7 +54,7 @@ describe("useSession", () => {
   it("should return undefined session when loading", () => {
     vi.mocked(useQuery).mockReturnValue(undefined);
     const mockMutation = vi.fn();
-    vi.mocked(useMutation).mockReturnValue(mockMutation);
+    vi.mocked(useMutation).mockReturnValue(mockMutation as any);
 
     const sessionId = "session_123" as any;
     const result = useSession(sessionId);
@@ -69,7 +69,7 @@ describe("useSession", () => {
     const mockSession = { _id: "session_123", title: "Session 1", userId: "u1" };
     vi.mocked(useQuery).mockReturnValue(mockSession);
     const mockMutation = vi.fn();
-    vi.mocked(useMutation).mockReturnValue(mockMutation);
+    vi.mocked(useMutation).mockReturnValue(mockMutation as any);
 
     const sessionId = "session_123" as any;
     const result = useSession(sessionId);

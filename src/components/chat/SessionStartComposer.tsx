@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { ArrowRight, FileText, X, Smile, Paperclip, PenLine } from "lucide-react";
+import { useRef, useMemo, useState } from "react";
+import { ArrowRight, FileText, X, Smile, Paperclip } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { MentionPicker } from "@/components/notes/MentionPicker";
@@ -30,7 +30,10 @@ export function SessionStartComposer({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { notes } = useNotes();
 
-  const noteOptions = (notes ?? []).map((n) => ({ _id: n._id, title: n.title }));
+  const noteOptions = useMemo(
+    () => (notes ?? []).map((n) => ({ _id: n._id, title: n.title })),
+    [notes]
+  );
 
   const handleChange = (value: string) => {
     setInput(value);

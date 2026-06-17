@@ -1,5 +1,4 @@
-import { PrismAsyncLight as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { memo } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useSmoothText } from "@convex-dev/agent/react";
@@ -24,20 +23,15 @@ const MARKDOWN_COMPONENTS = {
     return (
       <div className="group/code relative">
         <CopyButton text={codeString} />
-        <SyntaxHighlighter
-          style={oneDark}
-          language={match?.[1] || "text"}
-          PreTag="div"
-          customStyle={{ margin: 0, borderRadius: "0.5rem", fontSize: "0.8rem" }}
-        >
-          {codeString}
-        </SyntaxHighlighter>
+        <pre className="rounded-md bg-muted p-4 overflow-x-auto text-xs font-mono">
+          <code>{codeString}</code>
+        </pre>
       </div>
     );
   },
 };
 
-export function AssistantMessage({
+export const AssistantMessage = memo(function AssistantMessage({
   content,
   isStreaming,
 }: {
@@ -58,4 +52,5 @@ export function AssistantMessage({
       </ReactMarkdown>
     </div>
   );
-}
+});
+

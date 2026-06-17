@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Send, FileText, X } from "lucide-react";
@@ -50,7 +50,10 @@ export function MessageComposer({
     }
   };
 
-  const noteOptions = (notes ?? []).map((n) => ({ _id: n._id, title: n.title }));
+  const noteOptions = useMemo(
+    () => (notes ?? []).map((n) => ({ _id: n._id, title: n.title })),
+    [notes]
+  );
 
   return (
     <div className="bg-background px-4 py-4 shrink-0">

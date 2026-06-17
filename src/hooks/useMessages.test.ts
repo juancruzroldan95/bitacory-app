@@ -145,7 +145,7 @@ describe("useMessages", () => {
 describe("useSendMessage", () => {
   it("should return the send message mutation hook", () => {
     const mockMutation = vi.fn();
-    vi.mocked(useMutation).mockReturnValue(mockMutation);
+    vi.mocked(useMutation).mockReturnValue(mockMutation as any);
 
     const result = useSendMessage();
 
