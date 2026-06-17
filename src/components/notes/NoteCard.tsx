@@ -40,7 +40,6 @@ interface TagConfig {
   icon: React.ComponentType<{ className?: string }>;
   color: string;
   bgColor: string;
-  borderLeftClass: string;
 }
 
 function getTagDetails(tags?: string[]): TagConfig {
@@ -50,7 +49,6 @@ function getTagDetails(tags?: string[]): TagConfig {
       icon: FileText,
       color: "text-primary",
       bgColor: "bg-primary/10",
-      borderLeftClass: "border-l-primary/60 dark:border-l-primary/50",
     };
   }
   const firstTag = tags[0].toLowerCase();
@@ -60,7 +58,6 @@ function getTagDetails(tags?: string[]): TagConfig {
       icon: Users,
       color: "text-orange-600 dark:text-orange-400",
       bgColor: "bg-orange-500/10",
-      borderLeftClass: "border-l-orange-500/70 dark:border-l-orange-400/70",
     };
   }
   if (firstTag.includes("trabajo") || firstTag.includes("career") || firstTag.includes("profesion") || firstTag.includes("limites")) {
@@ -69,7 +66,6 @@ function getTagDetails(tags?: string[]): TagConfig {
       icon: Briefcase,
       color: "text-blue-600 dark:text-blue-400",
       bgColor: "bg-blue-500/10",
-      borderLeftClass: "border-l-blue-500/70 dark:border-l-blue-400/70",
     };
   }
   if (firstTag.includes("crecimiento") || firstTag.includes("growth") || firstTag.includes("personal") || firstTag.includes("auto")) {
@@ -78,7 +74,6 @@ function getTagDetails(tags?: string[]): TagConfig {
       icon: Sprout,
       color: "text-emerald-600 dark:text-emerald-400",
       bgColor: "bg-emerald-500/10",
-      borderLeftClass: "border-l-emerald-600/70 dark:border-l-emerald-400/70",
     };
   }
   return {
@@ -86,7 +81,6 @@ function getTagDetails(tags?: string[]): TagConfig {
     icon: TagIcon,
     color: "text-primary",
     bgColor: "bg-primary/10",
-    borderLeftClass: "border-l-primary/60 dark:border-l-primary/50",
   };
 }
 
@@ -141,11 +135,11 @@ export const NoteCard = React.memo(function NoteCard({
   return (
     <article
       onClick={onClick}
-      className={`bg-card hover:bg-muted/5 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 group cursor-pointer border-l-4 border border-y-border border-r-border ${tagDetails.borderLeftClass}`}
+      className="bg-card hover:bg-muted/10 rounded-xl p-6 border border-border hover:border-primary/30 dark:hover:border-primary/45 transition-all duration-200 hover:-translate-y-0.5 group cursor-pointer shadow-sm"
     >
-      <div className="flex justify-between items-start mb-3">
-        <div className={`flex items-center gap-1.5 text-xs font-semibold ${tagDetails.color}`}>
-          <IconComponent className="h-4 w-4" />
+      <div className="flex justify-between items-start mb-4">
+        <div className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${tagDetails.color} ${tagDetails.bgColor} border-current/10 shrink-0`}>
+          <IconComponent className="h-3.5 w-3.5 shrink-0" />
           <span>{tagDetails.label}</span>
         </div>
         <div className="flex items-center gap-2">
@@ -155,13 +149,13 @@ export const NoteCard = React.memo(function NoteCard({
           <button
             type="button"
             onClick={(e) => onToggleBookmark(note._id, e)}
-            className="p-1 rounded hover:bg-muted text-muted-foreground/60 hover:text-foreground transition-colors"
+            className="p-1 rounded hover:bg-muted text-muted-foreground/60 hover:text-foreground transition-colors duration-150"
           >
             <Bookmark className={`h-4 w-4 ${isBookmarked ? "fill-primary text-primary" : ""}`} />
           </button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-              <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg">
+              <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg transition-colors duration-150">
                 <MoreVertical className="h-4 w-4 text-muted-foreground" />
               </Button>
             </DropdownMenuTrigger>
@@ -182,16 +176,16 @@ export const NoteCard = React.memo(function NoteCard({
         </div>
       </div>
 
-      <h4 className="font-serif text-2xl font-semibold text-foreground group-hover:text-primary transition-colors mb-3 leading-snug">
+      <h4 className="font-serif text-xl font-semibold text-foreground group-hover:text-primary transition-colors mb-2 leading-snug tracking-tight">
         {note.title}
       </h4>
 
-      <p className="font-serif text-base text-muted-foreground italic pl-3 border-l-2 border-border/60 py-0.5 mb-4">
+      <p className="font-serif text-base text-muted-foreground/85 italic pl-3 border-l border-primary/20 dark:border-l dark:border-primary/30 py-0.5 mb-4">
         &ldquo;{getExcerpt(note.body, 120) || "Escribí tu nota de hoy..."}&rdquo;
       </p>
 
       {note.tags && note.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {note.tags.map((tag) => (
             <span
               key={tag}
@@ -199,7 +193,7 @@ export const NoteCard = React.memo(function NoteCard({
                 e.stopPropagation();
                 onTagClick(tag);
               }}
-              className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-colors"
+              className="px-2.5 py-0.5 bg-secondary/60 text-secondary-foreground hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20 rounded-md text-xs font-medium transition-all duration-150"
             >
               #{tag}
             </span>

@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-17T18:25:00Z",
+  "title": "Design System: Bitacory",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Calming Healing Teal",
+        "canonical": "oklch(0.52 0.12 185)",
+        "tonalRamp": [
+          "oklch(0.15 0.12 185)",
+          "oklch(0.30 0.12 185)",
+          "oklch(0.45 0.12 185)",
+          "oklch(0.52 0.12 185)",
+          "oklch(0.65 0.12 185)",
+          "oklch(0.75 0.12 185)",
+          "oklch(0.85 0.10 185)",
+          "oklch(0.95 0.05 185)"
+        ]
+      },
+      "primary-dark": {
+        "role": "primary",
+        "displayName": "Calming Healing Teal (Dark)",
+        "canonical": "oklch(0.68 0.13 185)",
+        "tonalRamp": [
+          "oklch(0.20 0.13 185)",
+          "oklch(0.35 0.13 185)",
+          "oklch(0.50 0.13 185)",
+          "oklch(0.68 0.13 185)",
+          "oklch(0.75 0.13 185)",
+          "oklch(0.82 0.13 185)",
+          "oklch(0.90 0.10 185)",
+          "oklch(0.96 0.05 185)"
+        ]
+      },
+      "neutral-bg": {
+        "role": "neutral",
+        "displayName": "Soft Studio White",
+        "canonical": "oklch(1 0 0)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.30 0 0)",
+          "oklch(0.45 0 0)",
+          "oklch(0.60 0 0)",
+          "oklch(0.75 0 0)",
+          "oklch(0.85 0 0)",
+          "oklch(0.95 0 0)",
+          "oklch(1.00 0 0)"
+        ]
+      },
+      "neutral-bg-dark": {
+        "role": "neutral",
+        "displayName": "Warm Zinc Dark",
+        "canonical": "oklch(0.27 0 0)",
+        "tonalRamp": [
+          "oklch(0.08 0 0)",
+          "oklch(0.15 0 0)",
+          "oklch(0.22 0 0)",
+          "oklch(0.27 0 0)",
+          "oklch(0.40 0 0)",
+          "oklch(0.60 0 0)",
+          "oklch(0.80 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero headers and empty state headlines."
+      },
+      "body": {
+        "displayName": "Body Prose",
+        "purpose": "Notes editor prose and therapy assistant messages."
+      }
+    },
+    "shadows": [
+      {
+        "name": "ambient-sm",
+        "value": "0 1px 2px 0 rgba(0,0,0,0.05)",
+        "purpose": "Subtle rest-state shadow for cards and buttons."
+      },
+      {
+        "name": "ambient-md",
+        "value": "0 4px 12px 0 rgba(0,0,0,0.07)",
+        "purpose": "Soft shadow for dropdowns, tooltips, and floating components."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Default standard easing for state and tab transitions."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Used for core call-to-actions like creating a new note or session.",
+      "html": "<button class=\"ds-btn-primary\">Nueva Nota</button>",
+      "css": ".ds-btn-primary { background: oklch(0.52 0.12 185); color: #ffffff; padding: 0.5rem 1.0rem; font-family: 'Outfit', sans-serif; font-size: 0.875rem; font-weight: 500; border: none; border-radius: 0.55rem; cursor: pointer; transition: background 0.2s, box-shadow 0.2s; outline: none; } .ds-btn-primary:hover { background: oklch(0.48 0.11 185); } .ds-btn-primary:focus-visible { box-shadow: 0 0 0 3px oklch(0.60 0.08 185 / 50%); }"
+    },
+    {
+      "name": "Standard Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Standard container for notes and session list entries.",
+      "html": "<div class=\"ds-card\"><h3 class=\"ds-card-title\">Título de la Entrada</h3><p class=\"ds-card-body\">Este es un espacio seguro para volcar tus pensamientos...</p></div>",
+      "css": ".ds-card { background: #ffffff; border: 1px solid oklch(0.92 0.004 286.32); border-radius: 0.75rem; padding: 1.5rem; font-family: 'Outfit', sans-serif; display: flex; flex-direction: column; gap: 0.5rem; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); } .ds-card-title { font-size: 1.25rem; font-weight: 500; color: oklch(0.20 0.006 285.823); margin: 0; } .ds-card-body { font-family: 'Lora', serif; font-size: 1rem; line-height: 1.6; color: oklch(0.552 0.016 285.938); margin: 0; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Standard input field for titles and text filters.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Escribe tu título aquí...\" />",
+      "css": ".ds-input { background: #ffffff; border: 1px solid oklch(0.92 0.004 286.32); border-radius: 0.55rem; padding: 0.5rem 0.75rem; font-family: 'Outfit', sans-serif; font-size: 0.875rem; color: oklch(0.20 0.006 285.823); width: 100%; outline: none; transition: border-color 0.2s, box-shadow 0.2s; } .ds-input:focus { border-color: oklch(0.52 0.12 185); box-shadow: 0 0 0 3px oklch(0.60 0.08 185 / 30%); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Serene Sanctuary",
+    "overview": "Bitacory is designed as an adaptive light and dark sanctuary optimized for therapeutic reflection, self-healing, and calm dialog. It uses soft studio whites, deep zinc backgrounds, and calming healing teal accents to establish safety, privacy, and quiet focus. The design system is highly restrained, emphasizing spacious typography, generous whitespace, and tactile micro-interactions to lower cognitive load.",
+    "keyCharacteristics": [
+      "Restrained color application (primary accent used under 10% of any view).",
+      "Editorial-grade typography with a serif body face (Lora) for writing and reading.",
+      "Adaptive light/dark styling using OKLCH custom properties.",
+      "Quiet, intent-driven motion curves with reduced-motion fallbacks."
+    ],
+    "rules": [
+      {
+        "name": "The Calming Accent Rule",
+        "body": "The primary accent teal is used on ≤10% of any given screen. Its rarity makes it an intentional focus indicator, never a distraction.",
+        "section": "colors"
+      },
+      {
+        "name": "The Therapeutic Reading Rule",
+        "body": "Body text, editor prose, and AI chat messages must always render in Lora (serif) with a line-height of 1.6 and a maximum line length of 70ch to optimize reading and journaling comfort.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-At-Rest Rule",
+        "body": "Card containers and panels are flat or have minimal shadows (ambient-sm) at rest. Shadows appear only to denote state transitions (hover, active focus, active dropdown overlays).",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do wrap body text and editor prose to max 70ch to facilitate scanning and self-reflection.",
+      "Do verify text contrast (e.g., body text must hit ≥4.5:1 contrast ratio against the background).",
+      "Do respect user preferences for motion by wrapping animations in prefers-reduced-motion media queries.",
+      "Do keep cards simple and flat at rest, with a thin 1px border."
+    ],
+    "donts": [
+      "Don't use border-left or border-right greater than 1px as a colored accent/stripe on card lists.",
+      "Don't use gradient text or background-clip: text combined with gradient backgrounds.",
+      "Don't use glassmorphism/blurs as a default decoration.",
+      "Don't pair borders with wide drop shadows (no ghost-cards).",
+      "Don't use tiny uppercase tracked eyebrows above every section.",
+      "Don't use sketchy/doodle SVG drawings or wavy paths."
+    ]
+  }
+}
