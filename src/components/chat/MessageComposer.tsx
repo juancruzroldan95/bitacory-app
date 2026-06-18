@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Send, FileText, X } from "lucide-react";
+import { Send } from "lucide-react";
 import { MentionPicker } from "@/components/notes/MentionPicker";
 import { useNotes } from "@/hooks/useNotes";
 import type { MentionedNote } from "@/types/notes";
@@ -16,6 +16,40 @@ interface MessageComposerProps {
   onMentionRemove?: (noteId: MentionedNote["_id"]) => void;
 }
 
+const renderHighlightedText = (text: string, notes: MentionedNote[]) => {
+  if (!notes.length) return text;
+
+  // Sort notes by title length descending to prevent partial matching
+  const sortedNotes = [...notes].sort((a, b) => b.title.length - a.title.length);
+
+  const escapeRegex = (s: string) => s.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+  const pattern = sortedNotes.map((n) => `@${escapeRegex(n.title)}`).join("|");
+
+  if (!pattern) return text;
+
+  const regex = new RegExp(`(${pattern})`, "g");
+  const parts = text.split(regex);
+
+  return parts.map((part, index) => {
+    const matchingNote = sortedNotes.find((n) => `@${n.title}` === part);
+    if (matchingNote) {
+      return (
+        <span
+          key={index}
+          className="bg-primary/15 dark:bg-primary/25 rounded px-[3px] -mx-[3px] select-none text-transparent"
+        >
+          {part}
+        </span>
+      );
+    }
+    return (
+      <span key={index} className="text-transparent">
+        {part}
+      </span>
+    );
+  });
+};
+
 export function MessageComposer({
   input,
   setInput,
@@ -28,6 +62,7 @@ export function MessageComposer({
   const [showMentionPicker, setShowMentionPicker] = useState(false);
   const [mentionQuery, setMentionQuery] = useState("");
   const { notes } = useNotes();
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   const handleChange = (value: string) => {
     setInput(value);
@@ -68,46 +103,39 @@ export function MessageComposer({
             />
           )}
 
-          {mentionedNotes.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 pt-1 px-1">
-              {mentionedNotes.map((note) => (
-                <span
-                  key={note._id}
-                  className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary rounded-md px-2 py-0.5"
-                >
-                  <FileText className="h-3 w-3 shrink-0" />
-                  <span className="max-w-[120px] truncate">{note.title}</span>
-                  <button
-                    onClick={() => onMentionRemove?.(note._id)}
-                    className="ml-0.5 hover:text-primary/70 transition-colors"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              ))}
-            </div>
-          )}
-
           <div className="flex gap-3">
-            <Textarea
-              value={input}
-              onChange={(e) => handleChange(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  if (!showMentionPicker) handleSend();
-                }
-              }}
-              placeholder="Escribí lo que quieras... Usá @ para adjuntar una nota"
-              disabled={isSending}
-              className="min-h-8 max-h-40 resize-none border-0 bg-transparent dark:bg-transparent shadow-none focus-visible:ring-0 px-1 py-1.5 text-sm"
-              rows={1}
-            />
+            <div className="flex-grow min-w-0 relative">
+              <div
+                ref={overlayRef}
+                className="pointer-events-none absolute inset-0 select-none overflow-hidden px-1 py-1.5 text-sm whitespace-pre-wrap break-words border-0 text-transparent"
+              >
+                {renderHighlightedText(input, mentionedNotes)}
+              </div>
+              <Textarea
+                value={input}
+                onChange={(e) => handleChange(e.target.value)}
+                onScroll={(e) => {
+                  if (overlayRef.current) {
+                    overlayRef.current.scrollTop = e.currentTarget.scrollTop;
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    if (!showMentionPicker) handleSend();
+                  }
+                }}
+                placeholder="Escribí lo que quieras... Usá @ para adjuntar una nota"
+                disabled={isSending}
+                className="min-h-8 max-h-40 resize-none border-0 bg-transparent dark:bg-transparent shadow-none focus-visible:ring-0 px-1 py-1.5 text-sm relative z-10"
+                rows={1}
+              />
+            </div>
             <Button
               onClick={handleSend}
               disabled={!input.trim() || isSending}
               size="icon"
-              className="shrink-0 self-end mb-0.5 rounded-xl"
+              className="shrink-0 self-end mb-0.5 rounded-xl z-10"
             >
               <Send className="h-4 w-4" />
             </Button>

@@ -87,7 +87,7 @@ export default function SessionsPage() {
         <div className="space-y-2">
           <h2 className="font-serif text-4xl font-medium tracking-tight text-foreground">Tus Sesiones</h2>
           <p className="text-base text-muted-foreground/80 max-w-md leading-relaxed">
-            Un espacio de calma para conversar con tus pensamientos y descubrir patrones en tu vida diaria.
+            Tu espacio para conversar con la IA, organizado y con contexto sobre vos y tus notas personales.
           </p>
         </div>
 

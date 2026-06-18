@@ -1,4 +1,4 @@
-import { NotebookPen, MessageCircle, Lightbulb, Heart, AtSign, Sparkles, PenLine, ArrowRight, TrendingUp, Goal, Brain } from "lucide-react";
+import { NotebookPen, MessageCircle, Lightbulb, AtSign, Sparkles, PenLine, ArrowRight, TrendingUp, Goal, Brain, BookOpen } from "lucide-react";
 import { useNavigate } from "react-router";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
@@ -232,7 +232,7 @@ export default function AboutPage() {
         {/* CTA Footer */}
         <footer className="rounded-2xl border border-primary/20 bg-primary/5 p-8 text-center space-y-4">
           <div className="flex justify-center">
-            <Heart className="h-8 w-8 text-primary/60" />
+            <BookOpen className="h-8 w-8 text-primary/60" />
           </div>
           <div className="space-y-2">
             <h3 className="font-serif text-xl font-medium text-foreground">

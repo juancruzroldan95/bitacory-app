@@ -131,3 +131,34 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Minimal and aesthetic scrollbars for sidebar group content */
+[data-slot="sidebar-group-content"] .overflow-y-auto,
+.scrollbar-minimal {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--muted-foreground) 25%, transparent) transparent;
+}
+
+[data-slot="sidebar-group-content"] .overflow-y-auto::-webkit-scrollbar,
+.scrollbar-minimal::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+[data-slot="sidebar-group-content"] .overflow-y-auto::-webkit-scrollbar-track,
+.scrollbar-minimal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+[data-slot="sidebar-group-content"] .overflow-y-auto::-webkit-scrollbar-thumb,
+.scrollbar-minimal::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--muted-foreground) 25%, transparent);
+  border-radius: 9999px;
+  transition: background 0.15s ease;
+}
+
+[data-slot="sidebar-group-content"] .overflow-y-auto::-webkit-scrollbar-thumb:hover,
+.scrollbar-minimal::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--muted-foreground) 55%, transparent);
+}
+

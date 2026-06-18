@@ -98,7 +98,7 @@ export function NavNotes() {
       </div>
 
       <SidebarGroupContent>
-        <div className="overflow-y-auto max-h-[30vh]">
+        <div className="overflow-y-auto max-h-[30vh] scrollbar-minimal">
           <SidebarMenu className="px-2 pb-2">
             {notes === undefined ? (
               <div className="space-y-1 p-2">

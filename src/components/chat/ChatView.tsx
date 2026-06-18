@@ -46,13 +46,26 @@ const CHAT_SKELETON = (
 
 export function ChatView({
   sessionId,
-  mentionedNotes = [],
-  onMentionAdd,
-  onMentionRemove,
+  mentionedNotes: propMentionedNotes,
+  onMentionAdd: propOnMentionAdd,
+  onMentionRemove: propOnMentionRemove,
 }: ChatViewProps) {
   const { session, deleteSession } = useSession(sessionId);
   const sendMessage = useSendMessage();
   const navigate = useNavigate();
+
+  const [localMentionedNotes, setLocalMentionedNotes] = useState<MentionedNote[]>([]);
+  const mentionedNotes = propMentionedNotes ?? localMentionedNotes;
+
+  const onMentionAdd = propOnMentionAdd ?? ((note: MentionedNote) => {
+    setLocalMentionedNotes((prev) =>
+      prev.some((n) => n._id === note._id) ? prev : [...prev, note]
+    );
+  });
+
+  const onMentionRemove = propOnMentionRemove ?? ((noteId: MentionedNote["_id"]) => {
+    setLocalMentionedNotes((prev) => prev.filter((n) => n._id !== noteId));
+  });
 
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
@@ -83,13 +96,16 @@ export function ChatView({
     if (!input.trim() || !sessionId || isSending) return;
 
     const content = input.trim();
-    const noteIds = mentionedNotes.map((n) => n._id);
+    const activeNoteIds = mentionedNotes
+      .filter((note) => input.includes(`@${note.title}`))
+      .map((note) => note._id);
+
     setInput("");
     setIsSending(true);
 
     try {
-      await sendMessage({ sessionId, content, noteIds: noteIds.length ? noteIds : undefined });
-      noteIds.forEach((id) => onMentionRemove?.(id));
+      await sendMessage({ sessionId, content, noteIds: activeNoteIds.length ? activeNoteIds : undefined });
+      activeNoteIds.forEach((id) => onMentionRemove?.(id));
       scrollToBottom();
     } catch {
       toast.error("No se pudo enviar el mensaje");

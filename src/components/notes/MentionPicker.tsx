@@ -12,9 +12,16 @@ interface MentionPickerProps {
   notes: NoteOption[];
   onSelect: (note: NoteOption) => void;
   onClose: () => void;
+  placement?: "top" | "bottom";
 }
 
-export function MentionPicker({ query, notes, onSelect, onClose }: MentionPickerProps) {
+export function MentionPicker({
+  query,
+  notes,
+  onSelect,
+  onClose,
+  placement = "top",
+}: MentionPickerProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const filtered = notes
@@ -35,7 +42,7 @@ export function MentionPicker({ query, notes, onSelect, onClose }: MentionPicker
       } else if (e.key === "ArrowUp") {
         e.preventDefault();
         setActiveIndex((i) => Math.max(i - 1, 0));
-      } else if (e.key === "Enter") {
+      } else if (e.key === "Enter" || e.key === "Tab") {
         e.preventDefault();
         onSelect(filtered[activeIndex]);
       } else if (e.key === "Escape") {
@@ -48,8 +55,13 @@ export function MentionPicker({ query, notes, onSelect, onClose }: MentionPicker
 
   if (filtered.length === 0) return null;
 
+  const placementClasses =
+    placement === "bottom"
+      ? "top-full mt-2"
+      : "bottom-full mb-2";
+
   return (
-    <div className="animate-in fade-in-0 zoom-in-95 absolute bottom-full mb-2 left-0 right-0 z-50 bg-popover border border-border rounded-xl shadow-lg overflow-hidden">
+    <div className={`animate-in fade-in-0 zoom-in-95 absolute ${placementClasses} left-0 right-0 z-50 bg-popover border border-border rounded-xl shadow-lg overflow-hidden`}>
       <div className="px-2 py-1.5 border-b border-border">
         <span className="text-xs text-muted-foreground font-medium">Notas</span>
       </div>

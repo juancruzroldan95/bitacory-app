@@ -1,5 +1,3 @@
-import { BookOpen } from "lucide-react";
-
 import {
   Sidebar,
   SidebarContent,
@@ -21,8 +19,7 @@ export function AppSidebar({ onNavigate }: SidebarProps) {
     <Sidebar>
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2 px-1">
-          <BookOpen className="h-5 w-5 text-primary" />
-          <span className="font-semibold text-lg">Bitacory</span>
+          <span className="font-semibold text-2xl">Bitacory</span>
         </div>
       </SidebarHeader>
 

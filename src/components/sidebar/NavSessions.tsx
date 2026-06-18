@@ -80,7 +80,7 @@ export function NavSessions({ onNavigate }: NavSessionsProps) {
         </SidebarGroupLabel>
       </div>
       <SidebarGroupContent>
-        <div className="overflow-y-auto max-h-[30vh]">
+        <div className="overflow-y-auto max-h-[30vh] scrollbar-minimal">
           <SidebarMenu className="px-2 pb-2">
             {sessions === undefined ? (
               <div className="space-y-2 p-2">

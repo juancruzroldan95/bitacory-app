@@ -2,7 +2,7 @@ import { LoginForm } from "@/components/auth/LoginForm";
 import { InteractiveBackground } from "@/components/auth/InteractiveBackground";
 import { useTheme } from "@/hooks/useTheme";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
-import { Sun, Moon, BookOpen } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
 
 export default function LoginPage() {
   const { setTheme } = useTheme();
