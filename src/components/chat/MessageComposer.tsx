@@ -1,10 +1,11 @@
 import { useMemo, useState, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
+import { Send, Paperclip } from "lucide-react";
 import { MentionPicker } from "@/components/notes/MentionPicker";
 import { useNotes } from "@/hooks/useNotes";
 import type { MentionedNote } from "@/types/notes";
+import { toast } from "sonner";
 
 interface MessageComposerProps {
   input: string;
@@ -93,7 +94,7 @@ export function MessageComposer({
   return (
     <div className="bg-background px-4 py-4 shrink-0">
       <div className="mx-auto max-w-3xl">
-        <div className="relative flex flex-col gap-2 rounded-2xl border border-border bg-background/80 dark:bg-muted/80 backdrop-blur-sm px-3 py-2 shadow-lg ring-1 ring-black/5 dark:ring-white/5">
+        <div className="relative flex flex-col rounded-2xl border border-border bg-background/80 dark:bg-muted/80 backdrop-blur-sm p-3 shadow-lg ring-1 ring-black/5 dark:ring-white/5">
           {showMentionPicker && (
             <MentionPicker
               query={mentionQuery}
@@ -103,11 +104,12 @@ export function MessageComposer({
             />
           )}
 
-          <div className="flex gap-3">
+          {/* Input area */}
+          <div className="flex gap-3 items-start">
             <div className="flex-grow min-w-0 relative">
               <div
                 ref={overlayRef}
-                className="pointer-events-none absolute inset-0 select-none overflow-hidden px-1 py-1.5 text-sm whitespace-pre-wrap break-words border-0 text-transparent"
+                className="pointer-events-none absolute inset-0 select-none overflow-hidden px-1 py-1 text-sm whitespace-pre-wrap break-words border-0 text-transparent"
               >
                 {renderHighlightedText(input, mentionedNotes)}
               </div>
@@ -127,17 +129,35 @@ export function MessageComposer({
                 }}
                 placeholder="Escribí lo que quieras... Usá @ para adjuntar una nota"
                 disabled={isSending}
-                className="min-h-8 max-h-40 resize-none border-0 bg-transparent dark:bg-transparent shadow-none focus-visible:ring-0 px-1 py-1.5 text-sm relative z-10"
+                className="min-h-8 max-h-40 resize-none border-0 bg-transparent dark:bg-transparent shadow-none focus-visible:ring-0 px-1 py-1 text-sm relative z-10"
                 rows={1}
               />
             </div>
+          </div>
+
+          {/* Bottom control bar */}
+          <div className="flex items-center justify-between border-t border-border/40 pt-2 mt-2">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => toast.info("Adjuntar archivo (visual)")}
+                className="p-1 rounded-lg hover:bg-muted text-muted-foreground/60 hover:text-foreground transition-colors"
+                title="Adjuntar archivo"
+              >
+                <Paperclip className="h-4 w-4" />
+              </button>
+              <span className="text-xs text-muted-foreground/40 hidden sm:inline">
+                Escribí @ para mencionar una nota
+              </span>
+            </div>
+
             <Button
               onClick={handleSend}
               disabled={!input.trim() || isSending}
               size="icon"
-              className="shrink-0 self-end mb-0.5 rounded-xl z-10"
+              className="rounded-full h-8 w-8 bg-primary text-primary-foreground hover:opacity-90 transition-all active:scale-95 flex items-center justify-center shrink-0 z-10"
             >
-              <Send className="h-4 w-4" />
+              <Send className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
