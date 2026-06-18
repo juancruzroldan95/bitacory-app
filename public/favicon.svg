@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="5 5 90 90" fill="none">
+  <defs>
+    <linearGradient id="tealGrad" x1="5" y1="5" x2="95" y2="95" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2dd4bf"/>
+      <stop offset="100%" stop-color="#0f766e"/>
+    </linearGradient>
+    <clipPath id="leftClip">
+      <rect x="0" y="0" width="50.1" height="100" />
+    </clipPath>
+    <clipPath id="rightClip">
+      <rect x="49.9" y="0" width="50.1" height="100" />
+    </clipPath>
+  </defs>
+
+  <!-- Left Page (Solid, clipped exactly at center) -->
+  <g clip-path="url(#leftClip)">
+    <path d="M 50 26
+             C 35 16, 20 16, 15 16
+             A 4 4 0 0 0 11 20
+             L 11 71
+             A 4 4 0 0 0 15 75
+             C 20 75, 35 75, 50 85
+             Z" 
+          fill="url(#tealGrad)" stroke="url(#tealGrad)" stroke-width="12" stroke-linejoin="round" />
+  </g>
+  
+  <!-- Right Page (Outline without vertical spine, clipped exactly at center) -->
+  <g clip-path="url(#rightClip)">
+    <path d="M 50 26
+             C 65 16, 80 16, 85 16
+             A 4 4 0 0 1 89 20
+             L 89 71
+             A 4 4 0 0 1 85 75
+             C 80 75, 65 75, 50 85" 
+          fill="none" stroke="url(#tealGrad)" stroke-width="12" stroke-linecap="round" />
+  </g>
+</svg>
