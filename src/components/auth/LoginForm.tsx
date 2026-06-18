@@ -1,16 +1,11 @@
+import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} viewBox="0 0 24 24">
+    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
         fill="#4285F4"
@@ -33,23 +28,33 @@ function GoogleIcon({ className }: { className?: string }) {
 
 export function LoginForm() {
   const { signIn } = useAuthActions();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSignIn = async () => {
+    try {
+      setIsLoading(true);
+      await signIn("google");
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Iniciar sesión</CardTitle>
-        <CardDescription>Ingresá a tu cuenta para continuar</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Button
-          variant="outline"
-          className="w-full gap-2"
-          onClick={() => void signIn("google")}
-        >
-          <GoogleIcon className="h-4 w-4" />
-          Continuar con Google
-        </Button>
-      </CardContent>
-    </Card>
+    <div className="w-full flex justify-center">
+      <Button
+        variant="outline"
+        className="w-full h-12 gap-3 rounded-xl border border-border bg-card/85 hover:bg-accent/80 hover:border-primary/50 hover:shadow-[0_0_15px_rgba(40,142,142,0.08)] dark:hover:shadow-[0_0_20px_rgba(69,177,177,0.12)] focus-visible:ring-primary/30 transition-all duration-300 font-sans font-medium text-sm text-foreground active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
+        onClick={handleSignIn}
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+        ) : (
+          <GoogleIcon className="h-5 w-5" />
+        )}
+        {isLoading ? "Conectando..." : "Continuar con Google"}
+      </Button>
+    </div>
   );
 }
