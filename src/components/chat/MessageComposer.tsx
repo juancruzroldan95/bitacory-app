@@ -14,7 +14,6 @@ interface MessageComposerProps {
   isSending: boolean;
   mentionedNotes?: MentionedNote[];
   onMentionAdd?: (note: MentionedNote) => void;
-  onMentionRemove?: (noteId: MentionedNote["_id"]) => void;
 }
 
 const renderHighlightedText = (text: string, notes: MentionedNote[]) => {
@@ -58,7 +57,6 @@ export function MessageComposer({
   isSending,
   mentionedNotes = [],
   onMentionAdd,
-  onMentionRemove,
 }: MessageComposerProps) {
   const [showMentionPicker, setShowMentionPicker] = useState(false);
   const [mentionQuery, setMentionQuery] = useState("");

@@ -162,7 +162,6 @@ export function ChatView({
         isSending={isSending}
         mentionedNotes={mentionedNotes}
         onMentionAdd={onMentionAdd}
-        onMentionRemove={onMentionRemove}
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
