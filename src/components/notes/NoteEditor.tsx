@@ -21,6 +21,7 @@ export function NoteEditor({ initialBody, onSave }: NoteEditorProps) {
       Markdown,
     ],
     content: initialBody,
+    contentType: "markdown",
     editorProps: {
       attributes: {
         class:
