@@ -16,14 +16,13 @@ import {
 import { useNote } from "@/hooks/useNotes";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import type { Id } from "@/convex/_generated/dataModel";
+import type { TagSlug, TagCategory } from "@/types/tags";
 import {
   THERAPEUTIC_TAGS,
   TAGS_BY_CATEGORY,
-  type TagSlug,
-  type TagCategory,
-} from "@/consts/tags";
+} from "@/constants";
 
-export default function NoteEditorPage() {
+const NoteEditorPage = () => {
   const { noteId } = useParams<{ noteId: string }>();
   const { note, updateNote } = useNote(noteId as Id<"notes"> | undefined);
   const titleDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -224,3 +223,6 @@ export default function NoteEditorPage() {
     </div>
   );
 }
+
+
+export default NoteEditorPage;

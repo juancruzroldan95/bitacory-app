@@ -4,7 +4,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { Sun, Moon } from "lucide-react";
 
-export default function LoginPage() {
+const LoginPage = () => {
   const { setTheme } = useTheme();
   const resolvedTheme = useResolvedTheme();
 
@@ -54,3 +54,6 @@ export default function LoginPage() {
     </div>
   );
 }
+
+
+export default LoginPage;

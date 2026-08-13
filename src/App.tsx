@@ -1,10 +1,10 @@
 import { useRoutes } from "react-router";
 import routes from "./routes";
-import { ThemeProvider } from "@/contexts/ThemeProvider";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 
-export default function App() {
+const App = () => {
   const content = useRoutes(routes);
   return (
     <ThemeProvider defaultTheme="system" storageKey="bitacory-theme">
@@ -14,4 +14,6 @@ export default function App() {
       </TooltipProvider>
     </ThemeProvider>
   );
-}
+};
+
+export default App;

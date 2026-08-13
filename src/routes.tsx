@@ -1,6 +1,6 @@
 import { lazy, Suspense } from "react";
 import { Navigate } from "react-router";
-import AuthGuard from "@/AuthGuard";
+import AuthGuard from "@/components/guards/AuthGuard";
 import AppLayout from "@/layouts/AppLayout";
 import LoginPage from "@/pages/LoginPage";
 import { Skeleton } from "@/components/ui/skeleton";

@@ -21,7 +21,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import type { Id } from "@/convex/_generated/dataModel";
 
-export default function SessionsPage() {
+const SessionsPage = () => {
   const { sessions, renameSession, deleteSession } = useSessions();
   const navigate = useNavigate();
 
@@ -196,3 +196,6 @@ export default function SessionsPage() {
     </div>
   );
 }
+
+
+export default SessionsPage;

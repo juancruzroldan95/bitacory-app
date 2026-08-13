@@ -1,114 +1,97 @@
----
-trigger: always_on
----
-
 # Architecture
 
-## Frontend Layer Model
+This document outlines the high-level architectural patterns for our React application, specifically designed for a project utilizing Convex as its backend. It is designed to be scalable, predictable, and easy to maintain as the project grows.
 
-```
-┌──────────────────────────────────────────────┐
-│  Pages  (src/pages/)                         │
-│  Route entry points. Orchestrate hooks,      │
-│  handle navigation, render page layout.      │
-├──────────────────────────────────────────────┤
-│  Components  (src/components/)               │
-│  UI building blocks. Receive data/callbacks  │
-│  via props or call hooks directly. No Convex │
-│  API imports allowed here.                   │
-├──────────────────────────────────────────────┤
-│  Hooks  (src/hooks/)                         │
-│  One file per backend entity/table.          │
-│  The ONLY layer that may import from         │
-│  convex/react or @/convex/_generated/api.    │
-├──────────────────────────────────────────────┤
-│  Convex API  (convex/_generated/)            │
-│  Auto-generated. Never hand-edited.          │
-└──────────────────────────────────────────────┘
-```
+## 1. High-Level File Structure
+The repository is organized by feature and technical concern to ensure a clean separation of responsibilities:
 
-**Core rule:** only `src/hooks/*.ts` files may import from `convex/react` or `@/convex/_generated/api`. Pages and components get all data and mutations through hooks.
-
-## Hook Conventions
-
-One file per entity/table. All queries, mutations, and subscriptions for a given entity live together.
-
-| File | Entity | Exports |
-|------|--------|---------|
-| `src/hooks/useSessions.ts` | `sessions` table | `useSessions()`, `useSession(sessionId)` |
-| `src/hooks/useMessages.ts` | messages (agent) | `useMessages(sessionId)`, `useSendMessage()` |
-| `src/hooks/useNotes.ts` | `notes` table | `useNotes()`, `useNote(noteId)` |
-| `src/hooks/useProfile.ts` | `profiles` table | `useProfile()` |
-
-**Naming:** list hook = entity name (`useSessions`), single-record hook = singular (`useSession`), standalone mutations = action name (`useSendMessage`).
-
-## Data Flow Examples
-
-### Creating and starting a session (HomeComposer)
-```
-HomeComposer
-  → useSessions().createSession({ title })    → sessions.create  (Convex mutation)
-  → useSendMessage()({ sessionId, content })  → messages.send    (Convex mutation)
-  → navigate("/chat/:sessionId")
+```text
+/src
+├── assets/         # Static assets like images, SVGs, and fonts
+├── components/     # Reusable presentational UI components and guards
+│   └── ui/         # shadcn/ui primitive components
+├── contexts/       # React Context API providers and definitions
+├── hooks/          # Custom React hooks (including Convex wrappers)
+├── layouts/        # Layout wrappers (App, Auth, Landing)
+├── pages/          # Top-level route components representing views
+├── types/          # Centralized TypeScript domain definitions
+├── utils/          # Pure utility functions and stateless helpers
+├── App.tsx         # Global provider tree and app shell
+├── config.ts       # Centralized environment variable mapping
+├── constants.ts    # Global application constants and enums
+├── index.tsx       # Application entry point and baseline configuration
+└── routes.tsx      # Centralized routing configuration
 ```
 
-### Editing a note (NoteEditorPage)
-```
-NoteEditorPage
-  → useNote(noteId)                           → notes.get        (live subscription)
-  → useNote().updateNote(...)                 → notes.update     (mutation)
-```
+## 2. Configuration Management
 
-### AI note edit proposal flow
-```
-Agent (server)
-  proposeNoteEdit tool → notes.savePendingAiEdit (internal mutation)
+Configuration and secrets are strictly separated from component logic. This ensures that environment changes don't require hunting down variables deep inside component trees.
 
-NoteEditorPage
-  → useNote().note.pendingAiEdit             → accept/reject banner shown
-  → useNote().clearPendingAiEdit()           → notes.clearPendingAiEdit (mutation)
-  → useNote().updateNote({ body: proposed }) → notes.update (mutation, on accept)
-```
+### Environment Variables (`config.ts`)
+Instead of accessing `import.meta.env.*` (or `process.env`) directly inside components, all environment variables are mapped to typed configuration objects in `src/config.ts`. 
+- **Benefit**: This centralizes all environment checks. If an environment variable name changes, or if you need to add fallback values, you only update it in one single file.
+- **Pattern**: A `firebaseConfig` or `auth0Config` object explicitly maps external keys securely.
 
-## Convex Backend Layout
+### Application Constants (`constants.ts`)
+Hardcoded values, layout enums, magic strings, and color palettes are kept in `src/constants.ts`.
+- **Benefit**: Prevents typos across the app and ensures UI consistency (e.g., using `BS_THEME.LIGHT` instead of the magic string `"light"`).
 
-One file per entity in `convex/functions/`. Functions that call Node.js APIs or the AI SDK live in a separate `"use node"` file.
+## 3. Routing and Layouts
 
-```
-convex/
-  schema.ts          # All table definitions + indexes
-  auth.ts            # convexAuth providers + loggedInUser query
-  convex.config.ts   # Component registrations (agent, rag)
-  functions/
-    sessions.ts      # Public + internal CRUD for sessions table
-    messages.ts      # list (streaming) + send + getMessagesForSummary (internal)
-    notes.ts         # Public CRUD + search + internal AI-edit helpers
-    profiles.ts      # Profile read/write + avatar storage
-    agent.ts         # "use node" — therapyAgent, generateResponse, generateThreadSummary, deleteAgentThread
-```
+The application employs a routing structure based on lazy loading and layout wrapping to optimize performance and enforce structural consistency.
 
-### Public vs. internal functions
+### Lazy Loading Pages
+Pages are not imported synchronously at the top of the routes file. Instead, they are lazily loaded using a dynamic import strategy (e.g., `@loadable/component` or `React.lazy`). This ensures that the browser only downloads the JavaScript bundle for a specific page when the user navigates to it, significantly improving the initial application load time.
 
-- `query` / `mutation` / `action` — callable from the frontend via the generated `api` object.
-- `internalQuery` / `internalMutation` / `internalAction` — callable only from other backend functions via `internal`. Use these for anything the client must never call directly (e.g., `savePendingAiEdit`, `getById`, `generateResponse`).
+### Nested Layout Pattern
+Instead of rendering pages directly at the root route level, the application uses specific **Layout Components** depending on the application area. We define three primary layouts:
+- `AppLayout`: The main application shell (e.g., Sidebar, Navbar) for authenticated users.
+- `AuthLayout`: A minimal UI shell for authentication pages (Login, Register).
+- `LandingLayout`: A dedicated shell for public-facing marketing or landing pages.
+- **Pages** are passed as `children` (or rendered via `<Outlet />`) inside these layouts. This prevents redundant code across pages and ensures a seamless transition when navigating between pages that share the same layout.
 
-### The `"use node"` boundary
+## 4. State Management
 
-`convex/functions/agent.ts` is the only file with `"use node"`. It holds everything that requires Node.js or the AI SDK (`@convex-dev/agent`, `@ai-sdk/openai`, `ai`). **Never** put `query` or `mutation` in a `"use node"` file — they don't run in that runtime.
+This project strictly separates UI/Application state from Server/Data state, removing the need for redundant client-side state management libraries like Redux.
 
-### Auth pattern
+### Server State: Convex Architecture
+Because Convex provides a real-time, reactive backend, it handles server state for us.
+- **Data Fetching & Mutations**: Convex's built-in capabilities replace traditional API polling or massive client-side caches.
+- **Strict Separation**: We treat the Convex backend as the single source of truth for persistent data.
 
-Every public function that touches user data must start with:
-```ts
-const userId = await getAuthUserId(ctx);
-if (!userId) return []; // or throw new Error("Not authenticated")
-```
-Never accept a `userId` argument from the client — always derive it server-side.
+### Client UI State: Context API & Local State
+- **Context API (`src/contexts/`)**: Used exclusively for static or slowly-changing global UI state. Examples include Theme (Light/Dark mode) or global layout settings.
+  - **Pattern**: A Context object is created, managed by a Provider component, and accessed via a custom hook.
+- **Local State (`useState`)**: Used for transient UI state localized to a specific component.
 
-### Scheduled work
+## 5. Authentication & Guards
 
-Side effects that shouldn't block the mutation (AI response generation, RAG indexing, agent thread cleanup) are scheduled with `ctx.scheduler.runAfter(0, internal.functions.xxx, args)`. This keeps mutations fast and lets the side effect retry independently.
+Authentication is handled via a specialized Provider and Guard architecture to securely manage user sessions and protect private routes.
 
-### Session summary + RAG pipeline
+### Route Guards (`src/components/guards/`)
+Instead of checking if a user is authenticated inside every single page component, we use **Guard Components** (e.g., `<AuthGuard>`).
+- A Guard acts as a Higher-Order Component (HOC) or layout wrapper in the routing configuration.
+- If a user attempts to access a protected route without being authenticated, the Guard intercepts the render and redirects them to the login page.
+- This keeps pages purely focused on displaying content rather than verifying permissions.
 
-After each AI response, `generateResponse` schedules `generateThreadSummary` (both in `agent.ts`). That action calls `gpt-4o-mini` to extract `{ title, summary, themes }`, patches the session via `sessions.updateSummary`, then indexes the summary text into RAG under the user's namespace. Subsequent `generateResponse` calls search RAG to inject relevant past session context into the system prompt.
+## 6. App Initialization & Provider Tree
+
+The root of the application cleanly separates the absolute baseline configuration from the React dependency tree.
+
+### Entry Point (`index.tsx`)
+This file acts as the absolute baseline configuration. It mounts the React 18 root to the DOM, imports global styling (SCSS), vendor scripts, and sets up the base `BrowserRouter`.
+
+### Global Provider Tree (`App.tsx`)
+This component acts as the **App Shell**. It is responsible for building the dependency tree required by the rest of the application.
+- **Nested Providers**: It stacks all global contexts (e.g., `ConvexProvider`, `HelmetProvider`, `ThemeProvider`, `AuthProvider`). This is a classic React pattern for injecting dependency contexts down the component tree.
+- **Suspense Boundary**: It wraps the application in a `Suspense` boundary with a global `Loader` fallback. This catches any lazy-loaded routes and displays a loading spinner while the chunk is downloaded.
+- **Route Consumer**: It consumes the route configuration array using `useRoutes` and renders the resulting component tree at the bottom of the provider stack.
+
+## 7. Internationalization (i18n)
+
+The architecture supports a scalable internationalization pattern, even if not immediately implemented across all views.
+
+### Global i18n Instance
+A dedicated `src/i18n.ts` file is configured (e.g., using `i18next` and `react-i18next`). It initializes a global translation instance.
+- **Provider Injection**: By importing this directly into `App.tsx` (or injecting its provider), the entire React tree gains access to translation context.
+- **Usage Pattern**: UI components avoid hardcoded strings. Instead, they use hooks like `const { t } = useTranslation();` and render `{t('Welcome back')}`, ensuring the UI is ready for multi-language support from day one.

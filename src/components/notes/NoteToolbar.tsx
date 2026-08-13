@@ -1,6 +1,6 @@
 import { Editor } from "@tiptap/react";
 import { List, ListOrdered, Quote, Code, Paperclip } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 import { toast } from "sonner";
 import {
   Tooltip,

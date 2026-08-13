@@ -1,4 +1,3 @@
-import type { LucideIcon } from "lucide-react";
 import {
   Brain,
   Heart,
@@ -13,29 +12,7 @@ import {
   MessageCircle,
   Compass,
 } from "lucide-react";
-
-export type TagSlug =
-  | "ansiedad"
-  | "tristeza"
-  | "familia"
-  | "trabajo"
-  | "relaciones"
-  | "autoestima"
-  | "miedo"
-  | "logros"
-  | "sueno"
-  | "enojo"
-  | "comunicacion"
-  | "proposito";
-
-export type TagCategory = "emociones" | "vinculos" | "crecimiento";
-
-export interface TherapeuticTag {
-  slug: TagSlug;
-  label: string;
-  category: TagCategory;
-  icon: LucideIcon;
-}
+import type { TherapeuticTag, TagSlug, TagCategory } from "@/types/tags";
 
 export const THERAPEUTIC_TAGS: TherapeuticTag[] = [
   // Emociones

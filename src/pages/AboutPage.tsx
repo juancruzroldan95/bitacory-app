@@ -47,7 +47,7 @@ function Step({ number, title, description }: StepProps) {
   );
 }
 
-export default function AboutPage() {
+const AboutPage = () => {
   const navigate = useNavigate();
 
   return (
@@ -267,3 +267,6 @@ export default function AboutPage() {
     </div>
   );
 }
+
+
+export default AboutPage;
