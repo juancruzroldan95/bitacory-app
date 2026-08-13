@@ -19,7 +19,7 @@ export function AppSidebar({ onNavigate }: SidebarProps) {
     <Sidebar>
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2 px-1">
-          <span className="font-semibold text-2xl">Bitacory</span>
+          <span className="font-heading font-semibold text-2xl tracking-tight">Bitacory</span>
         </div>
       </SidebarHeader>
 

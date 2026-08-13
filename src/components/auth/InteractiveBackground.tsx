@@ -105,9 +105,15 @@ export function InteractiveBackground() {
       const particles = particlesRef.current;
       const mouse = mouseRef.current;
 
-      // Theme-specific colors
-      const primaryColorStr = isDark ? "69, 177, 177" : "40, 142, 142"; // Teal (RGB)
-      const neutralColorStr = isDark ? "160, 160, 160" : "124, 122, 125"; // Sage/Grey (RGB)
+      // Read colors directly from the DOM since Canvas can't resolve CSS var() internally
+      const computedStyle = getComputedStyle(document.documentElement);
+      const primaryColorStr = computedStyle.getPropertyValue("--primary").trim() || "oklch(0.52 0.105 223.128)";
+      const neutralColorStr = computedStyle.getPropertyValue("--chart-2").trim() || "oklch(0.768 0.233 130.85)";
+
+      const getAlphaColor = (baseColor: string, alpha: number) => {
+        const cleaned = baseColor.replace("oklch(", "").replace(")", "").trim();
+        return `oklch(${cleaned} / ${alpha})`;
+      };
 
       // 1. Update and Draw Particles
       for (let i = 0; i < particles.length; i++) {
@@ -197,7 +203,7 @@ export function InteractiveBackground() {
         // Draw node dot
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size * activeScale, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${pColor}, ${isGlow ? 0.7 : p.alpha})`;
+        ctx.fillStyle = getAlphaColor(pColor, isGlow ? 0.7 : p.alpha);
         ctx.fill();
       }
 
@@ -212,11 +218,11 @@ export function InteractiveBackground() {
 
           if (dist < connectionDist) {
             // Draw connection line
-            const alpha = (1 - dist / connectionDist) * (isDark ? 0.12 : 0.08);
+            const alpha = (1 - dist / connectionDist) * (isDark ? 0.15 : 0.12);
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(${neutralColorStr}, ${alpha})`;
+            ctx.strokeStyle = getAlphaColor(neutralColorStr, alpha);
             ctx.lineWidth = 0.7;
             ctx.stroke();
           }
@@ -233,7 +239,7 @@ export function InteractiveBackground() {
             ctx.beginPath();
             ctx.moveTo(mouse.x, mouse.y);
             ctx.lineTo(p1.x, p1.y);
-            ctx.strokeStyle = `rgba(${primaryColorStr}, ${alpha})`;
+            ctx.strokeStyle = getAlphaColor(primaryColorStr, alpha);
             ctx.lineWidth = 0.8;
             ctx.stroke();
           }
