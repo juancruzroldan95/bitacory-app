@@ -1,26 +1,31 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
-import React from "react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import useTheme from "./useTheme";
+import { useContext } from "react";
+
+vi.mock("react", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react")>();
+  return {
+    ...actual,
+    useContext: vi.fn(),
+  };
+});
 
 describe("useTheme", () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
   it("should throw an error when used outside of ThemeProvider", () => {
-    vi.spyOn(React, "useContext").mockReturnValue(undefined);
-    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
-    
+    vi.mocked(useContext).mockReturnValue(undefined);
+
     expect(() => useTheme()).toThrow(
       "useTheme must be used within a ThemeProvider"
     );
-    
-    consoleError.mockRestore();
   });
 
   it("should return the context when used inside ThemeProvider", () => {
     const mockContext = { theme: "dark" as const, setTheme: vi.fn() };
-    vi.spyOn(React, "useContext").mockReturnValue(mockContext);
+    vi.mocked(useContext).mockReturnValue(mockContext);
 
     const result = useTheme();
     expect(result).toBe(mockContext);
