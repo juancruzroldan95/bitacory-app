@@ -19,7 +19,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileEditor } from "@/components/sidebar/ProfileEditor";
+import { TherapyScheduleEditor } from "@/components/sidebar/TherapyScheduleEditor";
 import { ChevronsUpDown, LogOut, Moon, Sun, User } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useResolvedTheme } from "@/hooks/useResolvedTheme";
@@ -79,7 +81,7 @@ export function NavUser() {
           <DropdownMenuGroup>
             <DropdownMenuItem onClick={() => setProfileOpen(true)}>
               <User className="mr-2 h-4 w-4" />
-              Editar perfil
+              Configuración
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
@@ -106,9 +108,20 @@ export function NavUser() {
       <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Editar perfil</DialogTitle>
+            <DialogTitle>Configuración</DialogTitle>
           </DialogHeader>
-          <ProfileEditor onClose={() => setProfileOpen(false)} />
+          <Tabs defaultValue="profile">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="profile">Perfil</TabsTrigger>
+              <TabsTrigger value="therapy">Terapia</TabsTrigger>
+            </TabsList>
+            <TabsContent value="profile" className="mt-4">
+              <ProfileEditor onClose={() => setProfileOpen(false)} />
+            </TabsContent>
+            <TabsContent value="therapy" className="mt-4">
+              <TherapyScheduleEditor onClose={() => setProfileOpen(false)} />
+            </TabsContent>
+          </Tabs>
         </DialogContent>
       </Dialog>
     </>

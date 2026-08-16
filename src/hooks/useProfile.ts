@@ -4,6 +4,7 @@ import { api } from "@/convex/_generated/api";
 export function useProfile() {
   const profile = useQuery(api.functions.profiles.get);
   const updateProfile = useMutation(api.functions.profiles.update);
+  const updateTherapySchedule = useMutation(api.functions.profiles.updateTherapySchedule);
   const generateUploadUrl = useMutation(api.functions.profiles.generateUploadUrl);
   const updateAvatar = useMutation(api.functions.profiles.updateAvatar);
 
@@ -19,5 +20,5 @@ export function useProfile() {
     await updateAvatar({ storageId });
   };
 
-  return { profile, updateProfile, uploadAvatar };
+  return { profile, updateProfile, updateTherapySchedule, uploadAvatar };
 }

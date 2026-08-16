@@ -37,7 +37,12 @@ All backend logic lives in `convex/`:
 - `functions/sessions.ts` — CRUD for sessions. Creating a session also creates an agent thread via `@convex-dev/agent`. `remove` schedules `deleteAgentThread` cleanup.
 - `functions/messages.ts` — `list` (paginated, uses `listUIMessages` + `syncStreams` for streaming) and `send` (saves user message then schedules `generateResponse`, accepts optional `noteIds`).
 - `functions/agent.ts` — `"use node"` file. Defines `therapyAgent` (system prompt in Argentine Spanish). `generateResponse` injects RAG context + attached note contents into the system prompt, then streams with a `proposeNoteEdit` tool. `generateThreadSummary` runs after each response, indexes the session summary into RAG. `deleteAgentThread` cleans up on session removal.
-- `functions/profiles.ts` — `get`, `update`, `generateUploadUrl`, `updateAvatar`.
+- `functions/profiles.ts` — `get`, `update`, `generateUploadUrl`, `updateAvatar`, `updateTherapySchedule`.
+- `functions/crons.ts` — logic for the `checkTherapySchedules` background job that generates proactive notes.
+
+### Therapy Schedule (Proactivity)
+
+Users can configure their real-life therapy schedule in their profile (`TherapyScheduleEditor`). A global Convex cron job (`convex/crons.ts`) runs hourly, checks `profiles` for `therapySchedule` preferences, and uses AI SDK (`generateText`) to proactively generate and save Markdown template Notes for pre-session preparation (24hs before) and post-session reflection (2hs after) via `internal.functions.notes.internalCreate`.
 
 ### Auth flow
 

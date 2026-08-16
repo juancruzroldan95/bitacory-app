@@ -35,6 +35,15 @@ const applicationTables = {
     userId: v.id("users"),
     displayName: v.string(),
     avatarId: v.optional(v.id("_storage")),
+    therapySchedule: v.optional(
+      v.object({
+        frequency: v.union(v.literal("weekly"), v.literal("biweekly"), v.literal("monthly")),
+        dayOfWeek: v.number(),
+        timeOfDay: v.string(),
+        notifyPreSession: v.boolean(),
+        notifyPostSession: v.boolean(),
+      })
+    ),
   }).index("by_user", ["userId"]),
 };
 

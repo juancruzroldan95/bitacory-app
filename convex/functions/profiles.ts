@@ -13,6 +13,15 @@ export const get = query({
       displayName: v.string(),
       avatarUrl: v.union(v.string(), v.null()),
       avatarId: v.optional(v.id("_storage")),
+      therapySchedule: v.optional(
+        v.object({
+          frequency: v.union(v.literal("weekly"), v.literal("biweekly"), v.literal("monthly")),
+          dayOfWeek: v.number(),
+          timeOfDay: v.string(),
+          notifyPreSession: v.boolean(),
+          notifyPostSession: v.boolean(),
+        })
+      ),
     }),
     v.null()
   ),
@@ -50,6 +59,7 @@ export const get = query({
       displayName,
       avatarUrl,
       avatarId: profile?.avatarId,
+      therapySchedule: profile?.therapySchedule,
     };
   },
 });
@@ -123,6 +133,48 @@ export const updateAvatar = mutation({
         userId,
         displayName: user?.name ?? user?.email ?? "Usuario",
         avatarId: args.storageId,
+      });
+    }
+
+    return null;
+  },
+});
+
+export const updateTherapySchedule = mutation({
+  args: {
+    schedule: v.union(
+      v.object({
+        frequency: v.union(v.literal("weekly"), v.literal("biweekly"), v.literal("monthly")),
+        dayOfWeek: v.number(),
+        timeOfDay: v.string(),
+        notifyPreSession: v.boolean(),
+        notifyPostSession: v.boolean(),
+      }),
+      v.null()
+    ),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not authenticated");
+    }
+
+    const existing = await ctx.db
+      .query("profiles")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        therapySchedule: args.schedule ?? undefined,
+      });
+    } else {
+      const user = await ctx.db.get(userId);
+      await ctx.db.insert("profiles", {
+        userId,
+        displayName: user?.name ?? user?.email ?? "Usuario",
+        therapySchedule: args.schedule ?? undefined,
       });
     }
 

@@ -171,3 +171,22 @@ export const savePendingAiEdit = internalMutation({
     return null;
   },
 });
+
+export const internalCreate = internalMutation({
+  args: {
+    userId: v.id("users"),
+    title: v.string(),
+    body: v.string(),
+    tags: v.optional(v.array(v.string())),
+  },
+  returns: v.id("notes"),
+  handler: async (ctx, { userId, title, body, tags }) => {
+    return ctx.db.insert("notes", {
+      userId,
+      title,
+      body,
+      tags: tags?.slice(0, 10),
+      updatedAt: Date.now(),
+    });
+  },
+});

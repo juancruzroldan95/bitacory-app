@@ -10,6 +10,7 @@
 
 import type * as auth from "../auth.js";
 import type * as functions_agent from "../functions/agent.js";
+import type * as functions_crons from "../functions/crons.js";
 import type * as functions_messages from "../functions/messages.js";
 import type * as functions_notes from "../functions/notes.js";
 import type * as functions_profiles from "../functions/profiles.js";
@@ -26,6 +27,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   "functions/agent": typeof functions_agent;
+  "functions/crons": typeof functions_crons;
   "functions/messages": typeof functions_messages;
   "functions/notes": typeof functions_notes;
   "functions/profiles": typeof functions_profiles;
