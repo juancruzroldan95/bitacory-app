@@ -2,7 +2,7 @@ import { useParams } from "react-router";
 import { ChatView } from "@/components/chat/ChatView";
 import type { Id } from "@/convex/_generated/dataModel";
 
-const SessionPage = () => {
+export const SessionPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
 
   if (!sessionId) return null;
@@ -11,4 +11,4 @@ const SessionPage = () => {
 }
 
 
-export default SessionPage;
+

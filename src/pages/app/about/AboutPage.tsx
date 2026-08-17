@@ -10,7 +10,7 @@ interface FeatureCardProps {
   accent?: string;
 }
 
-function FeatureCard({ icon, title, description, accent = "bg-primary/10 text-primary" }: FeatureCardProps) {
+const FeatureCard = ({ icon, title, description, accent = "bg-primary/10 text-primary" }: FeatureCardProps) => {
   return (
     <div className="group rounded-2xl border border-border/60 bg-card p-6 flex flex-col gap-3 hover:border-primary/30 hover:shadow-sm transition-all duration-300">
       <div className="flex items-center gap-2.5">
@@ -30,7 +30,7 @@ interface StepProps {
   description: string;
 }
 
-function Step({ number, title, description }: StepProps) {
+const Step = ({ number, title, description }: StepProps) => {
   return (
     <div className="flex gap-5 group">
       <div className="flex flex-col items-center gap-1 shrink-0">
@@ -47,7 +47,7 @@ function Step({ number, title, description }: StepProps) {
   );
 }
 
-const AboutPage = () => {
+export const AboutPage = () => {
   const navigate = useNavigate();
 
   return (
@@ -269,4 +269,4 @@ const AboutPage = () => {
 }
 
 
-export default AboutPage;
+

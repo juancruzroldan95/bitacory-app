@@ -31,7 +31,7 @@ import { Input } from "@/components/ui/input";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import type { Id } from "@/convex/_generated/dataModel";
 
-const NotesPage = () => {
+export const NotesPage = () => {
   const { notes, createNote, updateNote, removeNote } = useNotes();
   const navigate = useNavigate();
 
@@ -313,4 +313,4 @@ const NotesPage = () => {
 }
 
 
-export default NotesPage;
+

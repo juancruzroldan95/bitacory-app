@@ -1,12 +1,10 @@
 import { LoginForm } from "@/components/auth/LoginForm";
 import { InteractiveBackground } from "@/components/auth/InteractiveBackground";
 import { useTheme } from "@/hooks/useTheme";
-import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 import { Sun, Moon } from "lucide-react";
 
-const LoginPage = () => {
-  const { setTheme } = useTheme();
-  const resolvedTheme = useResolvedTheme();
+export const LoginPage = () => {
+  const { resolvedTheme, setTheme } = useTheme();
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center px-4 overflow-hidden select-none">
@@ -53,7 +51,4 @@ const LoginPage = () => {
       </div>
     </div>
   );
-}
-
-
-export default LoginPage;
+};

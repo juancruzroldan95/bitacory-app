@@ -24,16 +24,14 @@ import { ProfileEditor } from "@/components/sidebar/ProfileEditor";
 import { TherapyScheduleEditor } from "@/components/sidebar/TherapyScheduleEditor";
 import { ChevronsUpDown, LogOut, Moon, Sun, User } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
-import { useResolvedTheme } from "@/hooks/useResolvedTheme";
 
-export function NavUser() {
+export const NavUser = () => {
   const { profile } = useProfile();
   const { signOut } = useAuthActions();
   const navigate = useNavigate();
-  const { setTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const { isMobile } = useSidebar();
   const [profileOpen, setProfileOpen] = useState(false);
-  const resolvedTheme = useResolvedTheme();
 
   const displayName = profile?.displayName ?? "Usuario";
   const avatarUrl = profile?.avatarUrl ?? undefined;

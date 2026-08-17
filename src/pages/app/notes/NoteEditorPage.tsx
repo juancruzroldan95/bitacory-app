@@ -22,7 +22,7 @@ import {
   TAGS_BY_CATEGORY,
 } from "@/constants";
 
-const NoteEditorPage = () => {
+export const NoteEditorPage = () => {
   const { noteId } = useParams<{ noteId: string }>();
   const { note, updateNote } = useNote(noteId as Id<"notes"> | undefined);
   const titleDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -225,4 +225,4 @@ const NoteEditorPage = () => {
 }
 
 
-export default NoteEditorPage;
+

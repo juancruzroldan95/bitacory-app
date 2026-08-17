@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useResolvedTheme } from "@/hooks/useResolvedTheme";
+import { useTheme } from "@/hooks/useTheme";
 
 interface Particle {
   x: number;
@@ -14,7 +14,8 @@ interface Particle {
 
 export function InteractiveBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const theme = useResolvedTheme();
+  const { resolvedTheme } = useTheme();
+  const theme = resolvedTheme;
   const isDark = theme === "dark";
 
   // Mouse coordinate refs

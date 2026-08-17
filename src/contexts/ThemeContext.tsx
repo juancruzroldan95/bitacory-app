@@ -10,11 +10,13 @@ type ThemeProviderProps = {
 
 type ThemeContextType = {
   theme: Theme;
+  resolvedTheme: "dark" | "light";
   setTheme: (theme: Theme) => void;
 };
 
 const initialState: ThemeContextType = {
   theme: "system",
+  resolvedTheme: "light",
   setTheme: () => null,
 };
 
@@ -36,9 +38,10 @@ export function ThemeProvider({
     }
   });
 
+  const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("light");
+
   useEffect(() => {
     const root = window.document.documentElement;
-
     root.classList.remove("light", "dark");
 
     if (theme === "system") {
@@ -48,10 +51,27 @@ export function ThemeProvider({
         : "light";
 
       root.classList.add(systemTheme);
+      setResolvedTheme(systemTheme);
       return;
     }
 
     root.classList.add(theme);
+    setResolvedTheme(theme);
+  }, [theme]);
+
+  // Listen for system theme changes when in system mode
+  useEffect(() => {
+    if (theme !== "system") return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = (e: MediaQueryListEvent) => {
+      const newSystemTheme = e.matches ? "dark" : "light";
+      const root = window.document.documentElement;
+      root.classList.remove("light", "dark");
+      root.classList.add(newSystemTheme);
+      setResolvedTheme(newSystemTheme);
+    };
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
   }, [theme]);
 
   const handleSetTheme = useCallback(
@@ -67,8 +87,8 @@ export function ThemeProvider({
   );
 
   const value = useMemo(
-    () => ({ theme, setTheme: handleSetTheme }),
-    [theme, handleSetTheme]
+    () => ({ theme, resolvedTheme, setTheme: handleSetTheme }),
+    [theme, resolvedTheme, handleSetTheme]
   );
 
   return (

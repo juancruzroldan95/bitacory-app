@@ -5,9 +5,9 @@ import { ConvexReactClient } from "convex/react";
 import { BrowserRouter } from "react-router";
 import App from "./App";
 import "./index.css";
-import { config } from "./config";
+import { convexConfig } from "./config";
 
-const convex = new ConvexReactClient(config.convex.url);
+const convex = new ConvexReactClient(convexConfig.url);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
