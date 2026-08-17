@@ -1,291 +1,432 @@
-# Code Style and Guidelines
+# Estilo de código y guías de desarrollo
 
-This document outlines the coding standards, folder structure, and component design patterns to maintain consistency and scalability across the repository.
+Este documento define los estándares de codificación, patrones de diseño de componentes y convenciones para mantener consistencia y escalabilidad en todo el repositorio.
 
-## 1. Custom Hooks & Convex Data Integration
+## 1. Custom hooks e integración con Convex
 
-We rely heavily on custom hooks to abstract complex logic out of our React components.
+Nos apoyamos fuertemente en custom hooks para abstraer la lógica compleja de los componentes React.
 
-### Convex Data (Strict Rule)
-- **Every** `api.functions.*` interaction must be wrapped in a custom hook inside the `/hooks` folder. It is strictly forbidden to import Convex hooks (like `useQuery` or `useMutation`) directly into UI components or pages. 
-- **Why**: This abstracts the backend contract. Components should simply call `const { data } = useMessages()`, keeping them ignorant of the underlying Convex infrastructure, making refactoring and testing infinitely easier.
+### Datos de Convex (regla estricta)
 
-### Utility Hooks
-- React lifecycle logic that doesn't involve the backend should also be isolated in standalone utility hooks.
-- **Example**: `useLocalStorage` wraps the browser's `localStorage` API, keeping the `JSON.parse` and `setItem` logic out of the UI components and encapsulating it behind a clean `[value, setValue]` API.
+**Toda** interacción con `api.functions.*` debe estar encapsulada en un custom hook dentro de la carpeta `/hooks`. Está estrictamente prohibido importar hooks de Convex (`useQuery`, `useMutation`, `useAction`) directamente en componentes de UI o páginas.
 
-## 2. Component Design (Smart vs. Dumb)
+```ts
+// ✅ Correcto — lógica de Convex encapsulada en un hook
+// src/hooks/useNotes.ts
+export const useNotes = () => {
+  const notes = useQuery(api.functions.notes.list);
+  const create = useMutation(api.functions.notes.create);
+  const remove = useMutation(api.functions.notes.remove);
+  return { notes, create, remove };
+};
 
-We follow the **Container/Presenter** (or Smart/Dumb) component pattern to cleanly separate data handling from UI rendering.
+// En el componente:
+const { notes, create } = useNotes(); // ✅
+```
 
-### "Dumb" (Presentational) Components
-- Focus purely on how things look.
-- Receive data and callbacks exclusively via `props`.
-- Rarely have their own state (except for minor UI state like hover, toggle, or accordion open status).
-- Never import Convex hooks or Contexts directly.
+```ts
+// ❌ Incorrecto — importar Convex hooks directamente en un componente
+const NotesPage = () => {
+  const notes = useQuery(api.functions.notes.list); // ❌ prohibido
+};
+```
 
-### "Smart" (Container) Components
-- Focus on how things work (data fetching, state manipulation).
-- Import and use custom Convex hooks or Contexts.
-- Pass the fetched data down to "Dumb" components as props.
-- Keep the JSX minimal, delegating complex rendering to presentational components.
+**Por qué**: Esto abstrae el contrato con el backend. Los componentes simplemente llaman a `const { notes } = useNotes()`, manteniéndose ignorantes de la infraestructura de Convex subyacente. Hace el refactoring y los tests infinitamente más fáciles.
 
-## 3. Styling & UI Components
+### Hooks de utilidad
 
-The project strictly uses **TailwindCSS** paired with **shadcn/ui** for styling and component primitives.
-- **TailwindCSS**: Used exclusively for layout, spacing, colors, and responsive design via utility classes. Avoid writing raw CSS/SCSS or using inline styles.
-- **shadcn/ui**: Used for accessible, unstyled component primitives (like Dialogs, Selects, Buttons) that are styled with Tailwind. These components are owned by the codebase (typically in `src/components/ui/`) rather than installed as an immutable dependency.
+La lógica de ciclo de vida de React que no involucra al backend también debe aislarse en hooks utilitarios standalone.
 
-## 4. TypeScript Types (`/types` folder)
+- **Ejemplo**: `useLocalStorage` encapsula la API `localStorage` del browser, manteniendo el `JSON.parse` y `setItem` fuera de los componentes de UI y exponiendo una API limpia `[value, setValue]`.
 
-To prevent circular dependencies and clutter, TypeScript types must be strictly managed:
-- **Centralized Types**: All domain interfaces, API response shapes, and shared application types must be declared in the `/types` directory.
-- **Component Props**: Interfaces for component props can remain in the same file as the component if they are specific to that component. If props are shared across multiple files, move them to `/types`.
+## 2. Diseño de componentes (Smart vs. Dumb)
 
-## 5. Naming Conventions
+Seguimos el patrón **Contenedor/Presentador** (o Smart/Dumb) para separar limpiamente el manejo de datos del renderizado de UI.
 
-- **Components & Files**: Use **PascalCase** for React components and their filenames (e.g., `UserProfile.tsx`).
-- **Hooks**: Use **camelCase** starting with "use" (e.g., `useTheme.ts`). Notice that hooks are pure logic and must end in `.ts` (pure TypeScript files), never `.tsx`, as they should not return JSX.
-- **Constants**: Use **UPPER_SNAKE_CASE** for global constants (e.g., `SIDEBAR_THEME`, `MAX_RETRIES`).
-- **Types/Interfaces**: Use **PascalCase** (e.g., `AuthUser`, `MessagePayload`).
+### Componentes "Dumb" (Presentacionales)
 
-## 6. Coding Style and Syntax Patterns
+- Se enfocan puramente en **cómo se ven las cosas**.
+- Reciben datos y callbacks exclusivamente a través de `props`.
+- Raramente tienen estado propio (salvo estado de UI menor como hover, toggle, o un acordeón abierto).
+- **Nunca** importan hooks de Convex ni Contextos directamente.
 
-### Arrow Functions for Components
-We standardize on using **Arrow Functions** for defining React components and hooks, rather than traditional `function` declarations.
-- **Example**: 
-  ```tsx
-  const UserProfile = ({ user }: Props) => {
-    return <div>{user.name}</div>;
-  };
-  ```
-- **Why**: Arrow functions provide a concise syntax, make it easier to type React functional components, and are widely prevalent across this codebase.
+```tsx
+// components/NoteCard.tsx — componente dumb
+interface NoteCardProps {
+  title: string;
+  updatedAt: number;
+  onDelete: () => void;
+}
 
-### Pure Utility Functions (`/utils`)
-Any pure logic that doesn't rely on React hooks or state (e.g., formatting dates, parsing JWT tokens) should be extracted as standalone functions in the `/utils` directory. This makes them easy to test in isolation without a React environment.
+const NoteCard = ({ title, updatedAt, onDelete }: NoteCardProps) => (
+  <div className="rounded-xl border p-4">
+    <h3 className="font-medium">{title}</h3>
+    <time>{formatDate(updatedAt)}</time>
+    <Button variant="ghost" onClick={onDelete}>Eliminar</Button>
+  </div>
+);
+```
 
-## 7. Imports (Relative vs. Absolute)
+### Componentes "Smart" (Contenedores)
 
-- **Absolute Imports / Path Aliases**: Preferred for cross-feature imports or importing from standard directories like `src/components` or `src/types`. Path aliases (e.g., `@/components/Button` or `~/hooks/useTheme`) keep imports clean and prevent messy, fragile paths like `../../../../components/Button`.
-- **Relative Imports**: Only use relative imports for files within the same closely-related directory or domain feature (e.g., a component importing a sibling style file or a closely related sub-component like `./ButtonIcon`).
+- Se enfocan en **cómo funcionan las cosas** (fetching de datos, manipulación de estado).
+- Importan y usan custom hooks de Convex o Contextos.
+- Pasan los datos obtenidos hacia abajo a los componentes "Dumb" como props.
+- Mantienen el JSX mínimo, delegando el renderizado complejo a componentes presentacionales.
 
-## 8. React Context Pattern
+```tsx
+// pages/NotesPage.tsx — componente smart
+const NotesPage = () => {
+  const { notes, create, remove } = useNotes();
 
-All React Contexts live in `src/contexts/` and follow a strict two-file pattern: the **Context file** defines the shape and default value, and a **hook file** in `src/hooks/` exposes it to consumers. Components must **never** call `useContext` directly — they always go through the hook.
+  return (
+    <div>
+      {notes?.map((note) => (
+        <NoteCard
+          key={note._id}
+          title={note.title}
+          updatedAt={note.updatedAt}
+          onDelete={() => remove({ noteId: note._id })}
+        />
+      ))}
+    </div>
+  );
+};
+```
 
-### Step 1 — Create the Context file (`src/contexts/`)
+## 3. Estilos y componentes de UI
 
-There are two variants depending on whether a meaningful default value exists.
+El proyecto usa **Tailwind CSS v4** combinado con **shadcn/ui** para estilos y primitivos de componentes.
 
-**Variant A — with a default value** (e.g. UI state like theme or sidebar):
+### Tailwind CSS v4
+
+Tailwind se usa exclusivamente para layout, espaciado, colores y diseño responsivo a través de clases de utilidad. Evitar escribir CSS/SCSS custom o usar estilos inline salvo que sea absolutamente necesario.
+
+```tsx
+// ✅ Correcto — clases de Tailwind
+<div className="flex items-center gap-4 rounded-xl border p-6">
+
+// ❌ Incorrecto — estilos inline o CSS custom en el componente
+<div style={{ display: "flex", padding: "24px" }}>
+```
+
+### shadcn/ui
+
+shadcn/ui se usa para primitivos de componentes accesibles (Dialogs, Selects, Buttons, etc.). Estos componentes son **propiedad del codebase** (viven en `src/components/ui/`) y pueden modificarse libremente, a diferencia de una dependencia inmutable.
+
+```tsx
+// ✅ Correcto — usar primitivos de shadcn/ui
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
+
+// ❌ Incorrecto — crear componentes de UI básicos desde cero
+<button className="bg-teal-500 text-white px-4 py-2 rounded">
+```
+
+### Sistema de diseño: tokens de Bitacory
+
+El sistema de diseño de Bitacory usa tokens definidos en `src/index.css` siguiendo el sistema de colores OKLCH. Ver `design.md` para la especificación completa del sistema de diseño (paleta, tipografía, elevación, etc.).
+
+## 4. TypeScript: tipos y anotaciones
+
+Para prevenir dependencias circulares y mantener el codebase limpio, los tipos de TypeScript deben gestionarse estrictamente.
+
+### Tipos centralizados (`/types`)
+
+Todos los interfaces de dominio, formas de respuesta de la API y tipos compartidos de la aplicación deben declararse en el directorio `/types`.
+
+```ts
+// src/types/notes.ts
+export interface NoteWithPendingEdit {
+  _id: Id<"notes">;
+  title: string;
+  body: string;
+  pendingAiEdit?: string;
+}
+```
+
+### Props de componentes
+
+Los interfaces de props pueden permanecer en el mismo archivo que el componente si son específicos de ese componente. Si las props se comparten entre múltiples archivos, moverlas a `/types`.
+
+```tsx
+// Bien — props específicas del componente en el mismo archivo
+interface NoteCardProps {
+  title: string;
+  onDelete: () => void;
+}
+const NoteCard = ({ title, onDelete }: NoteCardProps) => { ... };
+```
+
+### Tipos de Convex
+
+Los tipos generados por Convex (`Id<"notes">`, `Doc<"sessions">`, etc.) se importan directamente desde `convex/_generated/dataModel`. No redefinir estos tipos manualmente.
+
+```ts
+import type { Id, Doc } from "../../convex/_generated/dataModel";
+// o con alias:
+import type { Id } from "@convex/_generated/dataModel";
+```
+
+## 5. Convenciones de nombres
+
+| Artefacto | Convención | Ejemplo |
+|---|---|---|
+| Componentes React | PascalCase | `NoteCard.tsx`, `SessionPage.tsx` |
+| Hooks | camelCase con prefijo `use` | `useNotes.ts`, `useTheme.ts` |
+| Archivos de hooks | `.ts` (sin `.tsx`) | `useNotes.ts` — los hooks no retornan JSX |
+| Constantes globales | UPPER_SNAKE_CASE | `MAX_NOTE_LENGTH`, `THEME` |
+| Tipos e Interfaces | PascalCase | `AuthUser`, `MessagePayload` |
+| Archivos de tipos | camelCase | `notes.ts`, `auth.ts` |
+| Archivos de contexto | PascalCase con sufijo `Context` o `Provider` | `ThemeContext.tsx`, `ThemeProvider.tsx` |
+| Archivos de utilidad | camelCase | `formatDate.ts`, `cn.ts` |
+| Archivos de página | PascalCase con sufijo `Page` | `NotesPage.tsx`, `LoginPage.tsx` |
+
+**Regla clave**: Los hooks son lógica pura y **deben** terminar en `.ts` (nunca `.tsx`), ya que no retornan JSX.
+
+## 6. Estilo de código y patrones de sintaxis
+
+### Arrow functions para componentes
+
+Estandarizamos el uso de **Arrow Functions** para definir componentes React y hooks, en lugar de declaraciones tradicionales `function`.
+
+```tsx
+// ✅ Correcto — arrow function
+const UserProfile = ({ user }: Props) => {
+  return <div>{user.name}</div>;
+};
+
+// ❌ Incorrecto — function declaration
+function UserProfile({ user }: Props) {
+  return <div>{user.name}</div>;
+}
+```
+
+**Por qué**: Las arrow functions proveen sintaxis concisa, son más fáciles de tipar como componentes funcionales de React, y son el patrón predominante en este codebase.
+
+### Funciones utilitarias puras (`/utils`)
+
+Cualquier lógica pura que no dependa de hooks o estado de React (formatear fechas, generar slugs, manipular strings) debe extraerse como función standalone en el directorio `/utils`. Esto facilita testearlas en aislamiento sin un entorno de React.
+
+```ts
+// src/utils/formatDate.ts
+export const formatDate = (timestamp: number): string =>
+  new Intl.DateTimeFormat("es-AR", { dateStyle: "medium" }).format(timestamp);
+```
+
+### Exportaciones nombradas sobre exportaciones default
+
+Preferir exportaciones nombradas para mejorar la rastreabilidad del codebase y evitar renombrados accidentales.
+
+```ts
+// ✅ Correcto — exportación nombrada
+export const useNotes = () => { ... };
+
+// ❌ Evitar — default export (más difícil de rastrear, se puede importar con cualquier nombre)
+export default function useNotes() { ... }
+```
+
+**Excepción**: Los componentes de página (`pages/`) y layouts pueden usar `export default` si el framework lo requiere, pero los hooks y utilidades siempre usan exportaciones nombradas.
+
+## 7. Imports: relativos vs. absolutos
+
+- **Imports con alias** (`@/`): Preferidos para imports entre features o desde directorios estándar como `src/components`, `src/hooks`, `src/types`. Mantienen los imports limpios y previenen paths frágiles como `../../../../components/Button`.
+- **Imports relativos**: Solo para archivos dentro del mismo directorio o domain feature estrechamente relacionado (por ejemplo, un componente importando un sub-componente hermano `./NoteCardActions`).
+
+```ts
+// ✅ Correcto — alias para imports cross-feature
+import { useNotes } from "@/hooks/useNotes";
+import { Button } from "@/components/ui/button";
+import type { NoteWithPendingEdit } from "@/types/notes";
+
+// ✅ Correcto — relativo para siblings directos
+import { NoteCardActions } from "./NoteCardActions";
+
+// ❌ Incorrecto — paths relativos profundos
+import { Button } from "../../../components/ui/button";
+```
+
+El alias `@/` debe estar configurado en `tsconfig.app.json` y `vite.config.ts`.
+
+## 8. Patrón de React Context
+
+Todos los contextos de React viven en `src/contexts/` y siguen un patrón estricto de dos archivos: el **archivo de Context** define la forma y el valor por defecto, y el **hook accesor** en `src/hooks/` lo expone a los consumidores. Los componentes **nunca** deben llamar a `useContext` directamente — siempre acceden a través del hook.
+
+### Paso 1 — Crear el archivo de Context (`src/contexts/`)
+
+Existen dos variantes dependiendo de si hay un valor por defecto con sentido.
+
+**Variante A — con valor por defecto** (ej: estado de UI como tema o sidebar):
 
 ```tsx
 // src/contexts/ThemeContext.tsx
-import React from "react";
-import { BS_THEME } from "../constants";
+import { createContext } from "react";
+import { THEME } from "@/constants";
 
-const initialState = {
-  bsTheme: BS_THEME.LIGHT,
-  setBsTheme: (theme: string) => {},
+interface ThemeContextValue {
+  theme: string;
+  setTheme: (theme: string) => void;
+}
+
+const initialState: ThemeContextValue = {
+  theme: THEME.SYSTEM,
+  setTheme: () => {},
 };
 
-const ThemeContext = React.createContext(initialState);
+const ThemeContext = createContext<ThemeContextValue>(initialState);
 
 export default ThemeContext;
 ```
 
-- Define an `initialState` object that matches the context's full shape (including no-op setters for callbacks).
-- Pass `initialState` to `React.createContext()` so TypeScript can infer the type automatically — no explicit generic needed.
+- Define un objeto `initialState` que coincide con la forma completa del contexto (incluyendo setters no-op para los callbacks).
+- Pásale `initialState` a `createContext()` para que TypeScript infiera el tipo automáticamente — no se necesita un genérico explícito.
 
-**Variant B — with a nullable default** (e.g. auth contexts that *require* a Provider):
+**Variante B — con default nullable** (ej: contextos que *requieren* un Provider):
 
 ```tsx
-// src/contexts/JWTContext.tsx
+// src/contexts/AuthContext.tsx
 import { createContext } from "react";
-import { JWTContextType } from "../types/auth";
+import type { AuthContextType } from "@/types/auth";
 
-const AuthContext = createContext<JWTContextType | null>(null);
+const AuthContext = createContext<AuthContextType | null>(null);
 
 export default AuthContext;
 ```
 
-- Use an explicit generic (`<JWTContextType | null>`) and pass `null` as the default.
-- The `null` default signals that this context is meaningless outside its Provider — the hook (Step 2) must guard against it.
+- Usa un genérico explícito (`<AuthContextType | null>`) y pasa `null` como default.
+- El default `null` señala que este contexto no tiene sentido fuera de su Provider — el hook (Paso 2) debe protegerse contra esto.
 
-### Step 2 — Create the accessor hook (`src/hooks/`)
+### Paso 2 — Crear el hook accesor (`src/hooks/`)
 
-Every context must be wrapped in a custom hook. This is the **only** way components should access context values.
+Cada contexto debe estar encapsulado en un custom hook. Esta es la **única** forma en que los componentes deben acceder a los valores del contexto.
 
-**For Variant A** (non-nullable default — no guard needed):
+**Para Variante A** (default no-nullable — sin guard):
 
 ```ts
 // src/hooks/useTheme.ts
 import { useContext } from "react";
-import ThemeContext from "../contexts/ThemeContext";
+import ThemeContext from "@/contexts/ThemeContext";
 
-const useTheme = () => useContext(ThemeContext);
-
-export default useTheme;
+export const useTheme = () => useContext(ThemeContext);
 ```
 
-**For Variant B** (nullable default — guard required):
+**Para Variante B** (default nullable — guard requerido):
 
 ```ts
 // src/hooks/useAuth.ts
 import { useContext } from "react";
-import AuthContext from "../contexts/JWTContext";
+import AuthContext from "@/contexts/AuthContext";
 
-const useAuth = () => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
 
   if (!context)
-    throw new Error("AuthContext must be placed within AuthProvider");
+    throw new Error("AuthContext debe estar dentro de AuthProvider");
 
   return context;
 };
-
-export default useAuth;
 ```
 
-- The `if (!context) throw` guard provides a clear error message when a component is accidentally rendered outside the Provider tree.
+- El guard `if (!context) throw` provee un mensaje de error claro cuando un componente se renderiza accidentalmente fuera del árbol del Provider.
 
-### Usage in components
+### Uso en componentes
 
 ```tsx
-// ✅ Correct — consume via the hook
-import useTheme from "@/hooks/useTheme";
+// ✅ Correcto — acceder a través del hook
+import { useTheme } from "@/hooks/useTheme";
 
 const MyComponent = () => {
-  const { bsTheme, setBsTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   // ...
 };
 
-// ❌ Wrong — never import the Context object directly into a component
+// ❌ Incorrecto — nunca importar el Context directamente en un componente
 import ThemeContext from "@/contexts/ThemeContext";
 import { useContext } from "react";
 
 const MyComponent = () => {
-  const { bsTheme } = useContext(ThemeContext); // forbidden
+  const { theme } = useContext(ThemeContext); // prohibido
 };
 ```
 
-### File naming & location summary
+### Resumen de ubicación de archivos
 
-| Artifact | Location | Example |
+| Artefacto | Ubicación | Ejemplo |
 |---|---|---|
-| Context object | `src/contexts/FooContext.tsx` | `ThemeContext.tsx` |
-| Accessor hook | `src/hooks/useFoo.ts` | `useTheme.ts` |
-| Type definition | `src/types/` | `auth.ts` → `JWTContextType` |
+| Objeto Context | `src/contexts/FooContext.tsx` | `ThemeContext.tsx` |
+| Hook accesor | `src/hooks/useFoo.ts` | `useTheme.ts` |
+| Definición de tipo | `src/types/` | `auth.ts` → `AuthContextType` |
 
-## 9. Constants as Plain Objects (not TypeScript `enum`s)
+## 9. Constantes como objetos planos (no `enum` de TypeScript)
 
-This project uses **plain `UPPER_SNAKE_CASE` object literals** instead of TypeScript `enum`s to define sets of related constants. All constants live in `src/constants.ts`.
+Este proyecto usa **literales de objeto `UPPER_SNAKE_CASE` planos** en lugar de `enum`s de TypeScript para definir conjuntos de constantes relacionadas. Todas las constantes viven en `src/constants.ts`.
 
 ```ts
-// ✅ Correct — plain object with UPPER_SNAKE_CASE key and name
-export const SIDEBAR_THEME = {
-  DARK: "dark",
-  COLORED: "colored",
+// ✅ Correcto — objeto plano con clave UPPER_SNAKE_CASE
+export const THEME = {
   LIGHT: "light",
-};
+  DARK: "dark",
+  SYSTEM: "system",
+} as const;
 
-// ❌ Wrong — TypeScript enum
-enum SidebarTheme {
-  Dark = "dark",
-  Colored = "colored",
+// ❌ Incorrecto — TypeScript enum
+enum Theme {
   Light = "light",
+  Dark = "dark",
+  System = "system",
 }
 ```
 
-- **Why**: Plain objects are just JavaScript — they compile to nothing extra, work seamlessly with `typeof` / `keyof` utilities, and are easier to inspect at runtime than TypeScript enums (which generate IIFE wrappers).
-- **Usage**: Always reference values through the object (e.g. `SIDEBAR_THEME.DARK`) rather than using the raw magic string `"dark"`. This prevents typos and makes renames a one-line change in `constants.ts`.
-- **Dark-mode color palettes** follow the same pattern: `THEME_PALETTE_DARK` spreads `THEME_PALETTE_LIGHT` and overrides only the values that differ, avoiding repetition.
+**Por qué**: Los objetos planos son JavaScript puro — se compilan sin overhead extra, funcionan perfectamente con los utilities `typeof` / `keyof`, y son más fáciles de inspeccionar en runtime que los enums de TypeScript (que generan wrappers IIFE).
+
+**Uso**: Siempre referenciar los valores a través del objeto (`THEME.DARK`) en lugar de usar el magic string `"dark"`. Esto previene typos y hace que los renombrados sean un cambio de una línea en `constants.ts`.
 
 ```ts
-export const THEME_PALETTE_DARK = {
-  ...THEME_PALETTE_LIGHT,   // reuse shared values
-  white: "#293042",          // override only what changes
-  "gray-100": "#3e4555",
-  // ...
-};
+// ✅ Correcto
+if (theme === THEME.DARK) { ... }
+
+// ❌ Incorrecto — magic string
+if (theme === "dark") { ... }
 ```
 
-## 10. Route Guard Components
+## 10. Componentes Guard de rutas
 
-Access control is enforced at the **route configuration level**, not inside individual page components. Guard components (`src/components/guards/`) wrap a layout or page in the route tree and redirect declaratively.
+El control de acceso se aplica a **nivel de la configuración de rutas**, no dentro de los componentes de página individuales. Los componentes Guard (`src/components/guards/`) envuelven un layout o página en el árbol de rutas y redirigen de forma declarativa.
 
 ```tsx
 // src/components/guards/AuthGuard.tsx
 const AuthGuard = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isInitialized } = useAuth();
+  const { isAuthenticated, isLoading } = useConvexAuth();
 
-  if (isInitialized && !isAuthenticated) {
-    return <Navigate to="/auth/sign-in" />;
-  }
+  if (isLoading) return <Loader />;
+  if (!isAuthenticated) return <Navigate to="/auth/login" replace />;
 
-  return <React.Fragment>{children}</React.Fragment>;
+  return <>{children}</>;
 };
 ```
 
-Guards are applied by **wrapping the layout** element in `routes.tsx`, not the individual child pages:
+Los guards se aplican **envolviendo el elemento del layout** en `routes.tsx`, no las páginas hijas individuales:
 
 ```tsx
 // routes.tsx
 {
-  path: "private",
+  path: "/",
   element: (
-    <AuthGuard>          // ← guard wraps the layout
-      <DashboardLayout />
+    <AuthGuard>          // ← el guard envuelve el layout
+      <AppLayout />
     </AuthGuard>
   ),
   children: [
-    { path: "", element: <ProtectedPage /> },
+    { path: "notes", element: <NotesPage /> },
   ],
 }
 ```
 
-Two guards exist:
-| Guard | Redirects when… | Used for |
+Dos guards disponibles:
+
+| Guard | Redirige cuando… | Usado para |
 |---|---|---|
-| `AuthGuard` | user is **not** authenticated | Private/dashboard routes |
-| `GuestGuard` | user **is** authenticated | Auth pages (Sign In, Sign Up) |
+| `AuthGuard` | el usuario **no** está autenticado | Rutas privadas/autenticadas |
+| `GuestGuard` | el usuario **ya está** autenticado | Páginas de auth (Login) |
 
-- **Why**: Pages stay focused on rendering content. Auth logic lives in one place, and adding a new protected route is a one-line change in `routes.tsx`.
-
-## 11. Typed Redux Hooks
-
-Never import `useDispatch` or `useSelector` from `react-redux` directly. Use the project's pre-typed wrappers from `src/hooks/` instead — they carry the full `RootState` and `AppDispatch` types automatically.
-
-```ts
-// src/hooks/useAppDispatch.ts
-import { useDispatch } from "react-redux";
-import type { AppDispatch } from "../redux/store";
-
-const useAppDispatch = () => useDispatch<AppDispatch>();
-
-export default useAppDispatch;
-```
-
-```ts
-// src/hooks/useAppSelector.ts
-import { TypedUseSelectorHook, useSelector } from "react-redux";
-import type { RootState } from "../redux/store";
-
-const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
-
-export default useAppSelector;
-```
-
-```ts
-// ✅ Correct — use the typed wrappers
-import useAppDispatch from "@/hooks/useAppDispatch";
-import useAppSelector from "@/hooks/useAppSelector";
-
-const dispatch = useAppDispatch();
-const count = useAppSelector((state) => state.counter.value);
-
-// ❌ Wrong — raw Redux hooks lose all type information
-import { useDispatch, useSelector } from "react-redux";
-```
-
-- **Why**: Without these wrappers, dispatching thunks or reading state requires manual type casts on every call site. The wrappers encode the store shape once so every consumer gets autocomplete and type errors for free.
+**Por qué**: Las páginas se enfocan en renderizar contenido. La lógica de auth vive en un único lugar, y agregar una nueva ruta protegida es un cambio de una línea en `routes.tsx`.
