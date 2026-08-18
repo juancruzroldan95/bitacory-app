@@ -20,26 +20,30 @@ Every element in Bitacory is structured to prioritize visual comfort. The interf
 
 ## 2. Colors
 
-The color palette is anchored in a calming, therapeutic teal with neutral, soft-zinc backdrops for comfort.
+The color palette is anchored in a calming, therapeutic teal with neutral, soft-zinc backdrops for comfort, matching `src/index.css`:
 
 ### Primary
-- **Calming Healing Teal** (oklch(0.52 0.12 185) / #288e8e in light mode, oklch(0.68 0.13 185) / #45b1b1 in dark mode): Used for active actions, focus rings, selected menu options, and primary buttons.
+- **Calming Healing Teal** (`oklch(0.52 0.105 223.128)` in light mode, `oklch(0.45 0.085 224.283)` in dark mode): Used for active actions, focus rings, selected menu options, and primary buttons.
+- **Primary Foreground** (`oklch(0.984 0.019 200.873)`).
 
-### Neutral
-- **Soft Studio White** (oklch(1 0 0) / #ffffff): Canonical background for light mode.
-- **Warm Zinc Dark** (oklch(0.27 0 0) / #404040): Calm, low-glare background for dark mode.
-- **Ink Charcoal** (oklch(0.20 0.006 285.823) / #333233): High-contrast, soft charcoal for light mode body text.
-- **Muted Sage** (oklch(0.552 0.016 285.938) / #7c7a7d): Used for secondary labels, placeholders, and borders.
+### Neutral & Surfaces
+- **Background**: `oklch(1 0 0)` in light mode, `oklch(0.148 0.004 228.8)` in dark mode.
+- **Foreground**: `oklch(0.148 0.004 228.8)` in light mode, `oklch(0.987 0.002 197.1)` in dark mode.
+- **Card**: `oklch(1 0 0)` in light mode, `oklch(0.218 0.008 223.9)` in dark mode.
+- **Muted**: `oklch(0.963 0.002 197.1)` in light mode, `oklch(0.275 0.011 216.9)` in dark mode.
+- **Muted Foreground**: `oklch(0.56 0.021 213.5)` in light mode, `oklch(0.723 0.014 214.4)` in dark mode.
+- **Border**: `oklch(0.925 0.005 214.3)` in light mode, `oklch(1 0 0 / 10%)` in dark mode.
+- **Radius**: `0.45rem` (var(--radius)).
 
 **The Calming Accent Rule.** The primary accent teal is used on ≤10% of any given screen. Its rarity makes it an intentional focus indicator, never a distraction.
 
 ## 3. Typography
 
-**Display Font:** Outfit (sans-serif)
-**Body Font:** Lora (serif)
-**Label/Mono Font:** Geist Mono (monospace)
+**Display/Heading Font:** Lora (serif) (`--font-heading`, `--font-serif`)
+**Interface Font:** Outfit (sans-serif) (`--font-sans`)
+**Label/Mono Font:** Geist Mono (monospace) (`--font-mono`)
 
-The typographic system pairs the modern geometric sans-serif Outfit (for clean, clear interface navigation and layout structure) with the classic, comforting Lora serif font (for editor and chat message readability).
+The typographic system pairs the modern geometric sans-serif Outfit (for clean, clear interface navigation and layout structure) with the classic, comforting Lora serif font (for editor, headlines and chat message readability).
 
 ### Hierarchy
 - **Display** (Bold (700), clamp(2rem, 5vw, 3rem), 1.2): Hero headers and empty state headlines.
@@ -62,13 +66,17 @@ Bitacory uses a hybrid of flat surfaces with subtle elevation for active overlay
 
 ## 5. Components
 
+### Landing vs. In-App Components
+- **Landing Pages (`/`, `/layouts/LandingLayout`)**: Built with 100% bespoke Tailwind CSS v4 components without Shadcn/Radix abstractions, providing a tailored, lightweight, and high-aesthetic marketing experience.
+- **In-App Pages (`/app/*`, `/auth/*`)**: Use standard Shadcn UI components for complex interactions (dialogs, sidebars, popovers).
+
 ### Buttons
-- **Shape:** Gently rounded corners (0.55rem / 8.8px radius).
+- **Shape:** Gently rounded corners (`0.45rem` / `rounded-lg` / `rounded-full` for hero pills).
 - **Primary:** Calming Healing Teal background, white text. Generous horizontal padding (h-9 px-4 or h-10 px-6).
-- **Hover / Focus:** Transitions smoothly via opacity scale. Focus rings glow with ring color `oklch(0.60 0.08 185)`.
+- **Hover / Focus:** Transitions smoothly via opacity scale. Focus rings glow with ring color `oklch(0.723 0.014 214.4)`.
 
 ### Cards / Containers
-- **Corner Style:** Gently rounded (0.75rem / 12px / rounded-xl).
+- **Corner Style:** Gently rounded (`0.75rem` / `12px` / `rounded-xl` or `rounded-2xl`).
 - **Background:** Soft card background (`--card`) with a thin border (`--border`).
 - **Shadow Strategy:** Flat or minimal shadow (`ambient-sm`). No heavy shadows.
 - **Internal Padding:** 1.5rem (24px).
@@ -78,7 +86,7 @@ Bitacory uses a hybrid of flat surfaces with subtle elevation for active overlay
 - **Focus:** Subtle border shift with teal ring glow.
 
 ### Navigation
-- **Style:** Sidebar navigation uses clean typography (Outfit, 500 weight) with responsive state hover indicators and active state teal highlighting.
+- **Style:** Navigation uses clean typography (Outfit, 500 weight) with responsive state hover indicators and active state teal highlighting.
 
 ## 6. Do's and Don'ts
 
