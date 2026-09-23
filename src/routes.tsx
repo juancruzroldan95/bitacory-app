@@ -43,6 +43,7 @@ const routes: RouteObject[] = [
       </GuestGuard>
     ),
     children: [
+      { index: true, element: <Navigate to="/auth/login" replace /> },
       { path: "login", element: <Suspense fallback={PAGE_SKELETON}><LoginPage /></Suspense> },
     ],
   },
@@ -80,6 +81,10 @@ const routes: RouteObject[] = [
         element: <Suspense fallback={PAGE_SKELETON}><AboutPage /></Suspense>,
       },
     ],
+  },
+  {
+    path: "*",
+    element: <Navigate to="/" replace />,
   },
 ];
 
