@@ -56,11 +56,15 @@ const rag = new RAG(components.rag, {
   textEmbeddingModel: openai.embedding("text-embedding-3-small"),
 });
 
-function buildSystemPrompt(ragText: string, noteContext: string): string {
+function buildSystemPrompt(ragText: string, noteContext: string, goalsContext: string = ""): string {
   let prompt = THERAPY_INSTRUCTIONS;
 
   if (ragText.trim()) {
     prompt += `\n\n---\n\n## Memoria de sesiones anteriores\n\nUsá esta información como contexto para personalizar tu respuesta y mostrar continuidad con el usuario. No menciones explícitamente que tenés estos resúmenes a menos que sea relevante.\n\n${ragText}`;
+  }
+
+  if (goalsContext.trim()) {
+    prompt += `\n\n---\n\n## Objetivos terapéuticos del usuario\n\nEl usuario tiene los siguientes objetivos personales y terapéuticos en curso. Podés tenerlos presentes para acompañar sus reflexiones, ayudar a formular pasos alcanzables y celebrar avances cuando surja de la charla:\n\n${goalsContext}`;
   }
 
   if (noteContext.trim()) {
@@ -99,6 +103,28 @@ export const generateResponse = internalAction({
       console.log("[RAG] Error al buscar contexto:", e);
     }
 
+    let goalsContext = "";
+    try {
+      const activeGoals = await ctx.runQuery(internal.functions.goals.getActiveGoalsForUser, {
+        userId: appSession.userId,
+      });
+      if (activeGoals.length > 0) {
+        goalsContext = activeGoals
+          .map((g) => {
+            const completedCount = g.milestones.filter((m) => m.completed).length;
+            const total = g.milestones.length;
+            const pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+            const steps = g.milestones
+              .map((m) => `  - [${m.completed ? "x" : " "}] ${m.title}`)
+              .join("\n");
+            return `- **${g.title}** (${g.category || "General"} | Progreso: ${pct}% - ${completedCount}/${total} pasos)${g.description ? `\n  Sentido/Motivación: ${g.description}` : ""}${steps ? `\n${steps}` : ""}`;
+          })
+          .join("\n\n");
+      }
+    } catch (e) {
+      console.log("[Goals] Error al obtener objetivos:", e);
+    }
+
     let noteContext = "";
     if (noteIds && noteIds.length > 0) {
       try {
@@ -113,7 +139,7 @@ export const generateResponse = internalAction({
       }
     }
 
-    const systemPrompt = buildSystemPrompt(ragText, noteContext);
+    const systemPrompt = buildSystemPrompt(ragText, noteContext, goalsContext);
 
     const result = await therapyAgent.streamText(
       ctx,

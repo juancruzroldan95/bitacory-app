@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
-import { MessageCircle, Info, NotebookPen } from "lucide-react";
+import { MessageCircle, Info, NotebookPen, Target } from "lucide-react";
 import { useNavigate } from "react-router";
 
 interface NavMainProps {
@@ -24,6 +24,12 @@ export function NavMain({ onNavigate }: NavMainProps) {
     setOpenMobile(false);
   }, [navigate, onNavigate, setOpenMobile]);
 
+  const handleGoals = useCallback(() => {
+    navigate("/goals");
+    onNavigate?.();
+    setOpenMobile(false);
+  }, [navigate, onNavigate, setOpenMobile]);
+
   const handleAbout = useCallback(() => {
     navigate("/about");
     onNavigate?.();
@@ -34,9 +40,10 @@ export function NavMain({ onNavigate }: NavMainProps) {
     () => [
       { id: "new-note", title: "Notas", icon: NotebookPen, action: handleNewNote },
       { id: "new-session", title: "Sesiones", icon: MessageCircle, action: handleNewSession },
+      { id: "goals", title: "Objetivos", icon: Target, action: handleGoals },
       { id: "about", title: "Cómo funciona", icon: Info, action: handleAbout },
     ],
-    [handleNewNote, handleNewSession, handleAbout]
+    [handleNewNote, handleNewSession, handleGoals, handleAbout]
   );
 
   return (

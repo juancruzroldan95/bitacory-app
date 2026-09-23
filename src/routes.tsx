@@ -16,6 +16,7 @@ const NoteEditorPage = lazy(() => import("@/pages/app/notes/NoteEditorPage").the
 const SessionsPage = lazy(() => import("@/pages/app/chat/SessionsPage").then(m => ({ default: m.SessionsPage })));
 const SessionPage = lazy(() => import("@/pages/app/chat/SessionPage").then(m => ({ default: m.SessionPage })));
 const AboutPage = lazy(() => import("@/pages/app/about/AboutPage").then(m => ({ default: m.AboutPage })));
+const GoalsPage = lazy(() => import("@/pages/app/goals/GoalsPage").then(m => ({ default: m.GoalsPage })));
 
 const PAGE_SKELETON = (
   <div className="flex flex-col flex-1 p-8 gap-4 animate-pulse">
@@ -69,6 +70,10 @@ const routes: RouteObject[] = [
       {
         path: "chat/:sessionId",
         element: <Suspense fallback={PAGE_SKELETON}><SessionPage /></Suspense>,
+      },
+      {
+        path: "goals",
+        element: <Suspense fallback={PAGE_SKELETON}><GoalsPage /></Suspense>,
       },
       {
         path: "about",

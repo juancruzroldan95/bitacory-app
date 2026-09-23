@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useParams, Navigate } from "react-router";
 import { toast } from "sonner";
-import { Plus, X, Tag } from "lucide-react";
+import { Plus, X, Tag, Target } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const NoteEditor = lazy(() =>
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/popover";
 
 import { useNote } from "@/hooks/useNotes";
+import { useGoals } from "@/hooks/useGoals";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import type { Id } from "@/convex/_generated/dataModel";
 import type { TagSlug, TagCategory } from "@/types/tags";
@@ -27,8 +28,31 @@ export const NoteEditorPage = () => {
   const { note, updateNote } = useNote(noteId as Id<"notes"> | undefined);
   const titleDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Tag Manager State
+  // Tag & Goal Manager State
   const [tagPopoverOpen, setTagPopoverOpen] = useState(false);
+  const [goalPopoverOpen, setGoalPopoverOpen] = useState(false);
+  const { goals } = useGoals();
+
+  const handleLinkGoal = async (targetGoalId: Id<"goals">) => {
+    if (!note) return;
+    try {
+      await updateNote({ noteId: note._id, goalId: targetGoalId });
+      setGoalPopoverOpen(false);
+      toast.success("Nota vinculada al objetivo");
+    } catch {
+      toast.error("No se pudo vincular el objetivo");
+    }
+  };
+
+  const handleUnlinkGoal = async () => {
+    if (!note) return;
+    try {
+      await updateNote({ noteId: note._id, goalId: null });
+      toast.success("Objetivo desvinculado");
+    } catch {
+      toast.error("No se pudo desvincular el objetivo");
+    }
+  };
 
   useEffect(() => {
     return () => {
@@ -105,6 +129,7 @@ export const NoteEditorPage = () => {
   };
 
   const currentTags = (note.tags || []) as TagSlug[];
+  const linkedGoal = goals?.find((g: { _id: Id<"goals">; title: string }) => g._id === note.goalId);
 
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
@@ -199,6 +224,56 @@ export const NoteEditorPage = () => {
               </div>
             </PopoverContent>
           </Popover>
+
+          {/* Linked Goal Badge or Selector */}
+          {linkedGoal ? (
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold border border-primary/20">
+              <Target className="h-3 w-3 shrink-0" />
+              <span className="truncate max-w-[150px]">{linkedGoal.title}</span>
+              <button
+                type="button"
+                onClick={handleUnlinkGoal}
+                className="text-primary/70 hover:text-destructive transition-colors shrink-0 cursor-pointer ml-0.5"
+                title="Desvincular objetivo"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </span>
+          ) : (
+            <Popover open={goalPopoverOpen} onOpenChange={setGoalPopoverOpen}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-muted text-muted-foreground hover:text-foreground text-xs font-semibold border border-dashed border-border transition-colors cursor-pointer"
+                >
+                  <Target className="h-3.5 w-3.5" />
+                  <span>Objetivo</span>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="start" className="w-64 p-2" onOpenAutoFocus={(e) => e.preventDefault()}>
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-muted-foreground px-2 py-1">Vincular a un objetivo</p>
+                  {goals && goals.length > 0 ? (
+                    <div className="max-h-48 overflow-y-auto space-y-0.5">
+                      {goals.map((g: any) => (
+                        <button
+                          key={g._id}
+                          type="button"
+                          onClick={() => handleLinkGoal(g._id)}
+                          className="w-full text-left px-2 py-1.5 text-xs rounded-md hover:bg-muted transition-colors flex items-center justify-between"
+                        >
+                          <span className="truncate">{g.title}</span>
+                          <span className="text-[10px] text-muted-foreground shrink-0 ml-1">{g.category}</span>
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground p-2">No tenés objetivos creados aún.</p>
+                  )}
+                </div>
+              </PopoverContent>
+            </Popover>
+          )}
         </div>
       </div>
 

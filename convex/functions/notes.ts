@@ -9,6 +9,7 @@ const noteFields = {
   title: v.string(),
   body: v.string(),
   tags: v.optional(v.array(v.string())),
+  goalId: v.optional(v.id("goals")),
   updatedAt: v.number(),
   pendingAiEdit: v.optional(v.object({
     proposedBody: v.string(),
@@ -63,6 +64,21 @@ export const search = query({
   },
 });
 
+export const getByGoalId = query({
+  args: { goalId: v.id("goals") },
+  returns: v.array(v.object(noteFields)),
+  handler: async (ctx, { goalId }) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return [];
+
+    return ctx.db
+      .query("notes")
+      .withIndex("by_user_goalId", (q) => q.eq("userId", userId).eq("goalId", goalId))
+      .order("desc")
+      .take(50);
+  },
+});
+
 export const getByIds = internalQuery({
   args: { noteIds: v.array(v.id("notes")) },
   returns: v.array(v.object(noteFields)),
@@ -79,9 +95,10 @@ export const create = mutation({
     title: v.string(),
     body: v.string(),
     tags: v.optional(v.array(v.string())),
+    goalId: v.optional(v.id("goals")),
   },
   returns: v.id("notes"),
-  handler: async (ctx, { title, body, tags }) => {
+  handler: async (ctx, { title, body, tags, goalId }) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
@@ -90,6 +107,7 @@ export const create = mutation({
       title,
       body,
       tags: tags?.slice(0, 10),
+      goalId,
       updatedAt: Date.now(),
     });
   },
@@ -101,9 +119,10 @@ export const update = mutation({
     title: v.optional(v.string()),
     body: v.optional(v.string()),
     tags: v.optional(v.array(v.string())),
+    goalId: v.optional(v.union(v.id("goals"), v.null())),
   },
   returns: v.null(),
-  handler: async (ctx, { noteId, title, body, tags }) => {
+  handler: async (ctx, { noteId, title, body, tags, goalId }) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
@@ -114,6 +133,9 @@ export const update = mutation({
     if (title !== undefined) patch.title = title;
     if (body !== undefined) patch.body = body;
     if (tags !== undefined) patch.tags = tags.slice(0, 10);
+    if (goalId !== undefined) {
+      patch.goalId = goalId === null ? undefined : goalId;
+    }
 
     await ctx.db.patch(noteId, patch);
     return null;
