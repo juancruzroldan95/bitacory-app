@@ -126,7 +126,7 @@ export const SessionsPage = () => {
                   onToggleBookmark={toggleBookmark}
                   onRename={handleRenameOpen}
                   onDelete={(id, title) => setSessionToDelete({ id, title })}
-                  onClick={() => navigate(`/chat/${session._id}`)}
+                  onClick={() => navigate(`/app/chat/${session._id}`)}
                 />
               ))}
 

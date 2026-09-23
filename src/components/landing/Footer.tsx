@@ -1,8 +1,10 @@
 import { Link } from "react-router";
 import { BookOpen, ShieldCheck, Heart, Sparkles } from "lucide-react";
+import useAuth from "@/hooks/useAuth";
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
+  const { isAuthenticated } = useAuth();
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith("#")) {
@@ -88,22 +90,35 @@ export const Footer = () => {
               Comenzar
             </h3>
             <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  to="/auth/login"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Iniciar sesión
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/auth/login"
-                  className="text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  Crear cuenta gratis
-                </Link>
-              </li>
+              {isAuthenticated ? (
+                <li>
+                  <Link
+                    to="/app/notes"
+                    className="text-primary hover:underline transition-colors font-medium"
+                  >
+                    Ir a mi diario →
+                  </Link>
+                </li>
+              ) : (
+                <>
+                  <li>
+                    <Link
+                      to="/auth/login"
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Iniciar sesión
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/auth/login"
+                      className="text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Crear cuenta gratis
+                    </Link>
+                  </li>
+                </>
+              )}
               <li className="pt-2">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium border border-primary/20">
                   <Sparkles className="h-3 w-3" />

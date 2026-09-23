@@ -61,7 +61,7 @@ export const NoteEditorPage = () => {
   }, []);
 
   if (!noteId) {
-    return <Navigate to="/notes" replace />;
+    return <Navigate to="/app/notes" replace />;
   }
 
   if (note === undefined) {

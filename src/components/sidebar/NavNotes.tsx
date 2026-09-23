@@ -71,7 +71,7 @@ export function NavNotes() {
   const handleDelete = async (noteId: Id<"notes">, title: string) => {
     try {
       await removeNote({ noteId });
-      if (currentNoteId === noteId) navigate("/notes");
+      if (currentNoteId === noteId) navigate("/app/notes");
       toast.success(`"${title}" eliminada`);
     } catch {
       toast.error("No se pudo eliminar la nota");
@@ -142,7 +142,7 @@ export function NavNotes() {
                           <SidebarMenuButton
                             isActive={currentNoteId === note._id}
                             onClick={() => {
-                              navigate(`/notes/${note._id}`);
+                              navigate(`/app/notes/${note._id}`);
                               setOpenMobile(false);
                             }}
                             className="h-8 w-full"

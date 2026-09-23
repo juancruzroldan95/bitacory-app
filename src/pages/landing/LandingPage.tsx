@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
+import useAuth from "@/hooks/useAuth";
 import {
   NotebookPen,
   MessageCircle,
@@ -52,7 +53,9 @@ const FAQ_LIST: FAQItem[] = [
 ];
 
 export const LandingPage = () => {
+  const { isAuthenticated } = useAuth();
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const ctaLink = isAuthenticated ? "/app/notes" : "/auth/login";
 
   const toggleFaq = (index: number) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
@@ -98,10 +101,10 @@ export const LandingPage = () => {
         {/* Hero CTAs */}
         <div className="mt-8 flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto">
           <Link
-            to="/auth/login"
+            to={ctaLink}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:bg-primary/90 transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98] group"
           >
-            <span>Empezar a escribir gratis</span>
+            <span>{isAuthenticated ? "Ir a mi diario" : "Empezar a escribir gratis"}</span>
             <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
           </Link>
           <a
@@ -584,10 +587,10 @@ export const LandingPage = () => {
 
           <div className="pt-2">
             <Link
-              to="/auth/login"
+              to={ctaLink}
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:bg-primary/90 transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] group"
             >
-              <span>Crear mi cuenta gratuita</span>
+              <span>{isAuthenticated ? "Ir a mi diario" : "Crear mi cuenta gratuita"}</span>
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
             </Link>
           </div>

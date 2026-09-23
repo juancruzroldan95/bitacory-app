@@ -49,7 +49,7 @@ export const NotesPage = () => {
   const handleCreate = async () => {
     try {
       const noteId = await createNote({ title: "Nueva reflexión", body: "" });
-      navigate(`/notes/${noteId}`);
+      navigate(`/app/notes/${noteId}`);
     } catch {
       toast.error("No se pudo crear la nota");
     }
@@ -222,7 +222,7 @@ export const NotesPage = () => {
                   onToggleBookmark={toggleBookmark}
                   onRename={handleRenameOpen}
                   onDelete={(id, title) => setNoteToDelete({ id, title })}
-                  onClick={() => navigate(`/notes/${note._id}`)}
+                  onClick={() => navigate(`/app/notes/${note._id}`)}
                   onTagClick={setSelectedTag}
                 />
               ))}

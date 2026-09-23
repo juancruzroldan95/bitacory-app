@@ -27,7 +27,7 @@ export function HomeComposer() {
     try {
       const sessionId = await createSession({ title: "Nueva sesión" });
       await sendMessage({ sessionId, content, noteIds: noteIds.length ? noteIds : undefined });
-      navigate(`/chat/${sessionId}`);
+      navigate(`/app/chat/${sessionId}`);
     } catch {
       toast.error("No se pudo iniciar la sesión");
     }

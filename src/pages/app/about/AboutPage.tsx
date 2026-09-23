@@ -75,7 +75,7 @@ export const AboutPage = () => {
           </div>
           <div className="flex flex-wrap gap-3 pt-1">
             <Button
-              onClick={() => navigate("/notes")}
+              onClick={() => navigate("/app/notes")}
               className="flex items-center gap-2 rounded-full px-5 font-medium text-sm"
             >
               <PenLine className="h-4 w-4" />
@@ -84,7 +84,7 @@ export const AboutPage = () => {
             </Button>
             <Button
               variant="outline"
-              onClick={() => navigate("/chat")}
+              onClick={() => navigate("/app/chat")}
               className="flex items-center gap-2 rounded-full px-5 font-medium text-sm"
             >
               <MessageCircle className="h-4 w-4" />
@@ -244,7 +244,7 @@ export const AboutPage = () => {
           </div>
           <div className="flex flex-wrap justify-center gap-3 pt-2">
             <Button
-              onClick={() => navigate("/notes")}
+              onClick={() => navigate("/app/notes")}
               className="rounded-full px-6 font-medium text-sm flex items-center gap-2"
             >
               <PenLine className="h-4 w-4" />
@@ -252,7 +252,7 @@ export const AboutPage = () => {
             </Button>
             <Button
               variant="outline"
-              onClick={() => navigate("/chat")}
+              onClick={() => navigate("/app/chat")}
               className="rounded-full px-6 font-medium text-sm flex items-center gap-2"
             >
               <MessageCircle className="h-4 w-4" />

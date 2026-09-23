@@ -105,7 +105,7 @@ export function GoalCard({
         body: `> Objetivo: **${goal.title}**\n\n### Registro de avances e introspección\n\n`,
         goalId: goal._id,
       });
-      navigate(`/notes/${newNoteId}`);
+      navigate(`/app/notes/${newNoteId}`);
     } catch {
       toast.error("No se pudo crear la nota vinculada.");
     }
@@ -341,7 +341,7 @@ export function GoalCard({
                   <li key={note._id}>
                     <button
                       type="button"
-                      onClick={() => navigate(`/notes/${note._id}`)}
+                      onClick={() => navigate(`/app/notes/${note._id}`)}
                       className="text-left w-full truncate py-0.5 text-foreground hover:text-primary transition-colors flex items-center gap-1.5"
                     >
                       <FileText className="h-3 w-3 shrink-0 text-muted-foreground" />

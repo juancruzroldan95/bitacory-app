@@ -118,7 +118,7 @@ export function ChatView({
   const handleDelete = useCallback(async () => {
     try {
       await deleteSession({ sessionId });
-      navigate("/chat");
+      navigate("/app/chat");
       toast.success("Sesión eliminada");
     } catch {
       toast.error("No se pudo eliminar la sesión");

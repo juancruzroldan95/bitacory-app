@@ -54,7 +54,7 @@ export function NavSessions({ onNavigate }: NavSessionsProps) {
   const handleDelete = async (sessionId: Id<"sessions">) => {
     try {
       await deleteSession({ sessionId });
-      if (currentSessionId === sessionId) navigate("/chat");
+      if (currentSessionId === sessionId) navigate("/app/chat");
       toast.success("Sesión eliminada");
     } catch {
       toast.error("No se pudo eliminar la sesión");
@@ -110,7 +110,7 @@ export function NavSessions({ onNavigate }: NavSessionsProps) {
                         editTitle={editTitle}
                         isActive={currentSessionId === session._id}
                         onNavigate={() => {
-                          navigate(`/chat/${session._id}`);
+                          navigate(`/app/chat/${session._id}`);
                           onNavigate?.();
                           setOpenMobile(false);
                         }}

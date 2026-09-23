@@ -13,25 +13,25 @@ export function NavMain({ onNavigate }: NavMainProps) {
   const { setOpenMobile } = useSidebar();
 
   const handleNewSession = useCallback(() => {
-    navigate("/chat");
+    navigate("/app/chat");
     onNavigate?.();
     setOpenMobile(false);
   }, [navigate, onNavigate, setOpenMobile]);
 
   const handleNewNote = useCallback(() => {
-    navigate("/notes");
+    navigate("/app/notes");
     onNavigate?.();
     setOpenMobile(false);
   }, [navigate, onNavigate, setOpenMobile]);
 
   const handleGoals = useCallback(() => {
-    navigate("/goals");
+    navigate("/app/goals");
     onNavigate?.();
     setOpenMobile(false);
   }, [navigate, onNavigate, setOpenMobile]);
 
   const handleAbout = useCallback(() => {
-    navigate("/about");
+    navigate("/app/about");
     onNavigate?.();
     setOpenMobile(false);
   }, [navigate, onNavigate, setOpenMobile]);
