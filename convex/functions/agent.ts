@@ -36,7 +36,10 @@ Es **MANDATORIO** que uses formatos ricos de Markdown en todas tus respuestas la
 
 ## Herramientas disponibles
 
-Tenés acceso a la herramienta \`proposeNoteEdit\`. Usala SOLO cuando el usuario te pida explícitamente editar, mejorar, reescribir o reformular una nota adjunta. Nunca la uses de forma proactiva.`;
+Tenés acceso a la herramienta \`editNote\`. Usala cuando el usuario te pida explícitamente editar, actualizar, agregar reflexiones, o reformular una nota adjunta.
+- Usá \`action: "append"\` para agregar reflexiones, conclusiones o nuevos puntos al final de la nota, preservando todo su texto original.
+- Usá \`action: "replace"\` únicamente si el usuario pide explícitamente reescribir o reformular la nota por completo.
+- Siempre mencioná en tu respuesta qué nota modificaste y qué cambios le hiciste. Nunca uses esta herramienta si no hay notas adjuntas o si el usuario no lo pide.`;
 
 const SUMMARY_PROMPT = `Sos un asistente que genera resúmenes estructurados de sesiones de acompañamiento terapéutico.
 
@@ -68,7 +71,7 @@ function buildSystemPrompt(ragText: string, noteContext: string, goalsContext: s
   }
 
   if (noteContext.trim()) {
-    prompt += `\n\n---\n\n## Notas adjuntas por el usuario\n\nEl usuario adjuntó las siguientes notas. Podés hacer referencia a ellas, responder con ese contexto, o usar \`proposeNoteEdit\` si el usuario pide que las edites.\n\n${noteContext}`;
+    prompt += `\n\n---\n\n## Notas adjuntas por el usuario\n\nEl usuario adjuntó las siguientes notas. Podés hacer referencia a ellas, responder con ese contexto, o usar \`editNote\` si el usuario te pide editarlas o añadirles contenido.\n\n${noteContext}`;
   }
 
   return prompt;
@@ -131,7 +134,7 @@ export const generateResponse = internalAction({
         const notes = await ctx.runQuery(internal.functions.notes.getByIds, { noteIds });
         const ownedNotes = notes.filter((n) => n.userId === appSession.userId);
         noteContext = ownedNotes
-          .map((n) => `## Nota: "${n.title}"\n\n${n.body}`)
+          .map((n) => `## Nota: "${n.title}" (ID: ${n._id})\n\n${n.body}`)
           .join("\n\n---\n\n");
         console.log("[Notes] Contexto de notas adjuntas:", notes.length, "nota(s)");
       } catch (e) {
@@ -148,26 +151,37 @@ export const generateResponse = internalAction({
         promptMessageId,
         system: systemPrompt,
         tools: {
-          proposeNoteEdit: tool({
+          editNote: tool({
             description:
-              "Propone una reescritura completa de una nota del usuario. Usá SOLO cuando el usuario lo pida explícitamente (ej: 'mejorar esta nota', 'reescribir', 'editar'). Nunca uses esta herramienta de forma proactiva.",
+              "Modifica o añade contenido a una nota adjunta del usuario. Usá esta herramienta cuando el usuario te pida escribir en la nota, agregar reflexiones/conclusiones, o reescribirla.",
             inputSchema: z.object({
-              noteId: z.string().describe("El ID exacto de la nota a editar"),
-              proposedBody: z
+              noteId: z
                 .string()
-                .describe("El contenido completo reescrito de la nota en markdown"),
-              prompt: z
+                .describe("El ID exacto de la nota a editar (provisto como 'ID: ...' en el encabezado de la nota)"),
+              action: z
+                .enum(["append", "replace"])
+                .describe(
+                  "Usá 'append' para agregar reflexiones o conclusiones al final de la nota preservando su contenido original. Usá 'replace' únicamente si el usuario pide explícitamente reescribir o reformular toda la nota."
+                ),
+              content: z
                 .string()
-                .describe("Descripción breve de los cambios realizados (1-2 oraciones)"),
+                .describe(
+                  "El texto a añadir (en caso de append) o el contenido completo nuevo (en caso de replace) en markdown."
+                ),
+              summary: z
+                .string()
+                .describe("Resumen breve de los cambios realizados en una oración (ej: 'Se agregaron 3 conclusiones sobre comunicación')."),
             }),
-            execute: async ({ noteId, proposedBody, prompt: editPrompt }) => {
-              await ctx.runMutation(internal.functions.notes.savePendingAiEdit, {
+            execute: async ({ noteId, action, content: editContent, summary: editSummary }) => {
+              const res = await ctx.runMutation(internal.functions.notes.applyAiEdit, {
                 noteId: noteId as Id<"notes">,
-                proposedBody,
-                prompt: editPrompt,
                 userId: appSession.userId,
+                sessionId,
+                action,
+                content: editContent,
+                summary: editSummary,
               });
-              return "Edición propuesta guardada. El usuario podrá revisarla y decidir si aplicarla.";
+              return `Nota "${res.noteTitle}" actualizada con éxito (${action === "append" ? "contenido añadido al final" : "nota reescrita"}). Se creó un snapshot previo de respaldo.`;
             },
           }),
         },

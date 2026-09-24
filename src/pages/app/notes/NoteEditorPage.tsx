@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useParams, Navigate } from "react-router";
 import { toast } from "sonner";
-import { Plus, X, Tag, Target } from "lucide-react";
+import { Plus, X, Tag, Target, History } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const NoteEditor = lazy(() =>
@@ -15,6 +15,8 @@ import {
 
 import { useNote } from "@/hooks/useNotes";
 import { useGoals } from "@/hooks/useGoals";
+import { useNoteVersions } from "@/hooks/useNoteVersions";
+import { NoteVersionsSheet } from "@/components/notes/NoteVersionsSheet";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import type { Id } from "@/convex/_generated/dataModel";
 import type { TagSlug, TagCategory } from "@/types/tags";
@@ -26,6 +28,8 @@ import {
 export const NoteEditorPage = () => {
   const { noteId } = useParams<{ noteId: string }>();
   const { note, updateNote } = useNote(noteId as Id<"notes"> | undefined);
+  const { versions } = useNoteVersions(noteId as Id<"notes"> | undefined);
+  const [versionsSheetOpen, setVersionsSheetOpen] = useState(false);
   const titleDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Tag & Goal Manager State
@@ -136,7 +140,16 @@ export const NoteEditorPage = () => {
       {/* Mobile Header */}
       <header className="md:hidden flex h-12 items-center border-b px-4 shrink-0 bg-background/95 backdrop-blur z-10 gap-2">
         <SidebarTrigger className="-ml-2 shrink-0 text-muted-foreground hover:text-foreground" />
-        <span className="text-sm font-medium text-muted-foreground truncate">{note.title}</span>
+        <span className="text-sm font-medium text-muted-foreground truncate flex-1">{note.title}</span>
+        <button
+          type="button"
+          onClick={() => setVersionsSheetOpen(true)}
+          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-muted text-muted-foreground hover:text-foreground text-xs font-semibold border border-border"
+          title="Historial de versiones"
+        >
+          <History className="h-3 w-3 text-primary" />
+          <span>{versions?.length ?? 0}</span>
+        </button>
       </header>
 
       {/* Title & Tag Section */}
@@ -274,6 +287,17 @@ export const NoteEditorPage = () => {
               </PopoverContent>
             </Popover>
           )}
+
+          {/* Version History Button */}
+          <button
+            type="button"
+            onClick={() => setVersionsSheetOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted text-muted-foreground hover:text-foreground text-xs font-semibold border border-border hover:border-foreground/30 transition-colors cursor-pointer ml-auto"
+            title="Ver historial de versiones"
+          >
+            <History className="h-3.5 w-3.5 text-primary" />
+            <span>Historial{versions && versions.length > 0 ? ` (${versions.length})` : ""}</span>
+          </button>
         </div>
       </div>
 
@@ -295,6 +319,12 @@ export const NoteEditorPage = () => {
           />
         </Suspense>
       </div>
+
+      <NoteVersionsSheet
+        noteId={note._id}
+        open={versionsSheetOpen}
+        onOpenChange={setVersionsSheetOpen}
+      />
     </div>
   );
 }

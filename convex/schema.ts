@@ -68,6 +68,27 @@ const applicationTables = {
   })
     .index("by_user", ["userId"])
     .index("by_user_status", ["userId", "status"]),
+
+  noteVersions: defineTable({
+    noteId: v.id("notes"),
+    userId: v.id("users"),
+    title: v.string(),
+    body: v.string(),
+    tags: v.optional(v.array(v.string())),
+    goalId: v.optional(v.id("goals")),
+    createdAt: v.number(),
+    author: v.union(v.literal("ai"), v.literal("user")),
+    actionType: v.union(
+      v.literal("ai_edit"),
+      v.literal("manual_checkpoint"),
+      v.literal("restore_rollback")
+    ),
+    summary: v.optional(v.string()),
+    sessionId: v.optional(v.id("sessions")),
+  })
+    .index("by_noteId", ["noteId", "createdAt"])
+    .index("by_user", ["userId"])
+    .index("by_session", ["sessionId"]),
 };
 
 export default defineSchema({

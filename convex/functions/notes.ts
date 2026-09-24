@@ -152,6 +152,14 @@ export const remove = mutation({
     const note = await ctx.db.get(noteId);
     if (!note || note.userId !== userId) throw new Error("Note not found");
 
+    const versions = await ctx.db
+      .query("noteVersions")
+      .withIndex("by_noteId", (q) => q.eq("noteId", noteId))
+      .collect();
+    for (const version of versions) {
+      await ctx.db.delete(version._id);
+    }
+
     await ctx.db.delete(noteId);
     return null;
   },
@@ -210,5 +218,65 @@ export const internalCreate = internalMutation({
       tags: tags?.slice(0, 10),
       updatedAt: Date.now(),
     });
+  },
+});
+
+export const applyAiEdit = internalMutation({
+  args: {
+    noteId: v.id("notes"),
+    userId: v.id("users"),
+    sessionId: v.id("sessions"),
+    action: v.union(v.literal("append"), v.literal("replace")),
+    content: v.string(),
+    summary: v.string(),
+  },
+  returns: v.object({
+    success: v.boolean(),
+    noteTitle: v.string(),
+    previousVersionId: v.id("noteVersions"),
+  }),
+  handler: async (ctx, { noteId, userId, sessionId, action, content, summary }) => {
+    const note = await ctx.db.get(noteId);
+    if (!note || note.userId !== userId) {
+      throw new Error("Note not found or unauthorized");
+    }
+
+    // 1. Snapshot current note state into noteVersions before editing
+    const previousVersionId = await ctx.db.insert("noteVersions", {
+      noteId,
+      userId,
+      title: note.title,
+      body: note.body,
+      tags: note.tags,
+      goalId: note.goalId,
+      createdAt: Date.now(),
+      author: "ai",
+      actionType: "ai_edit",
+      summary: summary.slice(0, 500),
+      sessionId,
+    });
+
+    // 2. Compute new body
+    const trimmedContent = content.trim();
+    let newBody: string;
+    if (action === "append") {
+      newBody = note.body.trim()
+        ? `${note.body.trim()}\n\n${trimmedContent}`
+        : trimmedContent;
+    } else {
+      newBody = trimmedContent;
+    }
+
+    // 3. Update note
+    await ctx.db.patch(noteId, {
+      body: newBody,
+      updatedAt: Date.now(),
+    });
+
+    return {
+      success: true,
+      noteTitle: note.title,
+      previousVersionId,
+    };
   },
 });

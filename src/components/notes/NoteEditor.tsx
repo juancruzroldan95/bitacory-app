@@ -13,6 +13,7 @@ interface NoteEditorProps {
 
 export function NoteEditor({ initialBody, onSave }: NoteEditorProps) {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSavedRef = useRef<string>(initialBody);
 
   const editor = useEditor({
     extensions: [
@@ -30,12 +31,22 @@ export function NoteEditor({ initialBody, onSave }: NoteEditorProps) {
     },
     onUpdate: ({ editor }) => {
       const markdown = (editor as typeof editor & { getMarkdown(): string }).getMarkdown();
+      lastSavedRef.current = markdown;
       if (debounceRef.current) clearTimeout(debounceRef.current);
       debounceRef.current = setTimeout(() => {
         onSave(markdown);
       }, 500);
     },
   });
+
+  useEffect(() => {
+    if (!editor) return;
+    const currentMarkdown = (editor as typeof editor & { getMarkdown(): string }).getMarkdown();
+    if (initialBody !== lastSavedRef.current && initialBody !== currentMarkdown) {
+      lastSavedRef.current = initialBody;
+      editor.commands.setContent(initialBody);
+    }
+  }, [editor, initialBody]);
 
   useEffect(() => {
     return () => {

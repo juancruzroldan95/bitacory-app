@@ -20,6 +20,7 @@ import { useSendMessage } from "@/hooks/useMessages";
 import { MessageList } from "./MessageList";
 import { MessageComposer } from "./MessageComposer";
 import { ChatHeader } from "./ChatHeader";
+import { SessionNoteEditsBanner } from "./SessionNoteEditsBanner";
 import type { MentionedNote } from "@/types/notes";
 
 interface ChatViewProps {
@@ -154,6 +155,8 @@ export function ChatView({
           <ArrowDown className="h-4 w-4" />
         </Button>
       )}
+
+      <SessionNoteEditsBanner sessionId={sessionId} />
 
       <MessageComposer
         input={input}

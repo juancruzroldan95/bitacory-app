@@ -14,6 +14,7 @@ import type * as functions_agent from "../functions/agent.js";
 import type * as functions_crons from "../functions/crons.js";
 import type * as functions_goals from "../functions/goals.js";
 import type * as functions_messages from "../functions/messages.js";
+import type * as functions_noteVersions from "../functions/noteVersions.js";
 import type * as functions_notes from "../functions/notes.js";
 import type * as functions_profiles from "../functions/profiles.js";
 import type * as functions_sessions from "../functions/sessions.js";
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   "functions/crons": typeof functions_crons;
   "functions/goals": typeof functions_goals;
   "functions/messages": typeof functions_messages;
+  "functions/noteVersions": typeof functions_noteVersions;
   "functions/notes": typeof functions_notes;
   "functions/profiles": typeof functions_profiles;
   "functions/sessions": typeof functions_sessions;
