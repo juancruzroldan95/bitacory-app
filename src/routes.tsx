@@ -17,6 +17,8 @@ const SessionsPage = lazy(() => import("@/pages/app/chat/SessionsPage").then(m =
 const SessionPage = lazy(() => import("@/pages/app/chat/SessionPage").then(m => ({ default: m.SessionPage })));
 const AboutPage = lazy(() => import("@/pages/app/about/AboutPage").then(m => ({ default: m.AboutPage })));
 const GoalsPage = lazy(() => import("@/pages/app/goals/GoalsPage").then(m => ({ default: m.GoalsPage })));
+const BlogIndexPage = lazy(() => import("@/pages/blog/BlogIndexPage").then(m => ({ default: m.BlogIndexPage })));
+const BlogPostPage = lazy(() => import("@/pages/blog/BlogPostPage").then(m => ({ default: m.BlogPostPage })));
 
 const PAGE_SKELETON = (
   <div className="flex flex-col flex-1 p-8 gap-4 animate-pulse">
@@ -33,6 +35,8 @@ const routes: RouteObject[] = [
     element: <LandingLayout />,
     children: [
       { index: true, element: <Suspense fallback={PAGE_SKELETON}><LandingPage /></Suspense> },
+      { path: "blog", element: <Suspense fallback={PAGE_SKELETON}><BlogIndexPage /></Suspense> },
+      { path: "blog/:slug", element: <Suspense fallback={PAGE_SKELETON}><BlogPostPage /></Suspense> },
     ],
   },
   {
