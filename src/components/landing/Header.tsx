@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router";
-import { Sun, Moon, Menu, X, ArrowRight, BookOpen } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router";
+import { Sun, Moon, Menu, X, ArrowRight } from "lucide-react";
+import { BitacoryLogo } from "@/components/brand/BitacoryLogo";
 import { useTheme } from "@/hooks/useTheme";
 import useAuth from "@/hooks/useAuth";
 
@@ -8,6 +9,7 @@ export const Header = () => {
   const { resolvedTheme, setTheme } = useTheme();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -20,20 +22,31 @@ export const Header = () => {
   }, []);
 
   const navLinks = [
-    { name: "Características", href: "#caracteristicas" },
-    { name: "Cómo funciona", href: "#como-funciona" },
-    { name: "Acompañamiento", href: "#terapia" },
-    { name: "Preguntas", href: "#faq" },
+    { name: "Cómo funciona", href: "/#como-funciona" },
+    { name: "Metas & Objetivos", href: "/#objetivos" },
+    { name: "Notas & IA", href: "/#notas" },
+    { name: "Terapia", href: "/#terapia" },
+    { name: "Preguntas", href: "/#faq" },
+    { name: "Blog", href: "/blog" },
   ];
 
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href.startsWith("#")) {
+    setMobileMenuOpen(false);
+    const hashIndex = href.indexOf("#");
+    if (hashIndex === -1) return;
+
+    const hash = href.slice(hashIndex);
+
+    if (location.pathname === "/") {
       e.preventDefault();
-      const target = document.querySelector(href);
+      const target = document.querySelector(hash);
       if (target) {
         target.scrollIntoView({ behavior: "smooth", block: "start" });
-        setMobileMenuOpen(false);
+        window.history.pushState(null, "", hash);
       }
+    } else {
+      e.preventDefault();
+      navigate(`/${hash}`);
     }
   };
 
@@ -50,9 +63,10 @@ export const Header = () => {
         <Link
           to="/"
           className="flex items-center gap-2.5 group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-lg p-1"
+          aria-label="Bitacory, ir al inicio"
         >
-          <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary border border-primary/20 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-            <BookOpen className="h-4 w-4" />
+          <div className="h-8 w-8 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+            <BitacoryLogo className="h-8 w-8" />
           </div>
           <span className="font-heading font-semibold text-2xl tracking-tight text-foreground group-hover:text-primary transition-colors">
             Bitacory
@@ -61,16 +75,30 @@ export const Header = () => {
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-7">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              onClick={(e) => handleNavClick(e, link.href)}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
-            >
-              {link.name}
-            </a>
-          ))}
+          {navLinks.map((link) => {
+            const isRoute = link.href.startsWith("/") && !link.href.includes("#");
+            if (isRoute) {
+              return (
+                <Link
+                  key={link.name}
+                  to={link.href}
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
+                >
+                  {link.name}
+                </Link>
+              );
+            }
+            return (
+              <a
+                key={link.name}
+                href={link.href}
+                onClick={(e) => handleNavClick(e, link.href)}
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200"
+              >
+                {link.name}
+              </a>
+            );
+          })}
         </nav>
 
         {/* Right Actions (Theme Toggle & CTA) */}
@@ -94,7 +122,7 @@ export const Header = () => {
               onClick={() => navigate("/app/notes")}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-all duration-200 active:scale-[0.98] shadow-xs cursor-pointer"
             >
-              <span>Ir a mi diario</span>
+              <span>Ir a notas</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </button>
           ) : (
@@ -139,16 +167,31 @@ export const Header = () => {
       {mobileMenuOpen && (
         <div className="md:hidden border-b border-border/60 bg-background/95 backdrop-blur-md px-4 pt-3 pb-6 space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
           <nav className="flex flex-col space-y-3">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={(e) => handleNavClick(e, link.href)}
-                className="text-base font-medium text-muted-foreground hover:text-foreground py-1.5 transition-colors"
-              >
-                {link.name}
-              </a>
-            ))}
+            {navLinks.map((link) => {
+              const isRoute = link.href.startsWith("/") && !link.href.includes("#");
+              if (isRoute) {
+                return (
+                  <Link
+                    key={link.name}
+                    to={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-base font-medium text-muted-foreground hover:text-foreground py-1.5 transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                );
+              }
+              return (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
+                  className="text-base font-medium text-muted-foreground hover:text-foreground py-1.5 transition-colors"
+                >
+                  {link.name}
+                </a>
+              );
+            })}
           </nav>
           <div className="pt-2 border-t border-border/40 flex flex-col gap-2.5">
             {isAuthenticated ? (
@@ -159,7 +202,7 @@ export const Header = () => {
                 }}
                 className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium"
               >
-                <span>Ir a mi diario</span>
+                <span>Ir a notas</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
             ) : (
