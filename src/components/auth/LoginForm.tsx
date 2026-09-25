@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -28,12 +29,15 @@ function GoogleIcon({ className }: { className?: string }) {
 
 export function LoginForm() {
   const { signIn } = useAuthActions();
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
+
+  const redirectTo = searchParams.get("redirectTo") || "/app";
 
   const handleSignIn = async () => {
     try {
       setIsLoading(true);
-      await signIn("google");
+      await signIn("google", { redirectTo });
     } catch (error) {
       console.error("Google sign-in error:", error);
       setIsLoading(false);
