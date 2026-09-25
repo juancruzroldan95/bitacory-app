@@ -120,7 +120,7 @@ export const LandingPage = () => {
             to={ctaLink}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:bg-primary/90 transition-all duration-200 shadow-xs hover:shadow-sm active:scale-[0.98] group"
           >
-            <span>{isAuthenticated ? "Ir a notas" : "Empezar gratis hoy"}</span>
+            <span>{isAuthenticated ? "Ir a mi espacio" : "Empezar gratis hoy"}</span>
             <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
           </Link>
           <a
@@ -694,7 +694,7 @@ export const LandingPage = () => {
               to={ctaLink}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:bg-primary/90 transition-all duration-200 shadow-xs hover:shadow-sm active:scale-[0.98] group"
             >
-              <span>{isAuthenticated ? "Ir a notas" : "Crear mi cuenta gratuita"}</span>
+              <span>{isAuthenticated ? "Ir a mi espacio" : "Crear mi cuenta gratuita"}</span>
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
             </Link>
           </div>
