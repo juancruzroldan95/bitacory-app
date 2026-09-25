@@ -13,7 +13,7 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
   const hasOAuthCode = new URLSearchParams(search).has("code");
 
   // Only block while OAuth is in progress (code present but not yet authenticated).
-  // Once authenticated, show content — the code may still be in React Router's stale location.
+  // Once authenticated, show content; the code may still be in React Router's stale location.
   if (hasOAuthCode && !isAuthenticated) return null;
   if (!isInitialized) return null;
   if (!isAuthenticated) return <Navigate to="/auth/login" replace />;

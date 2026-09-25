@@ -89,6 +89,8 @@
     --sidebar-accent-foreground: oklch(0.218 0.008 223.9);
     --sidebar-border: oklch(0.925 0.005 214.3);
     --sidebar-ring: oklch(0.723 0.014 214.4);
+    --logo-teal-from: oklch(0.68 0.115 223.128);
+    --logo-teal-to: oklch(0.42 0.09 223.128);
   }
 
   .dark {
@@ -124,6 +126,8 @@
     --sidebar-accent-foreground: oklch(0.987 0.002 197.1);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.56 0.021 213.5);
+    --logo-teal-from: oklch(0.72 0.13 218);
+    --logo-teal-to: oklch(0.46 0.09 224);
   }
 
   * {

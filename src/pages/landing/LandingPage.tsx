@@ -1,22 +1,23 @@
-import { useState } from "react";
-import { Link } from "react-router";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router";
 import useAuth from "@/hooks/useAuth";
+import { BitacoryLogo } from "@/components/brand/BitacoryLogo";
 import {
+  Target,
   NotebookPen,
-  MessageCircle,
   Sparkles,
   AtSign,
   ArrowRight,
   ShieldCheck,
-  Brain,
   Calendar,
   ChevronDown,
   CheckCircle2,
   Lock,
-  HeartHandshake,
   Compass,
+  Clock,
+  TrendingUp,
+  Brain,
   Lightbulb,
-  BookOpen,
 } from "lucide-react";
 
 interface FAQItem {
@@ -26,34 +27,38 @@ interface FAQItem {
 
 const FAQ_LIST: FAQItem[] = [
   {
-    question: "¿Bitacory reemplaza a un psicólogo o profesional de la salud mental?",
+    question: "¿Cómo funciona la medición y el seguimiento de objetivos?",
     answer:
-      "No. Bitacory no es un sustituto de la terapia psicológica tradicional ni realiza diagnósticos clínicos. Es una herramienta de acompañamiento, registro y autoconocimiento diseñada para complementar tu proceso personal o terapéutico.",
+      "Podés crear metas categorizadas en Bienestar, Creatividad, Carrera o Salud Mental. Cada objetivo se desglosa en hitos medibles (milestones) que marcás a medida que avanzás, visualizando porcentajes de progreso y estadísticas para sostener la motivación sin agotamiento.",
   },
   {
-    question: "¿Mis notas y conversaciones son privadas y seguras?",
+    question: "¿Bitacory reemplaza a un profesional de la salud mental?",
     answer:
-      "Totalmente. La privacidad es el pilar fundamental de Bitacory. Tus notas, sesiones y datos están cifrados y únicamente vos podés acceder a ellos. No compartimos ni comercializamos tu información personal con terceros.",
+      "No. Bitacory no realiza diagnósticos clínicos ni reemplaza la terapia psicológica. Es una herramienta de acompañamiento, registro y autoconocimiento diseñada para complementar tu proceso personal o potenciar el trabajo que hacés con tu terapeuta.",
   },
   {
-    question: "¿Por qué el asistente de IA habla en español rioplatense?",
+    question: "¿Cómo se sincroniza con mis sesiones de terapia?",
     answer:
-      "Diseñamos el asistente con un tono cálido, empático y natural en español rioplatense para generar un ambiente cercano, libre de modismos artificiales y propicio para la introspección genuina.",
+      "Configurás el horario de tu sesión en tu perfil. Bitacory genera una plantilla de preparación 24 horas antes para que ordenes tus vivencias y temas clave, y otra 2 horas después para asentar los aprendizajes y acuerdos antes de que se diluyan en la rutina semanal.",
   },
   {
-    question: "¿Cómo funciona la preparación y reflexión de terapia?",
+    question: "¿Cómo me ayudan las notas a potenciar mi creatividad?",
     answer:
-      "Podés configurar el día y hora de tu sesión con el psicólogo. Bitacory te enviará una plantilla de preparación 24 horas antes para que ordenes los temas que querés hablar, y otra 2 horas después para asentar las conclusiones clave.",
+      "Escribir con regularidad actúa como un vaciado cognitivo: descarga la memoria de trabajo y disminuye los niveles de cortisol, liberando el espacio mental indispensable para conectar ideas y generar soluciones creativas.",
   },
   {
-    question: "¿Puedo usar Bitacory aunque actualmente no vaya al psicólogo?",
+    question: "¿Mis notas, metas y conversaciones son privadas y seguras?",
     answer:
-      "¡Por supuesto! Bitacory funciona de forma excelente como diario de gratitud, registro de emociones, desahogo y reflexión personal para cualquier persona interesada en el autoconocimiento.",
+      "Totalmente. La privacidad es nuestro compromiso fundamental. Tus datos están cifrados y únicamente vos podés acceder a ellos. Nunca comercializamos tu información ni la utilizamos para entrenar modelos públicos de inteligencia artificial.",
   },
 ];
 
+type ShowcaseTab = "goals" | "journal" | "companion";
+
 export const LandingPage = () => {
   const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState<ShowcaseTab>("goals");
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const ctaLink = isAuthenticated ? "/app/notes" : "/auth/login";
 
@@ -61,508 +66,607 @@ export const LandingPage = () => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
   };
 
+  useEffect(() => {
+    const hash = location.hash || window.location.hash;
+    if (hash) {
+      const timer = setTimeout(() => {
+        const target = document.querySelector(hash);
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [location.hash]);
+
   const handleScrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     if (href.startsWith("#")) {
       e.preventDefault();
       const target = document.querySelector(href);
       if (target) {
         target.scrollIntoView({ behavior: "smooth", block: "start" });
+        window.history.pushState(null, "", href);
       }
     }
   };
 
   return (
-    <div className="w-full flex flex-col items-center overflow-x-hidden">
+    <div className="w-full flex flex-col items-center overflow-x-hidden selection:bg-primary/20 selection:text-primary">
       {/* 1. HERO SECTION */}
-      <section className="relative w-full pt-12 pb-20 md:pt-20 md:pb-28 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto flex flex-col items-center text-center">
-        {/* Subtle Ambient Glows */}
+      <section
+        id="hero"
+        className="relative w-full pt-16 pb-20 md:pt-24 md:pb-28 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto flex flex-col items-center text-center"
+      >
+        {/* Subtle Ambient Glow */}
         <div
-          className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 sm:w-[500px] h-72 sm:h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none -z-10"
+          className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 sm:w-[580px] h-72 sm:h-[400px] bg-primary/10 rounded-full blur-3xl pointer-events-none -z-10"
           aria-hidden="true"
         />
 
-        {/* Eyebrow Pill */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-primary/25 bg-primary/5 text-primary text-xs sm:text-sm font-medium tracking-wide mb-6 shadow-xs animate-in fade-in duration-500">
-          <Sparkles className="h-3.5 w-3.5 text-primary" />
-          <span>Tu santuario personal de reflexión e IA</span>
-        </div>
-
         {/* Hero Title */}
-        <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight text-foreground leading-[1.18] max-w-4xl">
-          Un espacio seguro para escribir, conversar y{" "}
-          <span className="text-primary font-semibold">comprenderte mejor</span>.
+        <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight text-foreground leading-[1.18] max-w-4xl text-balance">
+          El espacio donde tus pensamientos se ordenan y{" "}
+          <span className="text-primary font-semibold">tus objetivos se alcanzan</span>.
         </h1>
 
         {/* Hero Subtitle */}
-        <p className="mt-6 text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl font-sans">
-          Combinamos la intimidad de un diario personal con el diálogo empático de una IA en español rioplatense y sincronización proactiva con tu terapia.
+        <p className="mt-6 text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl font-sans text-balance">
+          Bitacory une el poder de la escritura reflexiva con el seguimiento de metas, el diálogo inteligente y el acompañamiento terapéutico para desbloquear tu creatividad y alcanzar tu máximo potencial.
         </p>
 
         {/* Hero CTAs */}
         <div className="mt-8 flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto">
           <Link
             to={ctaLink}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:bg-primary/90 transition-all duration-200 shadow-sm hover:shadow-md active:scale-[0.98] group"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:bg-primary/90 transition-all duration-200 shadow-xs hover:shadow-sm active:scale-[0.98] group"
           >
-            <span>{isAuthenticated ? "Ir a mi diario" : "Empezar a escribir gratis"}</span>
+            <span>{isAuthenticated ? "Ir a notas" : "Empezar gratis hoy"}</span>
             <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
           </Link>
           <a
             href="#como-funciona"
             onClick={(e) => handleScrollTo(e, "#como-funciona")}
-            className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded-xl border border-border/80 bg-card/60 text-foreground font-medium text-base hover:bg-muted/50 hover:border-primary/30 transition-all duration-200"
+            className="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 rounded-xl border border-border bg-card text-foreground font-medium text-base hover:bg-muted/50 hover:border-primary/40 transition-all duration-200 cursor-pointer"
           >
-            Ver cómo funciona
+            Cómo funciona
           </a>
         </div>
 
-        {/* Reassurance pills */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
-            <span>Sin tarjeta requerida</span>
+        {/* Reassurance Trust Row */}
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-3.5 w-3.5 text-primary" />
+            <span>Medición de metas e hitos</span>
           </div>
-          <span className="text-border">•</span>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
+            <Brain className="h-3.5 w-3.5 text-primary" />
+            <span>Salud mental y wellness activo</span>
+          </div>
+          <div className="flex items-center gap-2">
             <Lock className="h-3.5 w-3.5 text-primary" />
             <span>Privacidad y cifrado total</span>
           </div>
-          <span className="text-border">•</span>
-          <div className="flex items-center gap-1.5">
-            <HeartHandshake className="h-3.5 w-3.5 text-primary" />
-            <span>Español cálido y cercano</span>
-          </div>
         </div>
 
-        {/* 2. HERO SHOWCASE MOCKUP */}
-        <div className="mt-14 w-full max-w-5xl rounded-2xl border border-border/70 bg-card/80 backdrop-blur-md shadow-md overflow-hidden text-left transition-all duration-300">
-          {/* Window Header */}
-          <div className="px-4 py-3 border-b border-border/60 bg-muted/30 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full bg-destructive/60" />
-              <div className="h-3 w-3 rounded-full bg-amber-500/60" />
-              <div className="h-3 w-3 rounded-full bg-emerald-500/60" />
+        {/* 2. LIVING PRODUCT SHOWCASE (HERO DEMO) */}
+        <div
+          id="experiencia"
+          className="mt-14 w-full max-w-5xl rounded-2xl border border-border/80 bg-card shadow-sm overflow-hidden text-left transition-all duration-300"
+        >
+          {/* Showcase Navigation Bar */}
+          <div className="px-4 py-3 border-b border-border/60 bg-muted/20 flex flex-col sm:flex-row items-center justify-between gap-3">
+            {/* Window controls and brand indicator */}
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div className="flex items-center gap-1.5" aria-hidden="true">
+                <div className="h-3 w-3 rounded-full bg-border" />
+                <div className="h-3 w-3 rounded-full bg-border" />
+                <div className="h-3 w-3 rounded-full bg-border" />
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono pl-2 border-l border-border/60">
+                <BitacoryLogo className="h-4 w-4" />
+                <span>bitacory.app</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-mono">
-              <BookOpen className="h-3.5 w-3.5 text-primary" />
-              <span>Bitacory • Sesión reflexiva</span>
+
+            {/* Interactive Tab Switcher */}
+            <div className="flex items-center p-1 rounded-lg bg-background border border-border/70 text-xs font-medium w-full sm:w-auto justify-center">
+              <button
+                type="button"
+                onClick={() => setActiveTab("goals")}
+                className={`px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                  activeTab === "goals"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                1. Medición de Objetivos
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("journal")}
+                className={`px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                  activeTab === "journal"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                2. Diario & Claridad Mental
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("companion")}
+                className={`px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                  activeTab === "companion"
+                    ? "bg-primary text-primary-foreground shadow-xs"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                3. Copiloto IA & Crecimiento
+              </button>
             </div>
-            <div className="w-12" />
           </div>
 
-          {/* Split Editor & Chat UI */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[380px]">
-            {/* Left: Journal Note */}
-            <div className="lg:col-span-6 p-6 border-b lg:border-b-0 lg:border-r border-border/50 bg-background/50 flex flex-col justify-between space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="font-mono">Jueves, 19:30 hs</span>
-                  <div className="flex gap-1.5">
+          {/* Tab 1: Medición de Objetivos */}
+          {activeTab === "goals" && (
+            <div className="p-6 sm:p-8 bg-card flex flex-col justify-between min-h-[380px] space-y-6 animate-in fade-in duration-300">
+              <div className="space-y-5 max-w-3xl">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2.5 py-0.5 rounded-md bg-primary/10 text-primary font-medium text-xs">
+                      Creatividad & Carrera
+                    </span>
+                    <span className="font-mono text-muted-foreground">Meta trimestral</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-primary font-semibold">
+                    <TrendingUp className="h-4 w-4" />
+                    <span>75% completado</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">
+                    Lanzar mi proyecto creativo independiente
+                  </h2>
+                  <p className="font-serif text-sm text-muted-foreground leading-relaxed">
+                    Objetivo diseñado para desbloquear mi potencial creador y construir una fuente de trabajo alineada con mis valores personales.
+                  </p>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                  <div className="bg-primary h-full rounded-full transition-all duration-500" style={{ width: "75%" }} />
+                </div>
+
+                {/* Milestones checklist */}
+                <div className="space-y-2 pt-1 font-sans text-sm">
+                  <div className="flex items-center gap-2.5 text-foreground/80">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                    <span className="line-through text-muted-foreground">Definir el propósito central y la propuesta de valor</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-foreground/80">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                    <span className="line-through text-muted-foreground">Estructurar el borrador inicial y validar ideas en notas</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-foreground/80">
+                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                    <span className="line-through text-muted-foreground">Establecer rutina de 45 minutos diarios de escritura enfocada</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 text-foreground font-medium">
+                    <div className="h-4 w-4 rounded-full border-2 border-primary shrink-0" />
+                    <span>Revisión final de contenidos y publicación oficial</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-border/40 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5 text-primary font-medium">
+                  <Target className="h-3.5 w-3.5" />
+                  3 de 4 hitos alcanzados
+                </span>
+                <span className="font-mono">Próxima meta semanal: viernes</span>
+              </div>
+            </div>
+          )}
+
+          {/* Tab 2: Diario & Claridad Mental */}
+          {activeTab === "journal" && (
+            <div className="p-6 sm:p-8 bg-card flex flex-col justify-between min-h-[380px] space-y-6 animate-in fade-in duration-300">
+              <div className="space-y-4 max-w-3xl">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+                  <span className="font-mono">Martes, 08:30 hs</span>
+                  <div className="flex items-center gap-1.5">
                     <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary font-medium text-[11px]">
-                      #terapia
+                      #claridad
                     </span>
                     <span className="px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-medium text-[11px]">
-                      #autoexigencia
+                      #creatividad
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-medium text-[11px]">
+                      #enfoque
                     </span>
                   </div>
                 </div>
-                <h3 className="font-heading text-xl font-semibold text-foreground">
-                  Reflexión post-sesión: Poner límites sin culpa
-                </h3>
-                <p className="font-serif text-sm text-foreground/80 leading-relaxed">
-                  Hoy en la sesión con Mati estuvimos viendo por qué me cuesta tanto decir que no cuando me piden favores en el trabajo. Siento que si no estoy disponible para todos, pierdo mi valor. Me dejó pensando una pregunta: ¿A quién estoy intentando complacer realmente?...
-                </p>
+
+                <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">
+                  Superar el perfeccionismo que frena mi avance
+                </h2>
+
+                <div className="font-serif text-base text-foreground/85 leading-relaxed space-y-3">
+                  <p>
+                    Esta mañana me di cuenta de cuánto tiempo pierdo puliendo detalles menores antes de animarme a dar el siguiente paso. El perfeccionismo suele ser una máscara del miedo a exponerme.
+                  </p>
+                  <p>
+                    Decidí cambiar la métrica: hoy el éxito no es que salga impecable, sino avanzar en el hito que tengo pendiente y tolerar la incomodidad de estar en proceso de aprendizaje.
+                  </p>
+                </div>
               </div>
 
-              <div className="pt-3 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground">
+              <div className="pt-4 border-t border-border/40 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
                 <span className="inline-flex items-center gap-1.5 text-primary font-medium">
                   <CheckCircle2 className="h-3.5 w-3.5" />
-                  Guardado en tu diario
+                  Guardado automático en tu diario
                 </span>
-                <span className="font-mono text-[11px]">342 palabras</span>
+                <div className="flex items-center gap-4 font-mono text-[11px]">
+                  <span>210 palabras</span>
+                  <span>Claridad mental: alta</span>
+                </div>
               </div>
             </div>
+          )}
 
-            {/* Right: AI Chat Companion */}
-            <div className="lg:col-span-6 p-6 bg-card/40 flex flex-col justify-between space-y-4">
-              <div className="space-y-3.5">
-                {/* User Message with Mention */}
+          {/* Tab 3: Copiloto IA & Crecimiento */}
+          {activeTab === "companion" && (
+            <div className="p-6 sm:p-8 bg-card flex flex-col justify-between min-h-[380px] space-y-6 animate-in fade-in duration-300">
+              <div className="space-y-4 max-w-3xl">
+                {/* User Message */}
                 <div className="flex justify-end">
-                  <div className="max-w-[85%] rounded-2xl rounded-tr-xs bg-primary text-primary-foreground px-4 py-2.5 text-sm shadow-xs">
+                  <div className="max-w-[90%] sm:max-w-[80%] rounded-2xl rounded-tr-xs bg-primary text-primary-foreground px-4 py-3 text-sm shadow-xs">
                     <p className="leading-relaxed font-sans">
-                      Estuve pensando en lo que escribí en{" "}
-                      <span className="bg-primary-foreground/20 text-primary-foreground px-1.5 py-0.5 rounded-md font-mono text-xs">
-                        @Poner límites
-                      </span>
-                      . ¿Cómo puedo empezar a practicarlo sin tanta angustia?
+                      Anoté en{" "}
+                      <span className="bg-primary-foreground/20 text-primary-foreground px-2 py-0.5 rounded-md font-mono text-xs font-semibold">
+                        @Superar el perfeccionismo
+                      </span>{" "}
+                      que me cuesta cerrar tareas por miedo al juicio. ¿Qué ejercicio concreto puedo aplicar para pasar a la acción hoy?
                     </p>
                   </div>
                 </div>
 
                 {/* AI Companion Response */}
-                <div className="flex items-start gap-2.5">
-                  <div className="h-7 w-7 rounded-lg bg-primary/15 text-primary border border-primary/25 flex items-center justify-center shrink-0 mt-0.5">
-                    <Sparkles className="h-3.5 w-3.5" />
+                <div className="flex items-start gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <BitacoryLogo className="h-5 w-5" />
                   </div>
-                  <div className="max-w-[88%] rounded-2xl rounded-tl-xs bg-muted/40 border border-border/50 px-4 py-3 text-sm text-foreground space-y-2">
+                  <div className="max-w-[92%] sm:max-w-[85%] rounded-2xl rounded-tl-xs bg-muted/40 border border-border/60 px-5 py-4 text-sm text-foreground space-y-2.5">
                     <p className="font-serif leading-relaxed text-sm text-foreground/90">
-                      Es un gran paso haberlo identificado. En tu nota mencionás que sentís que tu valor depende de estar disponible.
+                      Excelente toma de consciencia. Notar que el perfeccionismo encubre miedo a exponerte es el primer gran paso para desarticularlo.
                     </p>
                     <p className="font-serif leading-relaxed text-sm text-foreground/90">
-                      ¿Qué pasaría si esta semana elegís un límite pequeño? Por ejemplo, demorar 15 minutos en responder un mensaje no urgente y registrar qué sensaciones corporales aparecen.
+                      Te propongo la regla del "80% listo": elegí el hito que tenés frenado, trabajalo durante 30 minutos sin editarte y compartilo o dalo por cerrado en ese estado. Registrá después en una nota qué ocurrió con tu nivel de ansiedad.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Chat Input Mock */}
+              {/* Chat Composer Mock */}
               <div className="pt-2">
-                <div className="rounded-xl border border-border/60 bg-background/80 px-3.5 py-2.5 flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="italic">Escribí una reflexión o usá @ para vincular notas...</span>
-                  <div className="h-6 w-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
-                    <ArrowRight className="h-3 w-3" />
+                <div className="rounded-xl border border-border bg-background px-4 py-3 flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="italic">
+                    Conversá con tu copiloto o usá @ para vincular notas y objetivos...
+                  </span>
+                  <div className="h-7 w-7 rounded-lg bg-primary text-primary-foreground flex items-center justify-center">
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
-      {/* 3. VALUE PROPOSITION / EMPATHY SECTION */}
-      <section className="w-full py-16 border-y border-border/50 bg-muted/15 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto space-y-10">
-          <div className="text-center max-w-2xl mx-auto space-y-3">
-            <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-foreground tracking-tight">
-              El valor de poner en palabras lo que te pasa
-            </h2>
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-              Escribir es una de las formas más efectivas de procesar emociones y clarificar la mente. Bitacory potencia esa práctica dándote perspectiva y estructura.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl border border-border/60 bg-card space-y-3 hover:border-primary/30 transition-all duration-300">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <NotebookPen className="h-5 w-5" />
-              </div>
-              <h3 className="font-heading text-lg font-semibold text-foreground">
-                Desahogo sin juicios
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Un lienzo en blanco donde podés escribir exactamente lo que sentís, sin filtros ni expectativas sociales.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl border border-border/60 bg-card space-y-3 hover:border-primary/30 transition-all duration-300">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <Brain className="h-5 w-5" />
-              </div>
-              <h3 className="font-heading text-lg font-semibold text-foreground">
-                Preguntas que transforman
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Nuestra IA no te da órdenes ni consejos genéricos; te formula preguntas reflexivas para ayudarte a encontrar tus propias respuestas.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl border border-border/60 bg-card space-y-3 hover:border-primary/30 transition-all duration-300">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
-                <Compass className="h-5 w-5" />
-              </div>
-              <h3 className="font-heading text-lg font-semibold text-foreground">
-                Continuidad y evolución
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Tus reflexiones no quedan aisladas en un cajón. Podés conectar ideas del pasado con tu presente para notar tu progreso.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. CORE FEATURES SECTION */}
-      <section id="caracteristicas" className="w-full py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-14">
-        <div className="text-center max-w-2xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider">
-            Dos espacios, un propósito
-          </div>
-          <h2 className="font-heading text-3xl sm:text-4xl font-semibold text-foreground tracking-tight">
-            Todo lo que necesitás para tu bienestar mental
-          </h2>
-          <p className="text-base text-muted-foreground leading-relaxed">
-            Herramientas diseñadas con cuidado editorial y sensibilidad terapéutica para enriquecer tu rutina diaria.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Card 1: Notas */}
-          <div className="p-6 rounded-2xl border border-border/60 bg-card flex flex-col justify-between gap-4 hover:border-primary/40 hover:shadow-xs transition-all duration-300 group">
-            <div className="space-y-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center transition-transform group-hover:scale-105">
-                <NotebookPen className="h-5 w-5" />
-              </div>
-              <h3 className="font-heading text-lg font-semibold text-foreground">
-                Tus Notas & Diario Libre
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed font-sans">
-                Editor fluido con tipografía serif (Lora), etiquetado con tags y soporte de formato enriquecido. Tu refugio personal para escribir cuando quieras.
-              </p>
-            </div>
-            <div className="pt-2 text-xs font-medium text-primary flex items-center gap-1">
-              <span>Editor enriquecido</span>
-              <ArrowRight className="h-3 w-3" />
-            </div>
-          </div>
-
-          {/* Card 2: Sesiones */}
-          <div className="p-6 rounded-2xl border border-border/60 bg-card flex flex-col justify-between gap-4 hover:border-primary/40 hover:shadow-xs transition-all duration-300 group">
-            <div className="space-y-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center transition-transform group-hover:scale-105">
-                <MessageCircle className="h-5 w-5" />
-              </div>
-              <h3 className="font-heading text-lg font-semibold text-foreground">
-                Sesiones con IA Terapéutica
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed font-sans">
-                Diálogos profundos y empáticos en español rioplatense. Respuestas en tiempo real con streaming token a token y escucha activa sin prejuicios.
-              </p>
-            </div>
-            <div className="pt-2 text-xs font-medium text-primary flex items-center gap-1">
-              <span>Streaming en tiempo real</span>
-              <ArrowRight className="h-3 w-3" />
-            </div>
-          </div>
-
-          {/* Card 3: Menciones */}
-          <div className="p-6 rounded-2xl border border-border/60 bg-card flex flex-col justify-between gap-4 hover:border-primary/40 hover:shadow-xs transition-all duration-300 group">
-            <div className="space-y-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center transition-transform group-hover:scale-105">
-                <AtSign className="h-5 w-5" />
-              </div>
-              <h3 className="font-heading text-lg font-semibold text-foreground">
-                Conexión con @Menciones
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed font-sans">
-                Mencioná notas anteriores dentro del chat con un simple <code className="text-xs bg-muted px-1.5 py-0.5 rounded">@nota</code>. La IA leerá el contenido para darte reflexiones con contexto real.
-              </p>
-            </div>
-            <div className="pt-2 text-xs font-medium text-primary flex items-center gap-1">
-              <span>Contexto integrado</span>
-              <ArrowRight className="h-3 w-3" />
-            </div>
-          </div>
-
-          {/* Card 4: Terapia */}
-          <div className="p-6 rounded-2xl border border-border/60 bg-card flex flex-col justify-between gap-4 hover:border-primary/40 hover:shadow-xs transition-all duration-300 group">
-            <div className="space-y-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center transition-transform group-hover:scale-105">
-                <Calendar className="h-5 w-5" />
-              </div>
-              <h3 className="font-heading text-lg font-semibold text-foreground">
-                Acompañamiento Proactivo
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed font-sans">
-                Sincronizá el horario de tu terapia. Bitacory generará notas guía automáticas 24hs antes para preparar temas y 2hs después para afianzar aprendizajes.
-              </p>
-            </div>
-            <div className="pt-2 text-xs font-medium text-primary flex items-center gap-1">
-              <span>Automatización pre y post sesión</span>
-              <ArrowRight className="h-3 w-3" />
-            </div>
-          </div>
-
-          {/* Card 5: Insights */}
-          <div className="p-6 rounded-2xl border border-border/60 bg-card flex flex-col justify-between gap-4 hover:border-primary/40 hover:shadow-xs transition-all duration-300 group">
-            <div className="space-y-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center transition-transform group-hover:scale-105">
-                <Lightbulb className="h-5 w-5" />
-              </div>
-              <h3 className="font-heading text-lg font-semibold text-foreground">
-                Patrones e Insights
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed font-sans">
-                El sistema sintetiza resúmenes semánticos periódicos para ayudarte a reconocer patrones de conducta, detonantes de estrés y avances en tus metas.
-              </p>
-            </div>
-            <div className="pt-2 text-xs font-medium text-primary flex items-center gap-1">
-              <span>Memoria semántica RAG</span>
-              <ArrowRight className="h-3 w-3" />
-            </div>
-          </div>
-
-          {/* Card 6: Privacidad */}
-          <div className="p-6 rounded-2xl border border-border/60 bg-card flex flex-col justify-between gap-4 hover:border-primary/40 hover:shadow-xs transition-all duration-300 group">
-            <div className="space-y-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center transition-transform group-hover:scale-105">
-                <ShieldCheck className="h-5 w-5" />
-              </div>
-              <h3 className="font-heading text-lg font-semibold text-foreground">
-                Privacidad Absoluta
-              </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed font-sans">
-                Autenticación segura sin contraseñas engorrosas (Google o Magic Links por email). Tus datos no se usan para entrenar modelos públicos.
-              </p>
-            </div>
-            <div className="pt-2 text-xs font-medium text-primary flex items-center gap-1">
-              <span>Tus datos te pertenecen</span>
-              <ArrowRight className="h-3 w-3" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. STEP-BY-STEP WORKFLOW */}
-      <section id="como-funciona" className="w-full py-20 border-t border-border/50 bg-muted/20 px-4 sm:px-6 lg:px-8">
+      {/* 3. STEP-BY-STEP WORKFLOW */}
+      <section id="como-funciona" className="scroll-mt-20 w-full py-20 border-t border-border/50 bg-muted/20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto space-y-12">
           <div className="text-center max-w-xl mx-auto space-y-3">
             <h2 className="font-heading text-3xl sm:text-4xl font-semibold text-foreground tracking-tight">
-              Empezá en tres simples pasos
+              Un flujo diario para tu desarrollo personal
             </h2>
             <p className="text-base text-muted-foreground leading-relaxed">
-              No hay una manera obligatoria de usar Bitacory. Creá tu propio ritmo.
+              Tres pasos simples para cultivar tu salud mental y alcanzar tus metas.
             </p>
           </div>
 
-          <div className="space-y-6">
-            {/* Step 1 */}
-            <div className="flex flex-col sm:flex-row items-start gap-5 p-6 rounded-2xl border border-border/60 bg-card hover:border-primary/30 transition-all duration-300">
-              <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary font-mono text-lg font-bold flex items-center justify-center shrink-0">
-                01
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-heading text-xl font-semibold text-foreground">
-                  Escribí en tus notas
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed font-sans">
-                  Usá la sección de Notas como tu diario personal. Podés escribir sobre tu día a día, tus emociones, lo que hablaste en terapia, tus miedos o tus logros. Es tu espacio libre y sin juicios.
-                </p>
-              </div>
+          <div className="space-y-4">
+            <div className="p-6 sm:p-7 rounded-2xl border border-border/60 bg-card hover:border-primary/40 transition-all duration-200 space-y-2">
+              <h3 className="font-heading text-xl font-semibold text-foreground">
+                1. Clarificá tu mente a través de notas reflexivas
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed font-sans">
+                Escribí tus pensamientos, tensiones y descubrimientos diarios. Al volcarlo en palabras, reducís el cortisol y abrís espacio para la creatividad.
+              </p>
             </div>
 
-            {/* Step 2 */}
-            <div className="flex flex-col sm:flex-row items-start gap-5 p-6 rounded-2xl border border-border/60 bg-card hover:border-primary/30 transition-all duration-300">
-              <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary font-mono text-lg font-bold flex items-center justify-center shrink-0">
-                02
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-heading text-xl font-semibold text-foreground">
-                  Iniciá una sesión reflexiva
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed font-sans">
-                  Abrí una conversación cuando necesites ordenar tus pensamientos o desahogarte. La IA te acompañará haciéndote preguntas introspectivas y ayudándote a desenredar lo que sentís.
-                </p>
-              </div>
+            <div className="p-6 sm:p-7 rounded-2xl border border-border/60 bg-card hover:border-primary/40 transition-all duration-200 space-y-2">
+              <h3 className="font-heading text-xl font-semibold text-foreground">
+                2. Fijá objetivos e hitos accionables
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed font-sans">
+                Transformá tus anhelos en metas concretas. Dividilas en pasos medibles y hacé seguimiento de tu avance con estadísticas en tiempo real.
+              </p>
             </div>
 
-            {/* Step 3 */}
-            <div className="flex flex-col sm:flex-row items-start gap-5 p-6 rounded-2xl border border-border/60 bg-card hover:border-primary/30 transition-all duration-300">
-              <div className="h-11 w-11 rounded-xl bg-primary/10 text-primary font-mono text-lg font-bold flex items-center justify-center shrink-0">
-                03
-              </div>
-              <div className="space-y-1.5">
-                <h3 className="font-heading text-xl font-semibold text-foreground">
-                  Conectá todo con @menciones y descubrí patrones
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed font-sans">
-                  Escribí <code className="text-xs bg-muted px-1.5 py-0.5 rounded">@</code> en el chat para citar notas específicas. Con el tiempo, vas a empezar a notar que ciertas emociones o situaciones se repiten, facilitando cambios reales.
-                </p>
-              </div>
+            <div className="p-6 sm:p-7 rounded-2xl border border-border/60 bg-card hover:border-primary/40 transition-all duration-200 space-y-2">
+              <h3 className="font-heading text-xl font-semibold text-foreground">
+                3. Reflexioná con tu copiloto y acelerá tu avance
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed font-sans">
+                Usá el chat inteligente y la sincronización con terapia para conectar puntos ciegos, romper bloqueos y avanzar con solidez.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 6. THERAPY INTEGRATION FOCUS */}
-      <section id="terapia" className="w-full py-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-        <div className="rounded-3xl border border-border/70 bg-gradient-to-br from-card to-primary/5 p-8 sm:p-12 space-y-8">
+      {/* 4. CORE SOLUTION & CAPABILITIES */}
+      <section id="solucion" className="scroll-mt-20 w-full py-24 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-24">
+        {/* Intro */}
+        <div className="text-center max-w-2xl mx-auto space-y-4">
+          <h2 className="font-heading text-3xl sm:text-4xl font-semibold text-foreground tracking-tight">
+            Una solución integral para tu crecimiento interior
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-sans">
+            Herramientas diseñadas para que tus reflexiones se conviertan en metas tangibles y hábitos duraderos.
+          </p>
+        </div>
+
+        {/* Pillar 1: Metas y Objetivos */}
+        <div id="objetivos" className="scroll-mt-24 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <div className="lg:col-span-6 space-y-6 order-2 lg:order-1">
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 text-primary font-medium text-sm">
+                <Target className="h-4 w-4" />
+                <span>Gestión de Metas & Hábitos</span>
+              </div>
+              <h3 className="font-heading text-2xl sm:text-3xl font-semibold text-foreground">
+                Medí tu progreso sin quemarte en el intento
+              </h3>
+              <p className="font-serif text-base text-muted-foreground leading-relaxed">
+                Los objetivos abstractos generan frustración. En Bitacory definís tus metas personales por categorías y las descomponés en hitos manejables para avanzar con disfrute y constancia.
+              </p>
+            </div>
+
+            <ul className="space-y-3.5 text-sm text-muted-foreground">
+              <li className="flex items-start gap-3">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-foreground font-medium">Hitos progresivos:</strong> Marcá cada avance y celebrá logros intermedios para sostener la dopamina y la motivación.
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <TrendingUp className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-foreground font-medium">Métricas claras:</strong> Visualizá el estado de tus objetivos (en curso, completados o pausados) con porcentajes claros.
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Lightbulb className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-foreground font-medium">Sugerencia inteligente:</strong> La IA te sugiere próximos hitos cuando te sentís bloqueado en una meta específica.
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="lg:col-span-6 order-1 lg:order-2">
+            <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-border/40 text-xs">
+                <span className="font-semibold text-foreground">Objetivo en curso</span>
+                <span className="px-2 py-0.5 rounded bg-primary/10 text-primary font-mono font-medium">Salud Mental</span>
+              </div>
+              <h4 className="font-heading text-xl font-semibold text-foreground">
+                Construir una rutina matutina consciente
+              </h4>
+              <p className="font-serif text-sm text-muted-foreground leading-relaxed">
+                Priorizar 20 minutos de meditación y escritura reflexiva antes de revisar pantallas o notificaciones de trabajo.
+              </p>
+              <div className="space-y-2 pt-2 text-xs">
+                <div className="flex justify-between font-mono text-muted-foreground">
+                  <span>Progreso</span>
+                  <span className="text-primary font-semibold">66%</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
+                  <div className="bg-primary h-full rounded-full" style={{ width: "66%" }} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Pillar 2: Notas Inteligentes y Diálogo Reflexivo */}
+        <div id="notas" className="scroll-mt-24 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <div className="lg:col-span-6">
+            <div className="rounded-2xl border border-border/80 bg-card p-6 shadow-xs space-y-4">
+              <div className="flex items-center gap-2 pb-3 border-b border-border/40 text-xs text-muted-foreground">
+                <NotebookPen className="h-4 w-4 text-primary" />
+                <span className="font-medium text-foreground">Notas & Copiloto</span>
+              </div>
+              <div className="space-y-3">
+                <div className="rounded-xl bg-muted/30 p-4 font-serif text-sm text-foreground/85 leading-relaxed">
+                  "Siento que cuando me enfoco en lo que realmente quiero crear, la ansiedad disminuye. El desafío es no dejarme arrastrar por las urgencias de otros."
+                </div>
+                <div className="rounded-xl bg-primary/10 border border-primary/20 p-4 space-y-2">
+                  <div className="text-xs font-semibold text-primary">Respuesta reflexiva de la IA</div>
+                  <p className="font-serif text-sm text-foreground/90 leading-relaxed">
+                    ¿Qué límite puntual podés establecer mañana para proteger esa primera hora de tu energía creativa?
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="lg:col-span-6 space-y-6">
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 text-primary font-medium text-sm">
+                <Brain className="h-4 w-4" />
+                <span>Claridad Mental & Creatividad</span>
+              </div>
+              <h3 className="font-heading text-2xl sm:text-3xl font-semibold text-foreground">
+                Despejá el ruido mental para dar lugar a tus mejores ideas
+              </h3>
+              <p className="font-serif text-base text-muted-foreground leading-relaxed">
+                Escribir sin filtros te ayuda a procesar emociones complejas y liberar memoria de trabajo. El asistente con IA te devuelve preguntas estratégicas para que descubras nuevas soluciones.
+              </p>
+            </div>
+
+            <ul className="space-y-3.5 text-sm text-muted-foreground">
+              <li className="flex items-start gap-3">
+                <AtSign className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-foreground font-medium">Conexión con @menciones:</strong> Citá notas previas en tus conversaciones para explorar patrones de conducta y evaluar tu crecimiento.
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-foreground font-medium">Diálogo constructivo:</strong> Un compañero que no te juzga ni te satura con consejos vacíos, sino que te estimula a pensar con mayor profundidad.
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Compass className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                <span>
+                  <strong className="text-foreground font-medium">Memoria semántica:</strong> Identifica temas recurrentes en tus reflexiones para mostrarte cómo evoluciona tu bienestar a lo largo del tiempo.
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. THERAPY BRIDGE SECTION */}
+      <section id="terapia" className="scroll-mt-20 w-full py-24 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        <div className="rounded-3xl border border-border/80 bg-card p-8 sm:p-14 space-y-10 shadow-xs">
           <div className="max-w-2xl space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold">
+            <div className="inline-flex items-center gap-2 text-xs font-semibold text-primary bg-primary/10 px-3 py-1 rounded-full">
               <Calendar className="h-3.5 w-3.5" />
-              <span>Para pacientes en terapia</span>
+              <span>Acompañamiento Terapéutico</span>
             </div>
             <h2 className="font-heading text-3xl sm:text-4xl font-semibold text-foreground tracking-tight">
               Aprovechá al máximo cada sesión con tu psicólogo
             </h2>
             <p className="text-base text-muted-foreground leading-relaxed">
-              ¿Alguna vez te pasó de llegar a tu sesión de terapia y olvidarte de lo que querías hablar? Bitacory resuelve esto con proactividad inteligente.
+              La terapia es una de las inversiones más valiosas en tu crecimiento personal. Bitacory te ayuda a capitalizarla al 100% con preparación y reflexión automática.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-6 rounded-2xl border border-border/60 bg-background/80 space-y-3">
-              <div className="text-xs font-mono font-semibold text-primary uppercase tracking-wider">
-                24 horas antes
+            <div className="p-6 sm:p-8 rounded-2xl border border-border/60 bg-muted/20 space-y-4">
+              <div className="flex items-center gap-2 text-xs font-mono text-primary font-medium">
+                <Clock className="h-4 w-4" />
+                <span>Antes de la sesión</span>
               </div>
-              <h3 className="font-heading text-lg font-semibold text-foreground">
+              <h3 className="font-heading text-xl font-semibold text-foreground">
                 Preparación Pre-Sesión
               </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed font-sans">
-                Se crea automáticamente una plantilla en tus notas para que anotes qué eventos ocurrieron en la semana, qué emociones predominaron y qué tema puntual querés profundizar con tu terapeuta.
+              <p className="font-serif text-sm text-muted-foreground leading-relaxed">
+                Recibís una plantilla automática para ordenar qué eventos importantes ocurrieron, qué emociones experimentaste y qué objetivo puntual querés profundizar en la consulta.
               </p>
             </div>
 
-            <div className="p-6 rounded-2xl border border-border/60 bg-background/80 space-y-3">
-              <div className="text-xs font-mono font-semibold text-primary uppercase tracking-wider">
-                2 horas después
+            <div className="p-6 sm:p-8 rounded-2xl border border-border/60 bg-muted/20 space-y-4">
+              <div className="flex items-center gap-2 text-xs font-mono text-primary font-medium">
+                <Clock className="h-4 w-4" />
+                <span>Después de la sesión</span>
               </div>
-              <h3 className="font-heading text-lg font-semibold text-foreground">
+              <h3 className="font-heading text-xl font-semibold text-foreground">
                 Reflexión Post-Sesión
               </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed font-sans">
-                Genera un espacio para volcar los acuerdos, insights y sensaciones frescas que surgieron en el consultorio antes de que se diluyan en la rutina semanal.
+              <p className="font-serif text-sm text-muted-foreground leading-relaxed">
+                Un espacio guiado para asentar las revelaciones y acuerdos antes de que se diluyan en la rutina cotidiana, asegurando la continuidad de tus avances.
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* 6. FEATURED BLOG ARTICLE BANNER */}
+      <section id="blog-destacado" className="w-full py-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        <div className="rounded-3xl border border-primary/25 bg-gradient-to-r from-primary/5 via-card to-primary/10 p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="space-y-3 max-w-2xl">
+            <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+              Artículo destacado en el Blog
+            </span>
+            <h3 className="font-heading text-2xl sm:text-3xl font-semibold text-foreground">
+              La Pirámide de Maslow y el Quinto Nivel: El camino a la autorrealización
+            </h3>
+            <p className="font-serif text-sm sm:text-base text-muted-foreground leading-relaxed">
+              Exploramos cómo pasar de satisfacer carencias a construir tu mejor versión mediante la claridad mental, el seguimiento de objetivos y el autoconocimiento.
+            </p>
+          </div>
+
+          <Link
+            to="/blog/piramide-de-maslow-autorrealizacion"
+            className="shrink-0 inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-all shadow-xs"
+          >
+            <span>Leer artículo</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </section>
 
       {/* 7. FAQ ACCORDION */}
-      <section id="faq" className="w-full py-20 border-t border-border/50 bg-muted/15 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto space-y-10">
-          <div className="text-center space-y-3">
-            <h2 className="font-heading text-3xl sm:text-4xl font-semibold text-foreground tracking-tight">
-              Preguntas Frecuentes
-            </h2>
-            <p className="text-base text-muted-foreground leading-relaxed">
-              Todo lo que necesitás saber antes de comenzar.
-            </p>
-          </div>
+      <section id="faq" className="scroll-mt-20 w-full py-20 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto space-y-10">
+        <div className="text-center space-y-3">
+          <h2 className="font-heading text-3xl sm:text-4xl font-semibold text-foreground tracking-tight">
+            Preguntas Frecuentes
+          </h2>
+          <p className="text-base text-muted-foreground leading-relaxed">
+            Respuestas a las dudas más comunes sobre Bitacory.
+          </p>
+        </div>
 
-          <div className="space-y-3">
-            {FAQ_LIST.map((faq, idx) => {
-              const isOpen = openFaqIndex === idx;
-              return (
-                <div
-                  key={idx}
-                  className="rounded-2xl border border-border/60 bg-card overflow-hidden transition-all duration-200"
+        <div className="space-y-3">
+          {FAQ_LIST.map((faq, idx) => {
+            const isOpen = openFaqIndex === idx;
+            const contentId = `faq-content-${idx}`;
+            const headerId = `faq-header-${idx}`;
+            return (
+              <div
+                key={idx}
+                className="rounded-2xl border border-border/60 bg-card overflow-hidden transition-all duration-200"
+              >
+                <button
+                  id={headerId}
+                  type="button"
+                  aria-expanded={isOpen}
+                  aria-controls={contentId}
+                  onClick={() => toggleFaq(idx)}
+                  className="w-full px-6 py-4.5 text-left flex items-center justify-between gap-4 font-medium text-foreground hover:text-primary transition-colors cursor-pointer"
                 >
-                  <button
-                    onClick={() => toggleFaq(idx)}
-                    className="w-full px-6 py-4.5 text-left flex items-center justify-between gap-4 font-medium text-foreground hover:text-primary transition-colors cursor-pointer"
+                  <span className="font-heading text-base font-semibold">{faq.question}</span>
+                  <ChevronDown
+                    className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${
+                      isOpen ? "rotate-180 text-primary" : ""
+                    }`}
+                  />
+                </button>
+                {isOpen && (
+                  <div
+                    id={contentId}
+                    role="region"
+                    aria-labelledby={headerId}
+                    className="px-6 pb-5 pt-1 text-sm text-muted-foreground leading-relaxed font-sans border-t border-border/30 animate-in fade-in duration-200"
                   >
-                    <span className="font-heading text-base font-semibold">{faq.question}</span>
-                    <ChevronDown
-                      className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${
-                        isOpen ? "rotate-180 text-primary" : ""
-                      }`}
-                    />
-                  </button>
-                  {isOpen && (
-                    <div className="px-6 pb-5 pt-1 text-sm text-muted-foreground leading-relaxed font-sans border-t border-border/30 animate-in fade-in duration-200">
-                      {faq.answer}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                    {faq.answer}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
 
-      {/* 8. FINAL CTA SANCTUARY CARD */}
-      <section className="w-full py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-        <div className="rounded-3xl border border-primary/30 bg-primary/5 p-8 sm:p-14 text-center space-y-6 relative overflow-hidden shadow-xs">
+      {/* 8. CLOSING CALL TO ACTION */}
+      <section id="comenzar" className="scroll-mt-20 w-full py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+        <div className="rounded-3xl border border-border/80 bg-muted/20 p-8 sm:p-14 text-center space-y-6 relative overflow-hidden shadow-xs">
           <div
             className="absolute -bottom-24 -right-24 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none"
             aria-hidden="true"
@@ -572,27 +676,32 @@ export const LandingPage = () => {
             aria-hidden="true"
           />
 
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 mx-auto">
-            <BookOpen className="h-6 w-6" />
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 mx-auto">
+            <BitacoryLogo className="h-7 w-7" />
           </div>
 
           <div className="max-w-xl mx-auto space-y-3">
             <h2 className="font-heading text-3xl sm:text-4xl font-semibold text-foreground tracking-tight">
-              Tu historia merece un lugar donde ser escuchada
+              Tu potencial merece ser desplegado
             </h2>
             <p className="text-base text-muted-foreground leading-relaxed font-sans">
-              Empezá hoy a cultivar un hábito transformador de escritura y diálogo consciente. Sin juicios, a tu propio ritmo.
+              Comenzá hoy a medir tus objetivos, cultivar tu salud mental y construir la mejor versión de vos mismo.
             </p>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               to={ctaLink}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:bg-primary/90 transition-all duration-200 shadow-md hover:shadow-lg active:scale-[0.98] group"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-medium text-base hover:bg-primary/90 transition-all duration-200 shadow-xs hover:shadow-sm active:scale-[0.98] group"
             >
-              <span>{isAuthenticated ? "Ir a mi diario" : "Crear mi cuenta gratuita"}</span>
+              <span>{isAuthenticated ? "Ir a notas" : "Crear mi cuenta gratuita"}</span>
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
             </Link>
+          </div>
+
+          <div className="pt-2 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+            <span>Tus datos son 100% privados, cifrados y seguros.</span>
           </div>
         </div>
       </section>

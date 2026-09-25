@@ -119,13 +119,13 @@ export const AboutPage = () => {
             <FeatureCard
               icon={<NotebookPen className="h-5 w-5" />}
               title="Tus Notas"
-              description="Tu diario íntimo digital. Escribí lo que quieras, cuando quieras — reflexiones del día, lo que charlaste con tu psicólogo, pensamientos, emociones, metas. Es tu espacio libre y sin estructura."
+              description="Tu diario íntimo digital. Escribí lo que quieras, cuando quieras (reflexiones del día, lo que charlaste con tu psicólogo, pensamientos, emociones o metas). Es tu espacio libre y sin estructura."
               accent="text-primary"
             />
             <FeatureCard
               icon={<MessageCircle className="h-5 w-5" />}
               title="Sesiones con IA"
-              description="Conversaciones profundas con un compañero de IA en español rioplatense. Podés charlar sobre lo que estés viviendo, explorar ideas, o pedir perspectivas sobre tus reflexiones escritas."
+              description="Conversaciones profundas con un compañero de IA reflexivo y empático. Podés charlar sobre lo que estés viviendo, explorar ideas o pedir perspectivas sobre tus reflexiones escritas."
               accent="text-violet-600 dark:text-violet-400"
             />
             <FeatureCard
@@ -159,7 +159,7 @@ export const AboutPage = () => {
             <Step
               number="01"
               title="Escribí en tus notas"
-              description="Usá la sección de Notas como tu diario personal. Podés escribir sobre tu día, tus emociones, lo que hablaste en terapia, tus miedos, tus logros — cualquier cosa que quieras dejar escrita."
+              description="Usá la sección de Notas como tu diario personal. Podés escribir sobre tu día, tus emociones, lo que hablaste en terapia, tus miedos o tus logros, cualquier cosa que quieras dejar escrita."
             />
             <Step
               number="02"
